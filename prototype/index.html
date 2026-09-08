@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="7zhnlKC5Wa3LoSA9wVq9ij">
+<head data-page-node-id="ScBg5AxoX8EAqfSCo5bhbG">
+<meta charset="UTF-8" data-page-node-id="E1lWxFu5TY4jyJ40Ysm40u">
+<meta name="viewport" content="width=device-width,initial-scale=1" data-page-node-id="pxUaoojeJXVnD6laGPz1Vk">
+<title>同频跑 · 交互原型 v1.2</title>
+<style>
+:root{
+  --ink:#16192C; --ink2:#5B5F73; --muted:#9AA0B4; --line:#EDEEF3;
+  --bg:#F5F6FA; --card:#FFFFFF; --blue:#1B3AF2;
+  --rainbow:linear-gradient(90deg,#FF4D6D 0%,#FF9F1C 20%,#FFD166 40%,#06D6A0 60%,#4CC9F0 80%,#9B5DE5 100%);
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#EEF0F5;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif;padding:28px 0 60px;display:flex;flex-direction:column;align-items:center;gap:22px}
+.wrap{display:flex;gap:36px;align-items:flex-start;flex-wrap:wrap;justify-content:center}
+.phone{width:390px;height:844px;background:var(--bg);border-radius:44px;box-shadow:0 24px 60px rgba(22,25,44,.22),0 0 0 10px #23263A,0 0 0 11px #33374F;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.statusbar{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-size:13px;font-weight:600;flex:none}
+.statusbar .capsule{width:78px;height:28px;border:1px solid rgba(0,0,0,.12);border-radius:14px;display:flex;align-items:center;justify-content:center;gap:9px;background:rgba(255,255,255,.7)}
+.capsule i{width:4px;height:4px;background:#333;border-radius:50%}
+.capsule span{width:11px;height:11px;border:1.5px solid #333;border-radius:3px}
+.navbar{height:40px;display:flex;align-items:center;justify-content:center;position:relative;flex:none;font-size:15px;font-weight:600}
+.navbar.lightbg{background:#fff;border-bottom:1px solid var(--line)}
+.nav-back{position:absolute;left:14px;width:26px;height:26px;display:flex;align-items:center;justify-content:center}
+.scroll{flex:1;overflow-y:auto;padding-bottom:14px}
+.scroll::-webkit-scrollbar{width:0}
+.tabbar{height:58px;background:#fff;border-top:1px solid var(--line);display:flex;flex:none;padding-bottom:6px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;color:var(--muted);cursor:pointer}
+.tab.on{color:var(--ink)}
+.tab svg{stroke:var(--muted);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.tab.on svg{stroke:var(--ink)}
+.page{display:none}
+.page.show{display:block}
+.card{background:#fff;border-radius:var(--r);margin:10px 14px;padding:14px}
+.hero{background:var(--ink);color:#fff;margin:10px 14px;border-radius:18px;padding:18px 16px;position:relative;overflow:hidden}
+.hero h2{font-size:19px;font-weight:600;letter-spacing:.3px}
+.hero p{font-size:13px;color:rgba(255,255,255,.66);margin-top:6px}
+.hero .arcs{position:absolute;right:-30px;bottom:-46px;width:190px;height:190px;opacity:.85}
+.hero .num{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.5px;margin-top:12px}
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);text-align:center;padding:4px 6px}
+.statgrid b{display:block;font-size:17px;font-variant-numeric:tabular-nums;font-weight:600}
+.statgrid span{font-size:10px;color:var(--muted)}
+.secthead{display:flex;align-items:baseline;justify-content:space-between;margin:20px 16px 8px}
+.secthead h3{font-size:15px;font-weight:600}
+.secthead em{font-size:11px;color:var(--muted);font-style:normal}
+.avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:600;flex:none}
+.scroller{display:flex;gap:10px;overflow-x:auto;padding:2px 14px 4px}
+.scroller::-webkit-scrollbar{height:0}
+.friend{min-width:104px;background:#fff;border-radius:var(--r);padding:12px 10px;text-align:center;flex:none}
+.friend .nm{font-size:12px;font-weight:600;margin-top:7px}
+.friend .km{font-size:11px;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
+.mini{padding:5px 12px;border-radius:20px;border:1px solid var(--line);font-size:11px;background:#fff;margin-top:9px;cursor:pointer}
+.mini.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.sess{background:#fff;border-radius:var(--r);margin:0 14px 10px;padding:14px;display:flex;align-items:center;gap:12px}
+.sess .left{flex:1;min-width:0}
+.sess h4{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.sess p{font-size:11px;color:var(--muted);margin-top:5px;font-variant-numeric:tabular-nums}
+.badge{font-size:10px;padding:2px 6px;border-radius:5px;background:#EEF0F8;color:#46507A;font-weight:500}
+.badge.rb{background:var(--rainbow);color:#fff}
+.btn{padding:9px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:none;flex:none}
+.btn.dark{background:var(--ink);color:#fff}
+.btn.ghost{border:1px solid var(--line);background:#fff;color:var(--ink2)}
+.btn.rainbow{background:var(--rainbow);color:#fff;font-size:15px;padding:15px 0;flex:1}
+.fab{position:absolute;left:14px;right:14px;bottom:70px;display:flex;gap:10px;align-items:center;justify-content:center;padding:0 8px}
+.citybig{border-radius:18px;padding:16px;color:#fff;position:relative;overflow:hidden;background:linear-gradient(135deg,#2A2F52,#16192C)}
+.citybig .arcline{position:absolute;right:-20px;top:-30px;width:150px;height:150px;opacity:.9}
+.cities{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.citysm{border-radius:10px;padding:10px 6px;text-align:center;font-size:11px;background:#F0F1F6;color:var(--muted)}
+.citysm i{display:block;font-style:normal;font-size:14px;font-weight:600;color:#B9BCD0;margin-bottom:3px}
+.opt-row{display:flex;gap:8px;flex-wrap:wrap;margin:14px 14px 0}
+.chip{padding:7px 12px;border-radius:18px;border:1px solid var(--line);background:#fff;font-size:12px;color:var(--ink2);cursor:pointer}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.field{display:flex;align-items:center;gap:12px;padding:14px 2px;border-bottom:1px solid var(--line)}
+.field label{width:74px;font-size:13px;color:var(--ink2);flex:none}
+.field input,.field textarea{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;background:transparent;color:var(--ink);font-variant-numeric:tabular-nums}
+.field .unit{font-size:12px;color:var(--muted)}
+.pacebox{background:#F7F8FC;border-radius:12px;padding:12px 14px;margin-top:16px;display:flex;justify-content:space-between;align-items:center}
+.pacebox span{font-size:12px;color:var(--ink2)}
+.pacebox b{font-size:16px;font-variant-numeric:tabular-nums;font-weight:600}
+.bignum{font-size:38px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.5px;text-align:center}
+.subline{text-align:center;color:var(--muted);font-size:13px;margin-top:6px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;margin-top:22px}
+.row3 b{display:block;font-size:20px;font-variant-numeric:tabular-nums;font-weight:600}
+.row3 span{font-size:11px;color:var(--muted)}
+.post{background:#fff;border-radius:var(--r);margin:0 14px 10px;padding:14px}
+.phead{display:flex;gap:10px;align-items:center}
+.phead .nm{font-size:13px;font-weight:600}
+.phead .tm{font-size:11px;color:var(--muted);margin-top:2px}
+.ptext{font-size:13px;line-height:1.65;margin-top:10px}
+.datacard{margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;align-items:center;gap:14px}
+.datacard .dv{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+.datacard .dl{font-size:10px;color:var(--muted);margin-top:1px}
+.acts{display:flex;gap:22px;margin-top:12px;color:var(--muted);font-size:12px;align-items:center}
+.act{display:flex;align-items:center;gap:5px;cursor:pointer}
+.act.on{color:#E23E57}
+.invite{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px;display:flex;align-items:center;gap:10px}
+.invite .t{flex:1}
+.invite .t b{font-size:13px;display:block}
+.invite .t span{font-size:11px;color:var(--muted)}
+.profile{display:flex;gap:14px;align-items:center;padding:16px 14px}
+.profile .nm{font-size:18px;font-weight:600}
+.profile .lv{font-size:11px;color:#fff;background:var(--rainbow);padding:3px 9px;border-radius:20px;margin-top:7px;display:inline-block}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 14px}
+.tile{background:#fff;border-radius:var(--r);padding:14px 10px;text-align:center}
+.tile b{display:block;font-size:19px;font-variant-numeric:tabular-nums;font-weight:600}
+.tile span{font-size:11px;color:var(--muted)}
+.listrow{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-bottom:1px solid var(--line);font-size:13px;cursor:pointer}
+.listrow:last-child{border:none}
+.achv{display:flex;gap:10px;overflow-x:auto;padding:2px 14px}
+.achv::-webkit-scrollbar{height:0}
+.a{min-width:88px;background:#fff;border-radius:12px;padding:12px 8px;text-align:center;flex:none}
+.a .ic{width:34px;height:34px;border-radius:50%;margin:0 auto 7px;background:#F0F1F6;display:flex;align-items:center;justify-content:center}
+.a.un .ic{background:var(--rainbow)}
+.a b{font-size:11px;font-weight:500;color:var(--ink2)}
+.toast{position:absolute;left:50%;top:78px;transform:translateX(-50%) translateY(-14px);background:rgba(22,25,44,.92);color:#fff;font-size:12px;padding:10px 16px;border-radius:20px;opacity:0;transition:.25s;pointer-events:none;z-index:99;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.overlay{position:absolute;inset:0;background:var(--bg);z-index:60;display:none;flex-direction:column}
+.overlay.show{display:flex}
+.panel{flex:1;overflow-y:auto;padding-bottom:20px}
+.panel::-webkit-scrollbar{width:0}
+.note{max-width:340px;font-size:13px;line-height:1.85;color:#4A4E63}
+.note h3{font-size:15px;margin-bottom:10px;color:var(--ink)}
+.note ol{margin-left:16px}
+.note code{background:#fff;padding:1px 5px;border-radius:4px;font-size:12px}
+.legend{width:340px}
+.legend .grp{margin-bottom:14px}
+.legend .grp b{display:block;font-size:12px;margin-bottom:5px;color:var(--ink)}
+.legend .grp p{font-size:12px;color:var(--ink2);line-height:1.8}
+.searchbar{margin:10px 14px;padding:11px 14px;border-radius:22px;background:#fff;border:1px solid var(--line);color:var(--muted);font-size:13px;display:flex;align-items:center;gap:8px;cursor:pointer}
+.fab-btn{position:absolute;right:16px;bottom:74px;width:60px;height:60px;border-radius:30px;background:var(--ink);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;font-weight:500;box-shadow:0 10px 24px rgba(22,25,44,.3);cursor:pointer}
+.team{background:#fff;border-radius:var(--r);margin:0 14px 10px;padding:14px}
+.team h4{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.team p{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.7;font-variant-numeric:tabular-nums}
+.teamacts{display:flex;gap:8px;margin-top:12px}
+.qrcode{width:120px;height:120px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center}
+h1.demo{font-size:17px;color:var(--ink)}
+p.demo-sub{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body data-page-node-id="zTKuP5LfOEY6IbXGilakic">
+
+<h1 class="demo" data-page-node-id="CiJ4FIUyGfGOFF45Krdwto">同频跑 · 可点击原型 v1.2</h1>
+<p class="demo-sub" data-page-node-id="na117WuxD6NsCB2nmxZOM5">按 PRD v1.1 制作 ｜ 五 Tab ｜ 深圳单城 ｜ 数据口径均为「今天」，非实时</p>
+
+<div class="wrap" data-page-node-id="x12djc2sKixdHVXCdecWBe">
+  <div class="phone" data-page-node-id="X5g9UbpHvcE0eMqGtzdWQc">
+    <!-- status bar -->
+    <div class="statusbar" data-page-node-id="eajhHaomffWdCZ2U5xswcE"><span id="clock" data-page-node-id="St5WHQHGo1wUwykhoe1VYd">20:00</span><div class="capsule" data-page-node-id="65VaR1cEuMeuG0HVrTaeLm"><i data-page-node-id="oO7Bueao795BaGY9HSyLkc"></i><i data-page-node-id="PkTzseks4w41hEBCNtURFT"></i><span data-page-node-id="r0OGXPimIDcRvn3GgX4DLj"></span></div></div>
+
+    <!-- 发现 -->
+    <div class="page show" id="p-home" data-page-node-id="MSMnDN42Kqc6bZ5wnq1jlk">
+      <div class="navbar" data-page-node-id="kF73BGtmlMJi3z3gFKVBkh">
+        <div style="display:flex;align-items:center;gap:7px" data-page-node-id="lCIOGiKdjNiB38iaBhhdRp">
+          <svg width="18" height="18" viewBox="0 0 24 24" data-page-node-id="71MYu6XLZ9K3Qz9CAUsjjK"><defs data-page-node-id="XBpLu3lu46yshSCgrYi32G"><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1" data-page-node-id="Xub80uWBgEoB5AF3jpRPxO"><stop offset="0" stop-color="#FF4D6D" data-page-node-id="92zXUjZRpi4OgVxoR1bcbt"/><stop offset=".35" stop-color="#FFD166" data-page-node-id="mDPcTmJtCHbMDlANOoGV7X"/><stop offset=".7" stop-color="#06D6A0" data-page-node-id="txxRFrEgrMWbI56jtJuQp4"/><stop offset="1" stop-color="#9B5DE5" data-page-node-id="vuFUCCFxbOEsQwYM4nP8Jo"/></linearGradient></defs><path d="M6 20V6a2 2 0 0 1 2-2h5a4 4 0 0 0 0 8H8" stroke="url(#lg1)" fill="none" stroke-width="2.2" stroke-linecap="round" data-page-node-id="ZGFIagp9vhztB72ALFhFis"/></svg>
+          同频跑
+        </div>
+        <div style="position:absolute;right:96px" data-page-node-id="HGzxCelD6gfVtMo59c81ZG">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#16192C" stroke-width="1.6" stroke-linecap="round" data-page-node-id="pQWbDKeaETbd1bHaK6C8Ka"><path d="M18 15V10a6 6 0 0 0-4.5-5.8V3.5a1.5 1.5 0 0 0-3 0v.7A6 6 0 0 0 6 10v5l-1.6 2.2A1 1 0 0 0 5.2 19h13.6a1 1 0 0 0 .8-1.8L18 15Z" data-page-node-id="rg4vyuNSbdnXMOjgGPSWAS"/><path d="M10 19a2 2 0 0 0 4 0" data-page-node-id="kKJES00bpFcqFbZGSBJpLq"/></svg>
+        </div>
+      </div>
+      <div class="scroll" data-page-node-id="0nLnd9fLOrWTgB39CAbTyV">
+        <div class="hero" data-page-node-id="QH0IIhklDPDVdJc3Q21KbE">
+          <svg class="arcs" viewBox="0 0 200 200" data-page-node-id="pJ7y9AApHA1iCKmtQ5SOG6">
+            <circle cx="100" cy="100" r="94" fill="none" stroke="#FF4D6D" stroke-width="6" opacity=".5" data-page-node-id="4AWZ9XgeoOMBZP3zErcc48"/>
+            <circle cx="100" cy="100" r="78" fill="none" stroke="#FFD166" stroke-width="6" opacity=".45" data-page-node-id="DMrCE0ELFNB7LxODzJjkDw"/>
+            <circle cx="100" cy="100" r="62" fill="none" stroke="#06D6A0" stroke-width="6" opacity=".45" data-page-node-id="tWKfoi7aDHsbEQdjc6Jue9"/>
+            <circle cx="100" cy="100" r="46" fill="none" stroke="#4CC9F0" stroke-width="6" opacity=".5" data-page-node-id="zDAVEgQHEH48vWFM6DjK4f"/>
+          </svg>
+          <h2 data-page-node-id="srNd8X7pvuwWoYkjngUAJe">今晚，不止你一个人在跑。</h2>
+          <p data-page-node-id="Jm2VmB6zdwaRHttakICWRm">深圳 · 同城的跑友今天都在路上</p>
+          <div class="num" data-page-node-id="oEtxeVnmpHNwMrOrYuEM30">今天，已有 <span id="home-total" data-page-node-id="iplzfBBMZtmxOBDEhCj2az">128</span> 位跑友跑过</div>
+        </div>
+
+        <div class="card" data-page-node-id="sNTZEwo9Yrm443kznzBMbd"><div class="statgrid" data-page-node-id="knRECDIDWFmbPWo2CaZIY1">
+          <div data-page-node-id="6lHL1uZap52M1sApJG7Dna"><b data-page-node-id="YThPZUSIorFCGxFVQWTcfn">6.8</b><span data-page-node-id="BplZgKFRrT2hhb2Abs6cUO">今日跑量 KM</span></div>
+          <div data-page-node-id="UmjfqG4BhGkXKsw7tsJY0L"><b data-page-node-id="TvJpEbdZmpVpbzpYKcPTTh">128</b><span data-page-node-id="qE10z0MhFayySR2UF6GRFZ">今日完成</span></div>
+          <div data-page-node-id="fRuxBDl83QTP5fB58iNQgf"><b id="cheer-cnt" data-page-node-id="zpWCmwNLLCGKb70jEbafuG">56</b><span data-page-node-id="r4JzmMojIjNrlib7VXV8K1">今日收到鼓励</span></div>
+          <div data-page-node-id="G4K7gFQxMeldakFNLRq0dB"><b data-page-node-id="TppeWbM4BUL6ZLcttbhYJf">7</b><span data-page-node-id="ZXfWsRRQuoBTuiyweO05CC">连续打卡天</span></div>
+        </div></div>
+
+        <div class="secthead" data-page-node-id="yFCHqBXkkgNRSKjMKfT7Dr"><h3 data-page-node-id="tF4kmq9pgnX3u24b4Hnxhp">今天跑过的同城跑友</h3><em data-page-node-id="QXjmnJCqc62jJMb2VYCrYf">全部 · 深圳</em></div>
+        <div class="scroller" id="friend-list" data-page-node-id="RGg6in3scKQO1WkpCqdGLs"></div>
+
+        <div class="secthead" data-page-node-id="ZrA2FCJ6mESNXbbdcW1ECQ"><h3 data-page-node-id="Yh5993Psw6IeWhVYE7zh2t">今晚的场次</h3><em data-page-node-id="IOD1e30EtzBCLC2VBjBfjd">异步同行 · 各自开跑</em></div>
+        <div id="home-sessions" data-page-node-id="b3hhEEgtbs8ltBIVDnuWo0"></div>
+
+        <div class="secthead" data-page-node-id="NgnJmZ5ghbBKwYagaOsAlA"><h3 data-page-node-id="YYHJ5uk9R6xCEulNb1B9UR">正在被点亮的城市</h3><em data-page-node-id="Eff4uoovO91pizzNYsohMZ">每一次奔跑都在点亮一座城市</em></div>
+        <div style="margin:0 14px" data-page-node-id="k8fW1wYlNzePEmOjK55DUt">
+          <div class="citybig" onclick="toast('深圳：今天 128 人跑过 · 累计 1,204 KM')" data-page-node-id="J33aLaut5o8L8qN3dV5xes">
+            <svg class="arcline" viewBox="0 0 150 150" data-page-node-id="vg4ONMhXuaGGD2py0IH7qp">
+              <path d="M10 140 A 65 65 0 0 1 140 10" fill="none" stroke="#FF4D6D" stroke-width="5" stroke-linecap="round" opacity=".85" data-page-node-id="Ao0ZKAidX1wvGHwTlSNdRq"/>
+              <path d="M22 140 A 53 53 0 0 1 140 22" fill="none" stroke="#FFD166" stroke-width="5" stroke-linecap="round" opacity=".8" data-page-node-id="U9rxNVDD3Nn33wxv1p5xI8"/>
+              <path d="M34 140 A 41 41 0 0 1 140 34" fill="none" stroke="#06D6A0" stroke-width="5" stroke-linecap="round" opacity=".8" data-page-node-id="IJ0Vft1TrUBlF6IlOU7F9l"/>
+            </svg>
+            <div style="font-size:22px;font-weight:600" data-page-node-id="kKUhw7BgEtATqgpiIz4Pv5">深圳</div>
+            <div style="font-size:12px;opacity:.72;margin-top:5px;font-variant-numeric:tabular-nums" data-page-node-id="V9tlKDkADbUDtqquAC8h8g">今天 128 人跑过 · 累计 1,204 KM</div>
+            <div style="margin-top:14px;display:flex" data-page-node-id="4gFnSOrbeUwWYEH77vENEd">
+              <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#4CC9F0,#9B5DE5);border:2px solid #16192C" data-page-node-id="s1daErFqRFT7Je0wC7A6en"></div>
+              <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#FF9F1C,#FF4D6D);border:2px solid #16192C;margin-left:-8px" data-page-node-id="XBp62iMuACO8r2qDq4jiew"></div>
+              <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#06D6A0,#4CC9F0);border:2px solid #16192C;margin-left:-8px" data-page-node-id="HzxZe5ooGM5vM5eORRSq2d"></div>
+              <div style="font-size:11px;opacity:.7;margin-left:10px;align-self:center" data-page-node-id="QaSxTI7w8MqHFOYx44Q0wQ">今晚已有 23 人加入场次</div>
+            </div>
+          </div>
+          <div class="cities" id="city-grid" data-page-node-id="OlgZN0KRgwLlu63LFFlUzq"></div>
+        </div>
+        <div style="height:96px" data-page-node-id="ZyP6iTujBKWQrTSbeApHM0"></div>
+      </div>
+      <div class="fab" data-page-node-id="Z3iCGe3HhpWQkhsjdTqA7l"><button class="btn rainbow" onclick="go('run')" data-page-node-id="zexg0McmlVnTIYInZVoBoo">去打卡 / 加入今晚场</button></div>
+    </div>
+
+    <!-- 去跑 -->
+    <div class="page" id="p-run" data-page-node-id="2XifKh2BYHv7zxKpZf8epj">
+      <div class="navbar lightbg" data-page-node-id="MiVqiIiS3upehC4tafA4vo">去跑</div>
+      <div class="scroll" data-page-node-id="D1StQG5ulyazOF5kUtdJTY">
+        <div id="joined-banner" data-page-node-id="LdvrbUvzjxDg1Dv7zcuZmR"></div>
+        <div class="opt-row" id="sess-filter" data-page-node-id="Th2OAj3AVcDWPqkYmmhpq1"></div>
+        <div style="height:8px" data-page-node-id="PThNSxqr4q4WBzHNL9TboD"></div>
+        <div id="sess-list" data-page-node-id="qLy8GYpyxlf47IHuVyWkJA"></div>
+        <div style="height:100px" data-page-node-id="uoTrhOIxXd0xIbjEVdrLou"></div>
+      </div>
+      <div class="fab" data-page-node-id="hmOEj1NR7cTTzSFWbmZLNx"><button class="btn rainbow" onclick="toast('创建自定义场次：选择时间 / 距离 / 配速区间')" data-page-node-id="uf5dAGx9bX73PE9nvGmk2c">发起一场，邀请别人一起跑</button></div>
+    </div>
+
+    <!-- 跑友 -->
+    <div class="page" id="p-friends" data-page-node-id="mKwS6xPJFyQtlCGKZj5P1F">
+      <div class="navbar lightbg" data-page-node-id="kBeskr5hceRLAdITjSLZzo">跑友
+        <div style="position:absolute;right:104px" onclick="openSearch()">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#16192C" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+        </div>
+      </div>
+      <div class="scroll" data-page-node-id="eEdUX2tGKPhF7aADVtEtQX">
+        <div style="margin:10px 14px;padding:11px 14px;border-radius:22px;background:#fff;border:1px solid var(--line);color:var(--muted);font-size:13px;display:flex;align-items:center;gap:8px" data-page-node-id="DoHzcoYove8L5g9a4CYjch">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9AA0B4" stroke-width="1.8" data-page-node-id="FYiGxxyBVyACAvSvV9Fty9"><circle cx="11" cy="11" r="7" data-page-node-id="AATxfL1HfkXDkhNWZS9o9Y"/><path d="m20 20-3.6-3.6" data-page-node-id="lTgTHDBE2Wi9jR9CPvRvAR"/></svg>
+          搜索活动、跑友、队伍
+        </div>
+        <div class="opt-row" id="fr-filter" data-page-node-id="cG3FCYkCFvsqRZLbXJrCAe"></div>
+        <div class="fab-btn" onclick="openCreate()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          发起组队
+        </div>
+        <div class="secthead"><h3>附近的队伍</h3><em>同城 · 深圳</em></div>
+        <div id="team-list"></div>
+        <div class="secthead" data-page-node-id="BU0UdFG2xRrORe20DqfCpd"><h3 data-page-node-id="DsJvVhWRsBBTOUB8ooPPDL">推荐跑友</h3><em data-page-node-id="lPbN82JEtOXVjmfH2SkVX8">按跑步时段匹配</em></div>
+        <div id="friend-page-list" data-page-node-id="6AjroqS591hTw7IRctLxAW"></div>
+        <div style="height:20px" data-page-node-id="bPDIJetUluPyCanE1txP6D"></div>
+      </div>
+    </div>
+
+    <!-- 动态 -->
+    <div class="page" id="p-feed" data-page-node-id="Llp4qFzcQkGAmjoDy8E58x">
+      <div class="navbar lightbg" data-page-node-id="oBJ98pg7hE71Do3ajaEb83">动态</div>
+      <div class="scroll" data-page-node-id="aAYsxFCn05ojzOql1ShUeT">
+        <div class="opt-row" id="feed-filter" data-page-node-id="TweblDtC8xkfJmCnbzZ4dJ"></div>
+        <div id="feed-list" data-page-node-id="geblTPEBPF7zFdp3tW8wcf"></div>
+        <div style="height:20px" data-page-node-id="99cXyagDCdJcoemoCbFA7Z"></div>
+      </div>
+    </div>
+
+    <!-- 我的 -->
+    <div class="page" id="p-me" data-page-node-id="3SyZTfHmJsOqA3n2BKUl60">
+      <div class="navbar lightbg" data-page-node-id="ZkG6d1ORL9zM0ecE5gVMwr">我的</div>
+      <div class="scroll" data-page-node-id="awTXRqfAixJSNyTvTV7q9k">
+        <div class="profile" data-page-node-id="w7ZFATEjKGrQ4YxKwLSFPF">
+          <div class="avatar" style="width:58px;height:58px;background:linear-gradient(135deg,#FF9F1C,#FF4D6D);font-size:19px" data-page-node-id="uIxH9cl1WUqxk6SqxSFs6A">Z</div>
+          <div data-page-node-id="GccHYymOjGmxlHWTbIFqON">
+            <div class="nm" data-page-node-id="zmDVZj5Jn8za4afmhprKOY">阿哲</div>
+            <div class="lv" data-page-node-id="ism3ByuqxSldCBM7TakD0g">跑者等级 Lv.4 · 累计 38 次打卡</div>
+          </div>
+        </div>
+        <div class="tiles" data-page-node-id="t7m0WTBHqbG5tGPaiHvBwp">
+          <div class="tile" data-page-node-id="zj714NW9jEfjwCjCmEsDRm"><b data-page-node-id="8juEdZmnlE4u6sAC18H5p5">214.6</b><span data-page-node-id="gv7SMxUk4PRkEIl5QpJ8ng">累计距离 KM</span></div>
+          <div class="tile" data-page-node-id="tEVJSUmHow8zyevIcZu6b7"><b data-page-node-id="iHaTWAQBCLO6iPj65FY43C">38</b><span data-page-node-id="evHy1v5bakL7jznELjWRIf">累计次数</span></div>
+          <div class="tile" data-page-node-id="JPLxPPa4Bc9GlHIXwXi8FP"><b data-page-node-id="q58LDJmeapXEHtUI3vMH62">21.1</b><span data-page-node-id="fRH7kspM51KJtZmqGREdfT">最长单次 KM</span></div>
+        </div>
+        <div class="secthead" data-page-node-id="XGdUQG3GQAZXGH9INOuNJD"><h3 data-page-node-id="4FjAqPiDdxRLlN2oSx2Opy">我的城市足迹</h3><em data-page-node-id="LCTKPCMbVUMfe3xPA5XrbS">点亮的城市 1 座</em></div>
+        <div class="card" data-page-node-id="TgzPQaNjEeO2ClK1ZC3qhE">
+          <div style="display:flex;gap:10px;align-items:center" data-page-node-id="Gum0qUmlqTqnExgFlPwvq4">
+            <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#2A2F52,#16192C);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600" data-page-node-id="GoesGS7CbleKuAdbtObBxg">深</div>
+            <div style="flex:1" data-page-node-id="Fy949efEMH7v1PuCZlrFuT">
+              <div style="font-size:14px;font-weight:600" data-page-node-id="eM1QLpFPIvOrBuL8uB6Oo0">深圳</div>
+              <div style="font-size:11px;color:var(--muted)" data-page-node-id="77LvyPs6cCEqDnTGpVn3Tm">累计 214.6 KM · 点亮于 2026.08.12</div>
+            </div>
+            <span class="badge rb" data-page-node-id="1Vsz0M7r5AMLyRKrBhflU2">已点亮</span>
+          </div>
+        </div>
+        <div class="secthead" data-page-node-id="DdE87cUtYrHyZnInU1OzSk"><h3 data-page-node-id="r30RnJCpU778DlcsjdtUQv">成就</h3><em data-page-node-id="RIqg43HnqioDqQaEj8DKCo">解锁 3 / 5</em></div>
+        <div class="achv" data-page-node-id="w98YD8QeHkkqTA9pjLL8QI">
+          <div class="a un" data-page-node-id="kv9M3oV45ZqHbf0x88DqTE"><div class="ic" data-page-node-id="Go0xW74aIkJlhUIKdaBXEw"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" data-page-node-id="cVxeeZP8HBnJomrLkHYc8O"><circle cx="12" cy="12" r="8" data-page-node-id="KrmLeCPnT2gdOqMRlSSYWT"/><path d="M8 12h8" data-page-node-id="fjtFzDDpj46gbajpaln6dU"/></svg></div><b data-page-node-id="HTVTg3DPDGeYo5vFro3pDh">第一次打卡</b></div>
+          <div class="a un" data-page-node-id="e3Slb9w1UWtH126fYQ8WHK"><div class="ic" data-page-node-id="edqDIrdyjPO6NWbcK6BUr8"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" data-page-node-id="59FOgAbYRacjOtDC07eGtU"><path d="M12 3s4 4 4 8a4 4 0 0 1-8 0c0-4 4-8 4-8Z" data-page-node-id="AHrTmG6IRgVab3hHR9d8g9"/></svg></div><b data-page-node-id="ZiJ2XezC0RuVgjlF7TJpeC">连续跑 7 天</b></div>
+          <div class="a un" data-page-node-id="PX4RPTAT6OxXCDOscFaVly"><div class="ic" data-page-node-id="YIX3OY2WhTnY200JcO9YqB"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" data-page-node-id="RIiEo3Ix2HGS5MLPcsdr2q"><path d="M4 19h16" data-page-node-id="ERofSaNLcw7opL97t84WjJ"/><path d="M7 19V9l5-4 5 4v10" data-page-node-id="mFIlpnDHtcpx57DCzJotIo"/></svg></div><b data-page-node-id="RBchaVa0NHNyYiPyEgpHSi">点亮第一座城市</b></div>
+          <div class="a" data-page-node-id="RvIiq9srhTuPpBsyt6HfAq"><div class="ic" data-page-node-id="OFTqCrZrf1Xvj0AA9FDH8C"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9AA0B4" stroke-width="1.8" data-page-node-id="ExmFVrPYfiWtNO5IbHjanH"><circle cx="12" cy="12" r="8" data-page-node-id="cYvO5onUpVdc5XLJHAXMJs"/><path d="M12 8v8M8 12h8" data-page-node-id="XIxzTebTn1QBe51FRXB4N2"/></svg></div><b data-page-node-id="aJA6jtfspEALifN4DKjjXl">累计 100KM</b></div>
+          <div class="a" data-page-node-id="FQBPZtjYcXB1XMmlFFU1kC"><div class="ic" data-page-node-id="fSqpyQztQsMERgtfOq2Utw"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9AA0B4" stroke-width="1.8" data-page-node-id="aOAA1lr9wuMTPGrGifm4uD"><circle cx="12" cy="9" r="5" data-page-node-id="aBfEAHJ0xKpjAYNnyTtez9"/><path d="M8 13l-2 8 6-3 6 3-2-8" data-page-node-id="BZdtO3XMw4oDJrB7Oa2kiK"/></svg></div><b data-page-node-id="Vc4ZwhXorgH1uEtJNXDHxi">第一次半马</b></div>
+        </div>
+        <div class="secthead" data-page-node-id="ixb9SPyKIvsLvyCzUizoWC"><h3 data-page-node-id="T6t38vYeAwvQshZbMyk9oD">我的记录</h3></div>
+        <div class="card" style="padding:0" data-page-node-id="EDawOo5VRKi4fUhAdTXMBW">
+          <div class="listrow" onclick="toast('打开我的打卡记录列表')" data-page-node-id="DnUow7csjftY9vnmfKuxZS"><span data-page-node-id="srAEgDrS24nEFv4wCnSjY2">我的打卡记录</span><span style="color:var(--muted)" data-page-node-id="gTaAv66QU4hC3SGbPmsId2">38 条 ›</span></div>
+          <div class="listrow" onclick="toast('打开我加入过的场次')" data-page-node-id="3bexFa5VyvAEvw7gZguoWj"><span data-page-node-id="l2vE3ZqB3oTXfqes3kRX4Y">我的场次</span><span style="color:var(--muted)" data-page-node-id="qYX4zK5rvsso023JKtvIul">12 场 ›</span></div>
+          <div class="listrow" onclick="go('friends')" data-page-node-id="nfBVDTQi7er4PeKagYvC1v"><span data-page-node-id="plt7TYv0ionhWpvNaECKmm">我的跑友</span><span style="color:var(--muted)" data-page-node-id="JyyBxgLcazcCrFaw39dTFR">26 ›</span></div>
+          <div class="listrow" onclick="toast('打开设置与隐私（含授权管理）')" data-page-node-id="5LB8BbapWYqVFVwE8HlFu2"><span data-page-node-id="tcabgj1pHIGBo8sYd0s5fD">设置与隐私</span><span style="color:var(--muted)" data-page-node-id="t1AzethPvIBKAJE7uqjTsY">›</span></div>
+        </div>
+        <div style="height:20px" data-page-node-id="vJK6wVdnsg9tJ7Qpc6XCNx"></div>
+      </div>
+    </div>
+
+    <!-- overlays -->
+    <div class="overlay" id="ov-session" data-page-node-id="wrkL4YOzF9uYvHvZ1GUuGn">
+      <div class="statusbar" data-page-node-id="QZTs81mYOwvxovP6GnxdF5"><span data-page-node-id="xBPnz8FAvj0QT8A0lzVzAo">20:00</span><div class="capsule" data-page-node-id="BThTlIymjHf4lCHYjtKuEc"><i data-page-node-id="3KBqehp81d6zAzgaowoYtq"></i><i data-page-node-id="ZJNhd7V2DOXmXh5hyJRuAL"></i><span data-page-node-id="T60HR8CYlpBniUKsibh0kE"></span></div></div>
+      <div class="navbar lightbg" data-page-node-id="hmU2VqAYbyjOkDhylZxzgW"><div class="nav-back" onclick="closeOv('ov-session')" data-page-node-id="v7HnHNw0JTAZm5KZkivzyt"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16192C" stroke-width="1.8" stroke-linecap="round" data-page-node-id="kqWKcA0x7sbxV22NPkT6iP"><path d="M15 5l-7 7 7 7" data-page-node-id="GbuoX6JVdFm1K6zOhqdnJU"/></svg></div>场次详情</div>
+      <div class="panel" id="session-body" style="padding:14px" data-page-node-id="X5WCYIECrrXkCxEsXangmk"></div>
+    </div>
+
+    <div class="overlay" id="ov-checkin" data-page-node-id="n6xAQdhDCSShlGjFRqjFCx">
+      <div class="statusbar" data-page-node-id="JBxq2VTuJQXmL0G3dB7c1D"><span data-page-node-id="8T0thaHVSlxhDXI0djD9yO">20:00</span><div class="capsule" data-page-node-id="pqE2E5W0DcEXBxCxGBviYP"><i data-page-node-id="DSZ6WhIbDMxjztVH013NPU"></i><i data-page-node-id="by8ygEgecyVPklJLNK2QCt"></i><span data-page-node-id="NaPvNYrVcsCPMxjiLXQqfU"></span></div></div>
+      <div class="navbar lightbg" data-page-node-id="AHGLPSK0LbkeaVkCEhgBBf"><div class="nav-back" onclick="closeOv('ov-checkin')" data-page-node-id="zYDMoR7d8r8kjivIiCsPxo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16192C" stroke-width="1.8" stroke-linecap="round" data-page-node-id="hG4vQ3BUStyO4enJg90FPD"><path d="M15 5l-7 7 7 7" data-page-node-id="rWIjYf5PcmWDNUhqtskg7X"/></svg></div>跑完打卡</div>
+      <div class="panel" data-page-node-id="Fp96ROBdKGeTrXXwBPiHNY">
+        <div class="card" style="margin:14px" data-page-node-id="8IAPesFUMT9auJVVgCAw4m">
+          <div style="font-size:12px;color:var(--muted)" data-page-node-id="VCfeYX9gPzI8n9rAtPgu8B">所属场次</div>
+          <div style="font-size:14px;font-weight:600;margin-top:4px" id="ci-sess" data-page-node-id="Ed05RZPZyut0YCijnH0J8i">今晚 20:00 · 5KM 轻松跑</div>
+        </div>
+        <div style="margin:0 14px;background:#fff;border-radius:14px;padding:0 14px" data-page-node-id="O1qd1pG3WJLcfJI9WdCif6">
+          <div class="field" data-page-node-id="4TENrWmcnAwJpMkcvf3mzH"><label data-page-node-id="E6DjaLvKPXsgI1LLe39VIG">距离</label><input id="ci-km" type="number" step="0.01" placeholder="5.23" oninput="calcPace()" data-page-node-id="afku3vmhebvj9G960NueIj"><span class="unit" data-page-node-id="u9qw2WTi7s5TbftX54uFtm">KM</span></div>
+          <div class="field" data-page-node-id="HK2zA9vUn140KsA8CEalnU"><label data-page-node-id="wXZVIabAOc12kSDV431Mol">时长</label><input id="ci-dur" placeholder="29:31" oninput="calcPace()" data-page-node-id="D0DxPM5BO4JTC3Cwe2cMFU"><span class="unit" data-page-node-id="MqizgBGEHNmbbpHsiHtWVF">分:秒</span></div>
+          <div class="field" style="border:none" data-page-node-id="iMaPwgD2nT2T8L8n4ZD2Er"><label data-page-node-id="TZMFEY5fplEpoKIKkF9IRu">截图</label><span style="flex:1;font-size:13px;color:var(--muted)" id="ci-shot" data-page-node-id="9ikTezdh0HmjTu8Uq7j06h">选填 · 上传跑步 App 截图存证</span><span class="mini" onclick="pickShot()" data-page-node-id="K0YhxFvDtxegfRJZS02pmX">上传</span></div>
+        </div>
+        <div class="pacebox" style="margin:14px" data-page-node-id="7pAti2t9BGIUEDEywiReFQ"><span data-page-node-id="Tg5r2fLBI4kcoOSmDFiapx">自动配速</span><b id="ci-pace" data-page-node-id="zLhPkn8hczGJNIqqc8aqBD">—’—”/KM</b></div>
+        <div style="margin:0 14px;background:#fff;border-radius:14px;padding:12px 14px" data-page-node-id="VYGP24f1Y22sGAuXw4fxBn">
+          <textarea id="ci-note" rows="2" style="width:100%;border:none;outline:none;font-size:13px;line-height:1.7;resize:none;font-family:inherit" placeholder="说点今天的感受…（选填）"></textarea>
+        </div>
+        <div style="margin:14px;display:flex;gap:10px" data-page-node-id="9NBpGJpICEOxRVikHof1jo">
+          <button class="btn ghost" style="flex:1;padding:15px 0" onclick="fillDemo()" data-page-node-id="M6GOf6NaHAahnU0W8viWbO">填入示例数据</button>
+          <button class="btn rainbow" onclick="submitCheckin()" data-page-node-id="eh8pA2sI4gVoeM5WBzQgiA">发布这次奔跑</button>
+        </div>
+        <div style="text-align:center;font-size:11px;color:var(--muted)" data-page-node-id="b387E1JJf3RDcTIEdggbC3">数据可编辑补录 · 排行榜只按累计次数，不做配速排名</div>
+      </div>
+    </div>
+
+    <div class="overlay" id="ov-success" data-page-node-id="lAxgY8ZIiIE8dUdV5U0KKf">
+      <div class="panel" style="display:flex;flex-direction:column;justify-content:center;padding:0 26px" data-page-node-id="XcP2sfjgVopcUaw3cQt42H">
+        <svg width="46" height="46" viewBox="0 0 60 60" style="margin:0 auto" data-page-node-id="8fGN5zWt5zloYqf5lSKECH"><path d="M8 52 A 26 26 0 0 1 52 8" fill="none" stroke="#FF4D6D" stroke-width="5" stroke-linecap="round" data-page-node-id="XxGvvjNwUn8qamae1oiAvQ"/><path d="M8 52 A 26 26 0 0 0 52 8" fill="none" stroke="#06D6A0" stroke-width="5" stroke-linecap="round" opacity=".5" data-page-node-id="q4mSbN9Ve40Tn7xOegfrKQ"/></svg>
+        <div style="text-align:center;font-size:19px;font-weight:600;margin-top:26px" data-page-node-id="NkyRW858PXodZA4Yebkhoz">今天，你又向前了一点。</div>
+        <div class="bignum" id="su-km" style="margin-top:26px" data-page-node-id="5jCqrS0Hgskhlbz6wH3MJp">5.23</div>
+        <div class="subline" data-page-node-id="fjH407CUJAsgdFYA8wjGus">公里</div>
+        <div class="row3" data-page-node-id="rUJuy27WiAhvzwGDptjk2B">
+          <div data-page-node-id="WmirLmMzKqWqnlYnH7Q5Cr"><b id="su-dur" data-page-node-id="VvrWDLDtz3QKacHL0CSEbJ">29:31</b><span data-page-node-id="XGgVgNgVRtMXpUCX9KYSUC">用时</span></div>
+          <div data-page-node-id="6JwKSLDx42Cb0jAAZYeGrB"><b id="su-pace" data-page-node-id="s4dlGlpf6EXWy2KAie2DBI">5'38"</b><span data-page-node-id="Cj0MwJseGdrDcSzcEeDtqA">平均配速</span></div>
+          <div data-page-node-id="EAoxigckDoAfDFOHdqIgEd"><b data-page-node-id="tpv3FEuaPaptCo8WCfNYOQ">39</b><span data-page-node-id="oXYeGS19PeCj5P3Q8F0BJn">累计次数</span></div>
+        </div>
+        <div class="card" style="margin-top:26px;text-align:center" data-page-node-id="AYWS6L5zRiYYf3BqRYKTIi">
+          <div style="font-size:13px;font-weight:600" data-page-node-id="8qM4bQ7OmGY9bhGMdQKs1s">今天与你同场奔跑的还有 7 位跑友</div>
+          <div style="display:flex;justify-content:center;margin-top:12px" data-page-node-id="azfaIb6GTDeJ77U9fGSC68">
+            <div class="avatar" style="width:34px;height:34px;font-size:12px;background:linear-gradient(135deg,#4CC9F0,#9B5DE5)" data-page-node-id="BYiixG8yf4HzKEUOyvEg61">L</div>
+            <div class="avatar" style="width:34px;height:34px;font-size:12px;background:linear-gradient(135deg,#FF9F1C,#FF4D6D);margin-left:-8px" data-page-node-id="QKeXwgKTzsRQ4xyqdnfQ3v">Y</div>
+            <div class="avatar" style="width:34px;height:34px;font-size:12px;background:linear-gradient(135deg,#06D6A0,#4CC9F0);margin-left:-8px" data-page-node-id="3Z4A8niLv3VDRpWC9s5cAj">M</div>
+            <div class="avatar" style="width:34px;height:34px;font-size:12px;background:linear-gradient(135deg,#FFD166,#FF9F1C);margin-left:-8px" data-page-node-id="3WJ6pSQQQFT1brfE2VkXyq">C</div>
+            <div class="avatar" style="width:34px;height:34px;font-size:12px;background:linear-gradient(135deg,#9B5DE5,#FF4D6D);margin-left:-8px" data-page-node-id="YcDqzUFFzUPf0dmKyYsPPQ">K</div>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:10px" data-page-node-id="FpWiqQmNNwyCWiUABHGdqj">其中 3 人已完成打卡</div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:22px" data-page-node-id="k3yNEsfwxfFlGk1pBOS5k1">
+          <button class="btn dark" style="flex:1;padding:15px 0" onclick="toast('生成分享卡片：含本次数据 + 同场人数')" data-page-node-id="PSSPiwrU4BKAWDoRoNxwDX">分享这次奔跑</button>
+          <button class="btn ghost" style="flex:1;padding:15px 0" onclick="finishCheckin()" data-page-node-id="OLs0aI5PWB4gyppt80KoMn">返回首页</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay" id="ov-search">
+      <div class="statusbar"><span>20:00</span><div class="capsule"><i></i><i></i><span></span></div></div>
+      <div class="navbar lightbg"><div class="nav-back" onclick="closeOv('ov-search')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16192C" stroke-width="1.8" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></div>
+        <div style="display:flex;align-items:center;gap:7px;border:none;flex:1;margin:0 46px 0 40px">
+          <input id="search-input" placeholder="搜索活动、跑友、队伍" oninput="renderSearch()" style="border:none;outline:none;font-size:13px;font-family:inherit;width:100%">
+        </div>
+      </div>
+      <div class="panel">
+        <div class="opt-row" id="search-tabs"></div>
+        <div id="search-result"></div>
+      </div>
+    </div>
+
+    <div class="overlay" id="ov-create">
+      <div class="statusbar"><span>20:00</span><div class="capsule"><i></i><i></i><span></span></div></div>
+      <div class="navbar lightbg"><div class="nav-back" onclick="closeOv('ov-create')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16192C" stroke-width="1.8" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></div>发起组队</div>
+      <div class="panel">
+        <div style="margin:14px;background:#fff;border-radius:14px;padding:0 14px">
+          <div class="field"><label>队伍名</label><input id="te-name" placeholder="例如：深圳湾日出跑团"></div>
+          <div class="field"><label>常跑距离</label><input id="te-km" placeholder="5–10 KM"></div>
+          <div class="field" style="border:none"><label>跑步时段</label><input id="te-time" placeholder="每周三 / 六 早 6:30"></div>
+        </div>
+        <div style="margin:14px;background:#fff;border-radius:14px;padding:0 14px">
+          <div class="field"><label>可见范围</label><span style="flex:1;font-size:13px;color:var(--ink2)">同城公开，任何人可申请加入</span></div>
+          <div class="field" style="border:none"><label>入队方式</label><span style="flex:1;font-size:13px;color:var(--ink2)">自由加入（队长可改为审核制）</span></div>
+        </div>
+        <div style="margin:14px"><button class="btn rainbow" onclick="createTeam()">创建队伍</button></div>
+        <div style="text-align:center;font-size:11px;color:var(--muted)">创建后自动生成带参数的队伍太阳码，可分享到微信群</div>
+      </div>
+    </div>
+
+    <div class="overlay" id="ov-invite">
+      <div class="panel" style="padding:26px 20px;display:flex;flex-direction:column;justify-content:center">
+        <div style="font-size:16px;font-weight:600;text-align:center">邀请跑友一起跑</div>
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <div id="iv-out" onclick="ivMode='out';renderInvite()" style="flex:1;text-align:center;padding:9px 0;border-radius:10px;font-size:12px;cursor:pointer">对外分享卡片</div>
+          <div id="iv-in" onclick="ivMode='in';renderInvite()" style="flex:1;text-align:center;padding:9px 0;border-radius:10px;font-size:12px;cursor:pointer">站内邀请页</div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:8px">切换对比：外层中性 / 内层专属</div>
+        <div style="margin-top:14px;background:#fff;border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center">
+          <div id="iv-icon" style="width:44px;height:44px;border-radius:10px"></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:600" id="iv-title">今晚 20:00 · 深圳 · 一起跑 5KM</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px" id="iv-sub">已有 8 人加入</div>
+          </div>
+        </div>
+        <div id="iv-note" style="margin-top:10px;font-size:11px;line-height:1.5;padding:9px 11px;border-radius:10px"></div>
+        <div class="qrcode" style="margin-top:14px">
+          <svg width="96" height="96" viewBox="0 0 96 96" fill="#16192C"><rect x="4" y="4" width="20" height="20" rx="4"/><rect x="72" y="4" width="20" height="20" rx="4"/><rect x="4" y="72" width="20" height="20" rx="4"/><rect x="10" y="10" width="8" height="8" fill="#fff"/><rect x="78" y="10" width="8" height="8" fill="#fff"/><rect x="10" y="78" width="8" height="8" fill="#fff"/><rect x="32" y="4" width="6" height="6"/><rect x="44" y="4" width="6" height="6"/><rect x="58" y="10" width="6" height="6"/><rect x="32" y="18" width="6" height="6"/><rect x="52" y="18" width="6" height="6"/><rect x="4" y="40" width="6" height="6"/><rect x="18" y="52" width="6" height="6"/><rect x="32" y="40" width="6" height="6"/><rect x="44" y="32" width="6" height="6"/><rect x="60" y="44" width="6" height="6"/><rect x="72" y="32" width="6" height="6"/><rect x="82" y="52" width="6" height="6"/><rect x="52" y="60" width="6" height="6"/><rect x="66" y="72" width="6" height="6"/><rect x="80" y="80" width="6" height="6"/><rect x="34" y="76" width="6" height="6"/><rect x="46" y="88" width="6" height="6"/></svg>
+        </div>
+        <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:12px">太阳码自带队伍参数，扫码直达队伍页</div>
+        <button class="btn dark" style="margin-top:18px;padding:15px 0" onclick="toast('分享卡片为中性内容：不含品牌名与彩虹元素')">分享到微信 / 微信群</button>
+        <button class="btn ghost" style="margin-top:10px;padding:15px 0" onclick="toast('太阳码已保存到相册，可自行发给朋友')">保存太阳码到相册</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" data-page-node-id="vkYTU7O8z5lu5WQRuDBIwU"></div>
+
+    <div class="tabbar" id="tabbar" data-page-node-id="G3Fr9l5ZDeDEXIbnK2wfCZ"></div>
+  </div>
+
+  <div class="legend" data-page-node-id="kXsi3HhOS8e7HZ7bc0rLMV">
+    <div class="note" data-page-node-id="xPGUJd8J5giSLmCC27lvD6">
+      <h3 data-page-node-id="5MiVr0C2tDOQUuPfUL7A1F">可交互的部分</h3>
+      <ol data-page-node-id="4gh5oWcXA1PVKfw7kfBU5T">
+        <li data-page-node-id="KkvUPHBDaducl6adFE2kvV"><b data-page-node-id="D3DKIBT7NjSS5LIZHjpVz3">五个 Tab</b>：发现 / 去跑 / 跑友 / 动态 / 我的，可自由切换</li>
+        <li data-page-node-id="78eBG4XtFz75Aqoqgr7fa5"><b data-page-node-id="0LqNfIa8eBiMFPzzeiBy0T">核心链路</b>：发现 → 加入今晚场 → 去跑页出现"已加入"状态卡 → 跑完打卡 → 填数据生成配速 → 成功页（你的主链路）</li>
+        <li data-page-node-id="sohnkcDmAkcIwzqGUKbpjP"><b data-page-node-id="lh31RjiCgC0P0yfiOMAQoC">状态联动</b>：加入场次后，首页和去跑页的按钮会同步变成"已加入"</li>
+        <li data-page-node-id="BVzTaN1w7xlKQKAOXxztKK"><b data-page-node-id="zU6xvXzCvNrZOSyvQ2NE9N">反馈类</b>：给跑友加油、动态的「鼓励」计数、筛选 chips、城市卡片提示</li>
+        <li><b>跑友页四个入口</b>：右上角／搜索栏 <b>搜索</b>（活动/跑友/队伍三档切换）→ 右下角＋<b>发起组队</b> → 队伍卡上的 <b>加入队伍</b> → <b>邀请</b>（分享卡片 + 带参太阳码）</li>
+        <li><b>打卡 OCR</b>：打卡页点「上传」会模拟 OCR 识别，自动回填距离和时长</li>
+        <li><b>双层表达（新）</b>：跑友页 → 队伍卡「邀请」→ 顶部切换 <b>对外分享卡片 / 站内邀请页</b>，对比外层中性与内层专属</li>
+      </ol>
+      <p style="margin-top:10px;font-size:12px;color:#5F5E5A;background:#F7F8FA;padding:10px 12px;border-radius:10px;line-height:1.6"><b>隐私约定</b>：全站头像均为按 openid 生成的彩虹几何头像，<b>不拉取微信真实头像与昵称</b>；所有数据口径为「今天/累计」，无实时定位。这两条是「专属社区」定位下的强制设计，见 PRD 第 9 章。</p>
+      <p style="margin-top:12px;font-size:12px;color:#9AA0B4" data-page-node-id="Xu8Du78qbrX8EgYbWny4Ik">数据全部为 mock，但口径与 PRD 一致：所有数字都是「今天/累计」，没有任何实时定位或实时在线状态——这正是纯小程序方案能做到的边界。</p>
+    </div>
+  </div>
+</div>
+
+<script>
+var TABS=[
+ {id:'home',n:'发现',i:'<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.5 4.5-4.5 2.5 2.5-4.5z"/>'},
+ {id:'run',n:'去跑',i:'<circle cx="14.5" cy="4.6" r="2.1"/><path d="M13 7.6 9.6 12l3.2 1.6M15.8 8.2l2.6 3-3.2 1.6M12.8 13.6 11 18.4M11 18.4 9.4 21.4M13.2 13.6l2 3.6 2.2 2.6"/>'},
+ {id:'friends',n:'跑友',i:'<circle cx="9" cy="8.5" r="2.6"/><path d="M4 20c0-3.2 2.3-5.4 5-5.4s5 2.2 5 5.4"/><circle cx="17.4" cy="9.6" r="2"/><path d="M16 19.6c0-2.6 1-4.4 2.4-5.4 1.2.9 2.2 2.7 2.2 5.2"/>'},
+ {id:'feed',n:'动态',i:'<path d="M4 5.5h16v10.5H9.5L4 20z"/><path d="M8 9h8M8 12.5h5"/>'},
+ {id:'me',n:'我的',i:'<circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/>'}
+];
+var AV=[['#4CC9F0','#9B5DE5'],['#FF9F1C','#FF4D6D'],['#06D6A0','#4CC9F0'],['#FFD166','#FF9F1C'],['#9B5DE5','#FF4D6D'],['#1B3AF2','#4CC9F0']];
+function av(n,i,sz){var c=AV[i%6];return '<div class="avatar" style="width:'+sz+'px;height:'+sz+'px;font-size:'+Math.round(sz*0.36)+'px;background:linear-gradient(135deg,'+c[0]+','+c[1]+')">'+n+'</div>';}
+
+var SESSIONS=[
+ {id:1,official:true,t:'同频跑之夜 · 5KM 轻松跑',time:'今晚 20:00',km:'5 KM',pace:"5'30\"–6'30\"",join:23,done:9,host:'官方'},
+ {id:2,official:false,t:'滨海大道 · 10KM 慢摇',time:'今晚 21:00',km:'10 KM',pace:"6'00\"–7'00\"",join:8,done:2,host:'老陈'},
+ {id:3,official:false,t:'莲花山晨跑 · 热身 3KM',time:'明早 06:30',km:'3 KM',pace:"5'00\"–5'45\"",join:5,done:0,host:'Yuki'}
+];
+var FRIENDS=[
+ {n:'Leo',i:'L',km:6.4,tag:'常跑 5KM · 本周 4 次',time:'晚间跑'},
+ {n:'Yuki',i:'Y',km:8.1,tag:'常跑 8KM · 本周 3 次',time:'晨跑'},
+ {n:'阿Mo',i:'M',km:5.2,tag:'常跑 10KM · 本周 2 次',time:'夜跑'},
+ {n:'老陈',i:'C',km:12.3,tag:'常跑 半马 · 本周 5 次',time:'周末长距离'},
+ {n:'小K',i:'K',km:4.0,tag:'常跑 3KM · 本周 1 次',time:'午休跑'}
+];
+var POSTS=[
+ {t:'checkin',a:'Leo',ai:'L',i:0,tm:'20 分钟前',txt:'终于把今天的 10KM 跑完了，配速比上周快了 8 秒。',km:10.02,dur:'52:14',pace:"5'13\"",cheer:24,cmt:6},
+ {t:'checkin',a:'阿Mo',ai:'M',i:2,tm:'1 小时前',txt:'最近状态不太好，但今天还是出来跑了。',km:5.20,dur:'30:08',pace:"5'47\"",cheer:41,cmt:12},
+ {t:'invite',a:'Yuki',ai:'Y',i:1,tm:'3 小时前',txt:'周六早上莲花山 8KM，来一起？',cheer:9,cmt:3},
+ {t:'checkin',a:'老陈',ai:'C',i:3,tm:'5 小时前',txt:'深圳湾半程，风很大但跑得挺爽。',km:21.10,dur:'1:48:22',pace:"5'08\"",cheer:88,cmt:15}
+];
+var joined={},cheered={},cheeredPost={},shot=false;
+
+function el(id){return document.getElementById(id);}
+function toast(m){var t=el('toast');t.textContent=m;t.classList.add('on');clearTimeout(window._tt);window._tt=setTimeout(function(){t.classList.remove('on');},1800);}
+function go(id){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('show');});
+  el('p-'+id).classList.add('show');
+  renderTabs(id);
+  if(id==='run')renderRun();
+}
+function renderTabs(cur){
+  var h='';
+  TABS.forEach(function(t){
+    h+='<div class="tab'+(t.id===cur?' on':'')+'" onclick="go(\''+t.id+'\')"><svg width="23" height="23" viewBox="0 0 24 24">'+t.i+'</svg>'+t.n+'</div>';
+  });
+  el('tabbar').innerHTML=h;
+}
+function openOv(id){el(id).classList.add('show');}
+function closeOv(id){el(id).classList.remove('show');}
+
+/* 发现页 */
+function renderHome(){
+  var f='';
+  FRIENDS.forEach(function(x,i){
+    f+='<div class="friend">'+av(x.i,i,44)+'<div class="nm">'+x.n+'</div><div class="km">今日 '+x.km.toFixed(1)+' KM</div>'
+      +'<div class="mini'+(cheered[x.n]?' on':'')+'" onclick="cheerFriend(\''+x.n+'\')">'+(cheered[x.n]?'已加油':'给 TA 加油')+'</div></div>';
+  });
+  el('friend-list').innerHTML=f;
+  renderHomeSessions();
+  var cities=[['上','上海'],['广','广州'],['杭','杭州'],['京','北京']];
+  var c='';cities.forEach(function(x){c+='<div class="citysm" onclick="toast(\''+x[1]+'：还未被点亮\')"><i>'+x[0]+'</i>'+x[1]+'</div>';});
+  el('city-grid').innerHTML=c;
+}
+function renderHomeSessions(){
+  var h='';
+  SESSIONS.slice(0,2).forEach(function(s){
+    h+='<div class="sess"><div class="left"><h4>'+s.t+' '+(s.official?'<span class="badge rb">官方</span>':'')+'</h4>'
+      +'<p>'+s.time+' · '+s.km+' · 配速 '+s.pace+'</p><p>'+s.join+' 人已加入 · '+s.done+' 人已完成打卡</p></div>'
+      +'<button class="btn '+(joined[s.id]?'ghost':'dark')+'" onclick="join('+s.id+')">'+(joined[s.id]?'已加入':'加入')+'</button></div>';
+  });
+  el('home-sessions').innerHTML=h;
+}
+function cheerFriend(n){
+  if(cheered[n]){toast('今天已经给 '+n+' 加过油了');return;}
+  cheered[n]=true;renderHome();
+  el('cheer-cnt').textContent=56+Object.keys(cheered).length;
+  toast('已给 '+n+' 加油，TA 会收到通知');
+}
+function join(id){
+  var s=SESSIONS.filter(function(x){return x.id===id;})[0];
+  if(joined[id]){openSession(id);return;}
+  joined[id]=true;s.join++;renderHomeSessions();if(el('p-run').classList.contains('show'))renderRun();
+  toast('已加入「'+s.t+'」，到点用你习惯的 App 跑，跑完回来打卡');
+}
+function openSession(id){
+  var s=SESSIONS.filter(function(x){return x.id===id;})[0];
+  var members='';FRIENDS.slice(0,4).forEach(function(x,i){members+=av(x.i,i,40);});
+  el('session-body').innerHTML=
+   '<div class="card"><h4 style="font-size:16px;font-weight:600">'+s.t+'</h4>'
+  +'<p style="font-size:12px;color:var(--muted);margin-top:7px;font-variant-numeric:tabular-nums">'+s.time+' · 发起 '+s.host+' · 深圳</p>'
+  +'<div style="display:flex;gap:10px;margin-top:14px"><span class="badge">目标 '+s.km+'</span><span class="badge">配速 '+s.pace+'</span></div>'
+  +'<div style="margin-top:16px;font-size:13px;line-height:1.8;color:var(--ink2)">怎么参与：<br>1. 加入本场后，到点用你习惯的 App 开跑<br>2. 跑完回到同频跑打卡，OCR 自动填好距离和时长<br>3. 本页会实时显示「已完成打卡」人数</div></div>'
+  +'<div class="card"><div style="font-size:13px;font-weight:600">本场进度</div>'
+  +'<div style="display:flex;gap:20px;margin-top:12px"><div><div style="font-size:22px;font-weight:600;font-variant-numeric:tabular-nums">'+s.join+'</div><div style="font-size:11px;color:var(--muted)">已加入</div></div>'
+  +'<div><div style="font-size:22px;font-weight:600;font-variant-numeric:tabular-nums">'+s.done+'</div><div style="font-size:11px;color:var(--muted)">已完成打卡</div></div></div>'
+  +'<div style="display:flex;margin-top:14px;align-items:center"><div style="display:flex">'+members+'</div><span style="font-size:11px;color:var(--muted);margin-left:10px">他们也在这一场</span></div></div>'
+  +'<div style="margin:0 14px;display:flex;gap:10px">'
+  +(joined[id]?'<button class="btn rainbow" onclick="startCheckin('+id+')">跑完了，去打卡</button>':'<button class="btn rainbow" onclick="join('+id+');closeOv(\'ov-session\')">加入本场</button>')
+  +'</div>';
+  openOv('ov-session');
+}
+
+/* 去跑 */
+var sessFilter='今晚',frFilter='跑步时段',feedFilter='全部';
+function renderRun(){
+  el('joined-banner').innerHTML='';
+  var s=SESSIONS[0];
+  if(joined[s.id]){
+    el('joined-banner').innerHTML='<div class="card" style="margin:12px 14px;background:var(--ink);color:#fff">'
+     +'<div style="font-size:12px;opacity:.66">你已加入</div>'
+     +'<div style="font-size:16px;font-weight:600;margin-top:4px">'+s.t+'</div>'
+     +'<div style="font-size:12px;opacity:.7;margin-top:7px;font-variant-numeric:tabular-nums">'+s.join+' 人加入 · '+s.done+' 人已完成打卡</div>'
+     +'<div style="display:flex;gap:10px;margin-top:14px"><button class="btn ghost" style="flex:1;padding:13px 0" onclick="openSession('+s.id+')">查看本场</button>'
+     +'<button class="btn rainbow" style="flex:1;font-size:14px;padding:13px 0" onclick="startCheckin('+s.id+')">跑完了，打卡</button></div></div>';
+  }
+  var filters=['今晚','明早','我加入的'];
+  var f='';filters.forEach(function(x){f+='<div class="chip'+(sessFilter===x?' on':'')+'" onclick="setSessFilter(\''+x+'\')">'+x+'</div>';});
+  el('sess-filter').innerHTML=f;
+  var list=SESSIONS.filter(function(s){
+    if(sessFilter==='今晚')return s.time.indexOf('今晚')===0;
+    if(sessFilter==='明早')return s.time.indexOf('明早')===0;
+    return joined[s.id];
+  });
+  if(!list.length){el('sess-list').innerHTML='<div style="text-align:center;color:var(--muted);font-size:12px;padding:40px 0">这个时段还没有场次<br>你可以发起一场</div>';return;}
+  var h='';list.forEach(function(s){
+    h+='<div class="sess" onclick="openSession('+s.id+')"><div class="left"><h4>'+s.t+' '+(s.official?'<span class="badge rb">官方</span>':'')+'</h4>'
+      +'<p>'+s.time+' · '+s.km+' · 配速 '+s.pace+'</p><p>'+s.join+' 人已加入 · '+s.done+' 人已完成打卡</p></div>'
+      +'<button class="btn '+(joined[s.id]?'ghost':'dark')+'" onclick="event.stopPropagation();join('+s.id+')">'+(joined[s.id]?'已加入':'加入')+'</button></div>';
+  });
+  el('sess-list').innerHTML=h;
+}
+function setSessFilter(x){sessFilter=x;renderRun();}
+
+/* 跑友 */
+var TEAMS=[
+ {id:101,n:'深圳湾日出跑团',mem:12,tag:'每周三 / 六 早 6:30 · 常跑 8KM',next:'下次：明早 06:30 深圳湾'},{id:102,n:'莲花山夜跑小队',mem:7,tag:'工作日 21:00 · 常跑 5KM',next:'下次：今晚 21:00 莲花山'},{id:103,n:'福田慢摇 10K',mem:23,tag:'周末长距离 · 配速 6′00″左右',next:'下次：周六 07:00 中心公园'}
+];
+var teamJoined={},searchType='活动',searchWord='';
+function renderFriends(){
+  var filters=['跑步时段','常跑距离','周频次'];
+  var f='';filters.forEach(function(x){f+='<div class="chip'+(frFilter===x?' on':'')+'" onclick="frFilter=\''+x+'\';renderFriends()">'+x+'</div>';});
+  el('fr-filter').innerHTML=f;
+  var t='';
+  TEAMS.forEach(function(x){
+    t+='<div class="team"><h4>'+x.n+' <span class="badge">'+x.mem+' 人</span></h4>'
+     +'<p>'+x.tag+'</p><p style="color:var(--ink2)">'+x.next+'</p>'
+     +'<div class="teamacts">'
+     +'<button class="btn '+(teamJoined[x.id]?'ghost':'dark')+'" onclick="joinTeam('+x.id+')">'+(teamJoined[x.id]?'已加入':'加入队伍')+'</button>'
+     +'<button class="btn ghost" onclick="openInvite(\''+x.n+'\')">邀请</button>'
+     +'</div></div>';
+  });
+  el('team-list').innerHTML=t;
+  var h='';
+  FRIENDS.forEach(function(x,i){
+    h+='<div class="card" style="display:flex;gap:12px;align-items:center">'+av(x.i,i,48)
+      +'<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600">'+x.n+'</div>'
+      +'<div style="font-size:11px;color:var(--muted);margin-top:4px">'+x.tag+'</div>'
+      +'<div style="margin-top:7px"><span class="badge">'+x.time+'</span> <span class="badge">深圳</span></div></div>'
+      +'<button class="btn dark" onclick="inviteUser(\''+x.n+'\')">一起跑</button></div>';
+  });
+  el('friend-page-list').innerHTML=h;
+}
+function joinTeam(id){
+  var t=TEAMS.filter(function(x){return x.id===id;})[0];
+  if(teamJoined[id]){toast('你已经在「'+t.n+'」里了');return;}
+  teamJoined[id]=true;renderFriends();toast('已加入「'+t.n+'」，队里的约跑会通知你');
+}
+function openCreate(){openOv('ov-create');}
+function createTeam(){
+  var n=el('te-name').value.trim();
+  if(!n){toast('先给队伍起个名字');return;}
+  TEAMS.unshift({id:200+TEAMS.length,n:n,mem:1,tag:el('te-time').value.trim()||'时间待定',next:'等待队长发起第一次约跑'});
+  el('te-name').value='';el('te-km').value='';el('te-time').value='';
+  closeOv('ov-create');renderFriends();toast('队伍「'+n+'」已创建，去邀请人吧');
+}
+var ivMode='out',ivTeam='';
+function openInvite(n){ivTeam=n||'深圳湾日出跑团';openOv('ov-invite');renderInvite();}
+function renderInvite(){
+  var o=ivMode==='out';
+  el('iv-out').style.cssText='flex:1;text-align:center;padding:9px 0;border-radius:10px;font-size:12px;cursor:pointer;background:'+(o?'#16192C':'#F2F3F7')+';color:'+(o?'#fff':'#8A8FA3');
+  el('iv-in').style.cssText='flex:1;text-align:center;padding:9px 0;border-radius:10px;font-size:12px;cursor:pointer;background:'+(o?'#F2F3F7':'#16192C')+';color:'+(o?'#8A8FA3':'#fff');
+  el('iv-icon').style.background=o?'#DDE1EA':'var(--rainbow)';
+  el('iv-title').textContent=o?'今晚 20:00 · 深圳 · 一起跑 5KM':ivTeam;
+  el('iv-sub').textContent=o?'已有 8 人加入':'深圳 · 12 位成员 · 每周三/六早 6:30';
+  var n=el('iv-note');
+  if(o){n.style.cssText='margin-top:10px;font-size:11px;line-height:1.6;padding:9px 11px;border-radius:10px;background:#E6F5EF;color:#0F6E56';
+    n.innerHTML='<b>外层</b>：任何人看到都只是一个约跑邀请。无品牌名、无彩虹、无头像昵称。落到任何群里也不会暴露身份。';}
+  else{n.style.cssText='margin-top:10px;font-size:11px;line-height:1.6;padding:9px 11px;border-radius:10px;background:#F2F3F7;color:#5F5E5A';
+    n.innerHTML='<b>内层</b>：仅社区成员可见，含品牌视觉与成员信息。专属感来自氛围与准入，不来自标语。';}
+}
+function openSearch(){openOv('ov-search');renderSearch();}
+function renderSearch(){
+  searchWord=el('search-input')?el('search-input').value.trim():'';
+  var tabs=['活动','跑友','队伍'];
+  var t='';tabs.forEach(function(x){t+='<div class="chip'+(searchType===x?' on':'')+'" onclick="searchType=\''+x+'\';renderSearch()">'+x+'</div>';});
+  el('search-tabs').innerHTML=t;
+  var h='';
+  if(searchType==='活动'){
+    SESSIONS.filter(function(s){return !searchWord||s.t.indexOf(searchWord)>=0;}).forEach(function(s){
+      h+='<div class="card" onclick="closeOv(\'ov-search\');openSession('+s.id+')"><div style="font-size:14px;font-weight:600">'+s.t+'</div>'
+        +'<div style="font-size:11px;color:var(--muted);margin-top:5px;font-variant-numeric:tabular-nums">'+s.time+' · '+s.km+' · '+s.join+' 人已加入</div></div>';
+    });
+  }else if(searchType==='队伍'){
+    TEAMS.filter(function(x){return !searchWord||x.n.indexOf(searchWord)>=0;}).forEach(function(x){
+      h+='<div class="card" onclick="closeOv(\'ov-search\')"><div style="font-size:14px;font-weight:600">'+x.n+'</div>'
+        +'<div style="font-size:11px;color:var(--muted);margin-top:5px">'+x.mem+' 位成员 · '+x.tag+'</div></div>';
+    });
+  }else{
+    FRIENDS.filter(function(x){return !searchWord||x.n.indexOf(searchWord)>=0;}).forEach(function(x,i){
+      h+='<div class="card" style="display:flex;gap:12px;align-items:center">'+av(x.i,i,44)
+        +'<div style="flex:1"><div style="font-size:14px;font-weight:600">'+x.n+'</div>'
+        +'<div style="font-size:11px;color:var(--muted);margin-top:3px">'+x.tag+'</div></div>'
+        +'<button class="btn ghost" onclick="closeOv(\'ov-search\');inviteUser(\''+x.n+'\')">邀请</button></div>';
+    });
+  }
+  el('search-result').innerHTML=h||'<div style="text-align:center;color:var(--muted);font-size:12px;padding:50px 0">没有匹配的'+searchType+'</div>';
+}
+function inviteUser(n){toast('已生成约跑邀请：'+n+' 会收到你的场次邀请');}
+
+/* 动态 */
+var CHEER='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-9.4A4 4 0 0 1 12 8a4 4 0 0 1 7 2.6C19 15.6 12 20 12 20Z"/></svg>';
+function renderFeed(){
+  var filters=['全部','打卡','约跑邀请'];
+  var f='';filters.forEach(function(x){f+='<div class="chip'+(feedFilter===x?' on':'')+'" onclick="feedFilter=\''+x+'\';renderFeed()">'+x+'</div>';});
+  el('feed-filter').innerHTML=f;
+  var list=POSTS.filter(function(p){
+    if(feedFilter==='打卡')return p.t==='checkin';
+    if(feedFilter==='约跑邀请')return p.t==='invite';
+    return true;
+  });
+  var h='';
+  list.forEach(function(p,i){
+    var key=p.a+i;
+    var n=p.cheer+(cheeredPost[key]?1:0);
+    h+='<div class="post"><div class="phead">'+av(p.ai,p.i,40)+'<div><div class="nm">'+p.a+'</div><div class="tm">'+p.tm+' · 深圳</div></div></div>'
+      +'<div class="ptext">'+p.txt+'</div>';
+    if(p.t==='checkin'){
+      h+='<div class="datacard"><div><div class="dv">'+p.km+'</div><div class="dl">公里</div></div>'
+        +'<div><div class="dv">'+p.dur+'</div><div class="dl">用时</div></div>'
+        +'<div><div class="dv">'+p.pace+'</div><div class="dl">平均配速</div></div></div>';
+    }
+    if(p.t==='invite'){
+      h+='<div class="invite"><div style="width:38px;height:38px;border-radius:10px;background:var(--rainbow)"></div>'
+        +'<div class="t"><b>周六 06:30 · 莲花山 8KM</b><span>已有 8 人加入</span></div>'
+        +'<button class="btn dark" onclick="toast(\'已加入该场次\')">一起跑</button></div>';
+    }
+    h+='<div class="acts"><div class="act'+(cheeredPost[key]?' on':'')+'" onclick="cheerPost(\''+key+'\')">'+CHEER+'<span>'+n+'</span></div>'
+      +'<div class="act"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 15a2 2 0 0 1-2 2H8l-4 3V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/></svg>'+p.cmt+'</div></div></div>';
+  });
+  el('feed-list').innerHTML=h;
+}
+function cheerPost(k){if(cheeredPost[k])return;cheeredPost[k]=true;renderFeed();toast('已送出鼓励');}
+
+/* 打卡 */
+var ciSess='今晚 20:00 · 5KM 轻松跑';
+function startCheckin(id){
+  var s=SESSIONS.filter(function(x){return x.id===id;})[0];
+  ciSess=s.t;el('ci-sess').textContent=s.t+' · '+s.time;
+  closeOv('ov-session');openOv('ov-checkin');
+}
+function pickShot(){
+  shot=true;
+  el('ci-shot').textContent='已识别：5.23 KM · 29:31（请核对）';
+  el('ci-km').value='5.23';el('ci-dur').value='29:31';calcPace();
+  toast('示意：wx.chooseMedia 选图 → 云函数调 OCR → 回填，用户确认即可');
+}
+function fillDemo(){el('ci-km').value='5.23';el('ci-dur').value='29:31';calcPace();}
+function calcPace(){
+  var km=parseFloat(el('ci-km').value),d=el('ci-dur').value.trim();
+  if(!km||!/^\d{1,3}:\d{1,2}$/.test(d)){el('ci-pace').textContent='—’—”/KM';return;}
+  var p=d.split(':'),sec=parseInt(p[0])*60+parseInt(p[1]);
+  if(!sec||!km){el('ci-pace').textContent='—’—”/KM';return;}
+  var ps=sec/km,m=Math.floor(ps/60),s=Math.round(ps%60);
+  if(s===60){m++;s=0;}
+  el('ci-pace').textContent=m+"'"+(s<10?'0':'')+s+'"/KM';
+}
+function submitCheckin(){
+  var km=el('ci-km').value,dur=el('ci-dur').value;
+  if(!km||!/^\d{1,3}:\d{1,2}$/.test(dur.trim())){toast('请填写距离和时长（格式 29:31）');return;}
+  el('su-km').textContent=parseFloat(km).toFixed(2);
+  el('su-dur').textContent=dur.trim();
+  el('su-pace').textContent=el('ci-pace').textContent.replace('—’—”','');
+  closeOv('ov-checkin');openOv('ov-success');
+}
+function finishCheckin(){
+  closeOv('ov-success');
+  joined[1]=true;
+  var s=SESSIONS[0];s.done++;
+  renderHome();renderRun();
+  toast('打卡成功，动态已同步发布');
+}
+
+/* init */
+renderTabs('home');renderHome();renderFriends();renderFeed();renderRun();
+</script>
+</body>
+</html>
