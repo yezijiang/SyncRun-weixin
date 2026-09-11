@@ -6,3 +6,8 @@ node_modules/
 
 # 微信开发者工具的个人本地配置，官方约定不入库
 project.private.config.json
+
+# 若开发者工具被指向 miniprogram/ 目录，会在其中生成一份重复的 project.config.json。
+# 本项目根目录才是项目根（miniprogramRoot + cloudfunctionRoot 都在根目录那份里），
+# 这份重复的不入库，也不该用来导入项目。
+miniprogram/project.config.json
