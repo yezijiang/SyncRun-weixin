@@ -60,21 +60,32 @@ function buildProfile(seed, city) {
  */
 function ensureIdentity(city) {
   const cached = wx.getStorageSync(STORAGE_KEY)
-  if (cached && cached.seed) {
+  const app = (typeof getApp === 'function' && getApp()) || null
+  const cloudReady = !!(app && app.globalData && app.globalData.cloudReady)
+
+  // 没云环境时用过本地随机种子，后来填了环境 ID —— 必须换成 openid。
+  // 不换的话：换设备认不出是同一个人，而且服务端查无此人，打卡会全部失败。
+  const staleLocal = !!(cached && cached.seed && String(cached.seed).indexOf('local-') === 0)
+  if (cached && cached.seed && !(cloudReady && staleLocal)) {
     return Promise.resolve(cached)
   }
 
   return new Promise((resolve) => {
     const finish = (seed) => {
       const profile = buildProfile(seed, city || '深圳')
+      // 用户改过昵称就保留，不能因为换了种子又把人家名字改回去
+      if (cached && cached.customized && cached.nickname) {
+        profile.nickname = cached.nickname
+        profile.customized = true
+      }
       wx.setStorageSync(STORAGE_KEY, profile)
       resolve(profile)
     }
 
     // 有云环境时用 openid 作种子，保证换手机也认得出是同一个人
-    if (wx.cloud && wx.cloud.callFunction) {
+    if (cloudReady && wx.cloud && wx.cloud.callFunction) {
       wx.cloud
-        .callFunction({ name: 'login' })
+        .callFunction({ name: 'login', data: { city: city || '深圳' } })
         .then((res) => {
           const openid = res && res.result && res.result.openid
           finish(openid || localSeed())

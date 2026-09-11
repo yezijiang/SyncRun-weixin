@@ -25,6 +25,10 @@ exports.main = async (event) => {
   if (!isFinite(km) || km <= 0 || km > MAX_KM) return { ok: false, error: 'bad_distance' }
   if (!isFinite(dur) || dur <= 0 || dur > MAX_DURATION_S) return { ok: false, error: 'bad_duration' }
 
+  // 打卡会生成一条社区可见的动态，所以文案要过内容安全（PRD 9.5）
+  const safe = await checkText(note)
+  if (!safe.ok) return { ok: false, error: safe.error }
+
   const now = Date.now()
   const checkins = db.collection('checkins')
 
@@ -103,4 +107,21 @@ function startOfDay(ts) {
   const d = new Date(ts)
   d.setHours(0, 0, 0, 0)
   return d.getTime()
+}
+
+/**
+ * 内容安全。判定违规时拒绝；接口本身不可用（没开权限 / 报错）时放行并记日志。
+ * 理由：接口挂了就让全站打不了卡，是比漏过一条更糟的故障。
+ */
+async function checkText(text) {
+  if (!text) return { ok: true }
+  try {
+    await cloud.openapi.security.msgSecCheck({ content: String(text).slice(0, 500) })
+    return { ok: true }
+  } catch (e) {
+    const code = e && (e.errCode || e.errcode)
+    if (code === 87014) return { ok: false, error: 'risky_content' }
+    console.warn('[同频跑] msgSecCheck 不可用，本次放行', e)
+    return { ok: true, degraded: true }
+  }
 }

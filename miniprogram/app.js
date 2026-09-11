@@ -34,9 +34,17 @@ App({
     }
 
     // 身份脱敏是 P0：不拉取微信头像昵称，一律用生成式身份（PRD 9.1）
-    ensureIdentity().then((profile) => {
+    ensureIdentity(config.defaultCity).then((profile) => {
       this.globalData.profile = profile
       if (typeof this.profileReady === 'function') this.profileReady(profile)
+
+      // 本地改过昵称的人，换到 openid 身份后要把昵称补写给服务端，
+      // 否则动态流里显示的还是生成的默认名
+      if (profile.customized && profile.nickname && this.globalData.cloudReady) {
+        require('./utils/db')
+          .renameNickname(profile.nickname)
+          .catch(() => {})
+      }
     })
   },
 

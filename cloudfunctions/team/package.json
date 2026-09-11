@@ -1,0 +1,9 @@
+{
+  "name": "team",
+  "version": "1.0.0",
+  "description": "同频跑：队伍的创建 / 加入 / 列表",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

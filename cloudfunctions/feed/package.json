@@ -1,0 +1,9 @@
+{
+  "name": "feed",
+  "version": "1.0.0",
+  "description": "同频跑：动态流，强制双向屏蔽且不外泄 openid",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

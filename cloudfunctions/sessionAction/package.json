@@ -1,0 +1,9 @@
+{
+  "name": "sessionAction",
+  "version": "1.0.0",
+  "description": "同频跑：场次的创建 / 取消 / 加入 / 退出",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

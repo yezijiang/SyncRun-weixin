@@ -10,8 +10,8 @@ module.exports = {
   // 获取方式：微信开发者工具 → 工具栏「云开发」→ 新建环境 → 环境 ID
   // 建议建两个：dev（开发）与 prod（生产），这里填当前联调用的
   //
-  // TODO: 建好环境后把下面的值换成真实环境 ID
-  cloudEnv: '',
+  // 已建环境：cloud1（dev）
+  cloudEnv: 'cloud1-d8godskat83eddb47',
 
   // v1 首发城市。城市是数据字段，不是硬编码的常量，这里只是默认值
   defaultCity: '深圳',

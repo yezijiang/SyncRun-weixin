@@ -1,18 +1,30 @@
 /**
  * 数据访问层。
  *
- * 设计约束：
+ * 三条设计约束：
  *   1. 页面只跟这一层打交道，不直接写 wx.cloud.database()，也不直接 import mock。
- *   2. 云开发未就绪（没填 AppID）时自动降级到 mock，保证骨架随时可点。
- *   3. 所有跨用户可见的查询，都必须过 excludeBlocked() —— 双向屏蔽是 P0，
- *      不能靠每个页面自觉。
+ *   2. 跨用户读取一律走云函数。不是风格问题：小程序端一次最多取 20 条，
+ *      而且「仅管理端可读写」的集合前端根本读不到，直连只会拿到空数组。
+ *   3. 云函数还没部署时，读操作降级到 mock 保证界面可点，写操作如实失败——
+ *      写了却没生效比报错更糟，那种问题要花一整晚才查得出来。
+ *
+ * 双向屏蔽（PRD 9.4）在云函数里做（feed / search / sessionStatus），
+ * 这里只在 mock 路径上保留一份，目的是本地预览时行为一致。
  */
 
 const mock = require('./mock')
 const { summarize, countRunningNow, countCheckedInToday } = require('./session')
 
+// 云函数不可用（未部署 / 网络失败）时的统一返回，页面据此提示而不是假装成功
+const UNAVAILABLE = { ok: false, error: 'cloud_unavailable' }
+
 function app() {
   return getApp()
+}
+
+function city() {
+  const a = app()
+  return (a && a.globalData && a.globalData.city) || '深圳'
 }
 
 function cloudOn() {
@@ -20,54 +32,49 @@ function cloudOn() {
   return !!(a && a.globalData && a.globalData.cloudReady && wx.cloud)
 }
 
-function coll(name) {
-  return wx.cloud.database().collection(name)
+/**
+ * 调用云函数。
+ * @returns 成功返回结果对象；云端不可用返回 null；业务校验失败返回 { ok:false, error }
+ */
+async function call(name, data) {
+  if (!cloudOn()) return null
+  try {
+    const res = await wx.cloud.callFunction({ name, data })
+    const r = res && res.result
+    if (!r) {
+      console.warn('[同频跑] 云函数返回为空：' + name)
+      return null
+    }
+    if (r.ok === false) {
+      // 业务拒绝（内容违规、超出每日上限等），把原因带给页面
+      console.warn('[同频跑] 云函数拒绝：' + name, r.error)
+      return r
+    }
+    return r
+  } catch (e) {
+    console.warn('[同频跑] 云函数调用失败（多半是还没部署）：' + name, e)
+    return null
+  }
 }
 
-/**
- * 双向屏蔽过滤（PRD 9.4）
- * 单向屏蔽会让屏蔽功能变成跟踪工具，所以两个方向都要排除。
- */
-function excludeBlocked(items, me, idKey = 'user_id') {
-  const mine = (me && me.blocked_ids) || []
-  if (!mine.length) return items
-  const blockedSet = new Set(mine)
-  return items.filter((it) => !blockedSet.has(it[idKey]))
+/** 写操作的统一收口：云端不可用时给出可提示的失败，绝不假装成功 */
+function written(r) {
+  return r && r.ok ? { ok: true, ...r } : Object.assign({}, UNAVAILABLE, r || {})
 }
 
 /* ---------------- 首页 ---------------- */
 
 async function getHome() {
-  if (!cloudOn()) return homeFromMock()
+  const r = await call('sessionStatus', { city: city() })
+  if (!r) return homeFromMock()
 
-  try {
-    const [sessions, cityStats] = await Promise.all([
-      coll('sessions').where({ status: 'open' }).orderBy('start_time', 'asc').limit(10).get(),
-      coll('city_stats').limit(20).get()
-    ])
-
-    // 场次成员：v1 单城、场次少，可一次性取回；量上来后换成按 session_id 聚合的云函数
-    const ids = sessions.data.map((s) => s._id)
-    const members = ids.length
-      ? await coll('session_members').where({ session_id: wx.cloud.database().command.in(ids) }).get()
-      : { data: [] }
-
-    const bySession = groupBy(members.data, 'session_id')
-    const runningNow = countRunningNow(sessions.data, bySession)
-
-    const todayCheckins = await coll('checkins').orderBy('created_at', 'desc').limit(500).get()
-    const todayRunners = countCheckedInToday(todayCheckins.data)
-
-    return {
-      sessions: sessions.data.map((s) => Object.assign({}, s, summarize(s, bySession[s._id]))),
-      cities: cityStats.data,
-      todayRunners,
-      runningNow,
-      source: 'cloud'
-    }
-  } catch (e) {
-    console.warn('[同频跑] 首页云端读取失败，降级 mock', e)
-    return homeFromMock()
+  return {
+    sessions: r.sessions || [],
+    cities: r.cities || [],
+    todayRunners: r.todayRunners || 0,
+    todayKm: r.todayKm || 0,
+    runningNow: r.runningNow || 0,
+    source: 'cloud'
   }
 }
 
@@ -87,101 +94,39 @@ function homeFromMock() {
 
 /* ---------------- 场次 ---------------- */
 
-async function joinSession(sessionId, userId) {
-  if (!cloudOn()) return { ok: true, source: 'mock' }
-  const now = Date.now()
-  const exist = await coll('session_members').where({ session_id: sessionId, user_id: userId }).get()
-  if (exist.data.length) {
-    // 之前取消过的话，重新加入即清除 left_at，别人看不到「已退出」痕迹
-    await coll('session_members').doc(exist.data[0]._id).update({ data: { left_at: null, joined_at: now } })
-    return { ok: true }
-  }
-  await coll('session_members').add({ data: { session_id: sessionId, user_id: userId, joined_at: now } })
-  return { ok: true }
+async function joinSession(sessionId) {
+  return written(await call('sessionAction', { action: 'join', session_id: sessionId }))
 }
 
-async function leaveSession(sessionId, userId) {
-  if (!cloudOn()) return { ok: true, source: 'mock' }
-  const res = await coll('session_members').where({ session_id: sessionId, user_id: userId }).get()
-  if (res.data.length) {
-    await coll('session_members').doc(res.data[0]._id).update({ data: { left_at: Date.now() } })
-  }
-  return { ok: true }
+async function leaveSession(sessionId) {
+  return written(await call('sessionAction', { action: 'leave', session_id: sessionId }))
 }
 
 async function createSession(payload) {
-  if (!cloudOn()) return { ok: true, _id: 'local-' + Date.now(), source: 'mock' }
-  const res = await coll('sessions').add({
-    data: Object.assign(
-      {
-        status: 'open',
-        grace_minutes: 90,
-        city: app().globalData.city,
-        created_at: Date.now()
-      },
-      payload
-    )
-  })
-  return { ok: true, _id: res._id }
+  const r = await call('sessionAction', Object.assign({ action: 'create', city: city() }, payload))
+  return written(r)
 }
 
 async function cancelSession(sessionId) {
-  if (!cloudOn()) return { ok: true, source: 'mock' }
-  await coll('sessions').doc(sessionId).update({ data: { status: 'cancelled', cancelled_at: Date.now() } })
-  return { ok: true }
+  return written(await call('sessionAction', { action: 'cancel', session_id: sessionId }))
 }
 
 /* ---------------- 打卡 ---------------- */
 
-async function submitCheckin(payload, userId) {
-  if (!cloudOn()) return { ok: true, _id: 'local-' + Date.now(), source: 'mock' }
-
-  const now = Date.now()
-  const res = await coll('checkins').add({
-    data: Object.assign(
-      { user_id: userId, created_at: now, source: 'manual' },
-      payload
-    )
-  })
-
-  if (payload.session_id) {
-    const sm = await coll('session_members')
-      .where({ session_id: payload.session_id, user_id: userId })
-      .get()
-    if (sm.data.length) {
-      await coll('session_members').doc(sm.data[0]._id).update({ data: { checkin_id: res._id } })
-    }
-  }
-
-  // 打卡自动生成一条社区内可见的动态（PRD 9.2：默认社区内可见，不提供"全部公开"开关）
-  await coll('posts').add({
-    data: {
-      user_id: userId,
-      type: 'checkin',
-      checkin_id: res._id,
-      session_id: payload.session_id || '',
-      content: payload.note || '',
-      images: payload.screenshot_url ? [payload.screenshot_url] : [],
-      visibility: 'community',
-      cheer_count: 0,
-      comment_count: 0,
-      created_at: now
-    }
-  })
-
-  return { ok: true, _id: res._id }
+async function submitCheckin(payload) {
+  const r = await call(
+    'checkin',
+    Object.assign({ city: city(), source: 'manual' }, payload)
+  )
+  return written(r)
 }
 
 /* ---------------- 动态 ---------------- */
 
 async function getFeed(me) {
-  if (!cloudOn()) return feedFromMock(me)
-  const res = await coll('posts')
-    .where({ visibility: 'community' })
-    .orderBy('created_at', 'desc')
-    .limit(30)
-    .get()
-  return excludeBlocked(res.data, me)
+  const r = await call('feed', {})
+  if (!r) return feedFromMock(me)
+  return r.posts || []
 }
 
 function feedFromMock(me) {
@@ -191,32 +136,39 @@ function feedFromMock(me) {
   )
 }
 
-async function cheerPost(postId, userId) {
-  if (!cloudOn()) return { ok: true, source: 'mock' }
-  await coll('cheers').add({ data: { target_type: 'post', target_id: postId, from_user: userId, created_at: Date.now() } })
-  const cmd = wx.cloud.database().command
-  await coll('posts').doc(postId).update({ data: { cheer_count: cmd.inc(1) } })
-  return { ok: true }
+async function cheerPost(postId) {
+  return written(await call('interact', { action: 'cheer', target_id: postId }))
+}
+
+async function reportPost(postId, reason) {
+  return written(
+    await call('interact', {
+      action: 'report',
+      target_type: 'post',
+      target_id: postId,
+      reason: reason || ''
+    })
+  )
+}
+
+/**
+ * 屏蔽：传 users 记录 _id，不是 openid。
+ * 对外流通的只能是 _id——把别人的 openid 送到客户端是隐私事故。
+ */
+async function blockUser(userId) {
+  return written(await call('interact', { action: 'block', target_user_id: userId }))
+}
+
+async function unblockUser(userId) {
+  return written(await call('interact', { action: 'unblock', target_user_id: userId }))
 }
 
 /* ---------------- 搜索：活动 / 跑友 / 队伍 ---------------- */
 
 async function search(kind, keyword, me) {
-  if (!cloudOn()) return searchMock(kind, keyword, me)
-  const db = wx.cloud.database()
-  const re = db.RegExp({ regexp: escapeRegExp(keyword), options: 'i' })
-
-  if (kind === 'session') {
-    const r = await coll('sessions').where({ title: re, status: 'open' }).limit(20).get()
-    return r.data
-  }
-  if (kind === 'team') {
-    const r = await coll('teams').where({ name: re }).limit(20).get()
-    return r.data
-  }
-  // 跑友：只有开启「允许被搜索」的人才出现在结果里
-  const r = await coll('users').where({ nickname: re, searchable: true }).limit(20).get()
-  return excludeBlocked(r.data, me, '_id')
+  const r = await call('search', { kind, keyword: keyword || '', city: city() })
+  if (!r) return searchMock(kind, keyword, me)
+  return r.results || []
 }
 
 function searchMock(kind, keyword, me) {
@@ -227,36 +179,59 @@ function searchMock(kind, keyword, me) {
   return excludeBlocked(mock.USERS.filter((u) => hit(u.nickname)), me, '_id')
 }
 
-/* ---------------- 我的 ---------------- */
+/* ---------------- 队伍 ---------------- */
 
-async function getMe(userId) {
-  if (!cloudOn()) {
-    const checkins = mock.CHECKINS.filter((c) => c.user_id === userId)
-    return aggregate(checkins)
-  }
-  const res = await coll('checkins').where({ user_id: userId }).orderBy('created_at', 'desc').limit(300).get()
-  return Object.assign(aggregate(res.data), { records: res.data })
+async function listTeams() {
+  const r = await call('team', { action: 'list', city: city() })
+  return (r && r.teams) || []
 }
 
-function aggregate(checkins) {
+async function createTeam(payload) {
+  return written(await call('team', Object.assign({ action: 'create', city: city() }, payload)))
+}
+
+async function joinTeam(teamId) {
+  return written(await call('team', { action: 'join', team_id: teamId }))
+}
+
+/* ---------------- 我的 ---------------- */
+
+async function getMe() {
+  const r = await call('getMe', {})
+  if (!r) return meFromMock()
+  return r
+}
+
+async function renameNickname(nickname) {
+  return written(await call('getMe', { action: 'rename', nickname }))
+}
+
+function meFromMock() {
+  const checkins = mock.CHECKINS
   const totalKm = checkins.reduce((a, c) => a + (c.distance_km || 0), 0)
-  const longest = checkins.reduce((a, c) => Math.max(a, c.distance_km || 0), 0)
   return {
     totalKm,
     totalCount: checkins.length,
-    longest,
-    records: checkins
+    longest: checkins.reduce((a, c) => Math.max(a, c.distance_km || 0), 0),
+    streakDays: 0,
+    cities: ['深圳'],
+    records: checkins.slice(0, 20),
+    achievements: [],
+    source: 'mock'
   }
 }
 
 /* ---------------- 工具 ---------------- */
 
-function groupBy(list, key) {
-  return (list || []).reduce((acc, it) => {
-    const k = it[key]
-    ;(acc[k] = acc[k] || []).push(it)
-    return acc
-  }, {})
+/**
+ * 双向屏蔽过滤（PRD 9.4）。
+ * 云函数里才是真正的执行点，这里只服务 mock 路径与本地预览。
+ */
+function excludeBlocked(items, me, idKey = 'user_id') {
+  const mine = (me && me.blocked_ids) || []
+  if (!mine.length) return items
+  const blockedSet = new Set(mine)
+  return items.filter((it) => !blockedSet.has(it[idKey]))
 }
 
 function indexBy(list, key) {
@@ -264,10 +239,6 @@ function indexBy(list, key) {
     acc[it[key]] = it
     return acc
   }, {})
-}
-
-function escapeRegExp(s) {
-  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
 module.exports = {
@@ -281,5 +252,13 @@ module.exports = {
   cancelSession,
   submitCheckin,
   cheerPost,
-  excludeBlocked
+  reportPost,
+  blockUser,
+  unblockUser,
+  listTeams,
+  createTeam,
+  joinTeam,
+  renameNickname,
+  excludeBlocked,
+  UNAVAILABLE
 }
