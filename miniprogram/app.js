@@ -1,9 +1,10 @@
 const { ensureIdentity } = require('./utils/identity')
+const config = require('./config')
 
 App({
   globalData: {
     // 当前城市：v1 深圳单城，但城市始终是数据字段，不硬编码在业务逻辑里
-    city: '深圳',
+    city: config.defaultCity,
     // 当前用户档案（含生成式昵称与几何头像），登录后填充
     profile: null,
     // 云开发是否就绪：AppID 未填写时为 false，页面需降级到本地 mock
@@ -16,12 +17,19 @@ App({
       return
     }
 
-    // AppID 未配置时 create 会失败，这里捕获后走本地 mock，保证骨架可预览
+    // traceUser 显式关掉：它会在云开发控制台留下用户访问轨迹，
+    // 对一个把隐私当命的产品来说，没必要留的就不留
     try {
-      wx.cloud.init({ traceUser: true })
+      wx.cloud.init({
+        env: config.cloudEnv || undefined,
+        traceUser: false
+      })
       this.globalData.cloudReady = true
+      if (!config.cloudEnv) {
+        console.warn('[同频跑] 还没填云环境 ID（miniprogram/config.js → cloudEnv），云调用会失败')
+      }
     } catch (e) {
-      console.warn('[同频跑] 云开发未初始化（通常是还没填 AppID），当前使用本地 mock 数据', e)
+      console.warn('[同频跑] 云开发初始化失败，当前降级到本地 mock 数据', e)
       this.globalData.cloudReady = false
     }
 

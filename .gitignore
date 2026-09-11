@@ -3,3 +3,6 @@
 node_modules/
 *.log
 *.tmp
+
+# 微信开发者工具的个人本地配置，官方约定不入库
+project.private.config.json
