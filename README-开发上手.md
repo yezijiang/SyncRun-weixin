@@ -11,8 +11,8 @@
 | 1 | **注册个体工商户**，用它注册小程序拿 AppID | 进行中 |
 | 2 | AppID 填进 `project.config.json` | ✅ 已填 |
 | 3 | **建云开发环境**，把环境 ID 填进 `miniprogram/config.js` → `cloudEnv` | ✅ 已填（`cloud1-…`） |
-| 4 | 从**仓库根目录**导入项目（不是 `miniprogram/`） | ⬜ **下一步** |
-| 5 | 在云开发控制台建 12 个集合 + 索引（见第四节） | ⬜ |
+| 4 | 从**仓库根目录**导入项目（不是 `miniprogram/`） | ✅ 已完成 |
+| 5 | 在云开发控制台建 12 个集合 + 索引（见第四节） | ⬜ **下一步** |
 | 6 | 右键云函数「上传并部署：云端安装依赖」，共 **9 个**（见第五节） | ⬜ |
 | 7 | 小程序后台**名称占位**（同频跑） | ⬜ |
 | 8 | 中国商标网检索同名近似，建议注册 9/42/41/45 四类 | ⬜ |
@@ -85,32 +85,43 @@ tools/
 
 ## 四、云开发数据库初始化
 
-在云开发控制台手动创建以下集合（权限建议全部选 **「仅创建者可读写」**，
-跨用户读取一律走云函数，避免前端直连读到他人数据）：
+在云开发控制台创建以下 12 个集合。**权限 12 个全部选「仅管理端可读写」**，
+一个都不要选「仅创建者可读写」，理由见下面「权限」小节。
 
-| 集合 | 说明 | 建议索引 |
+| 集合 | 说明 | 建什么索引（字段 · 排序） |
 |---|---|---|
-| `users` | 用户，仅存 openid + 生成式身份 | `openid`（唯一） |
-| `checkins` | 打卡记录 | `user_id + created_at`、`session_id` |
-| `sessions` | 陪跑场次 | `city + status + start_time` |
-| `session_members` | 场次成员（含 `left_at` / `checkin_id`） | `session_id + user_id`（唯一） |
-| `teams` | 持久队伍 | `city` |
-| `team_members` | 队伍成员 | `team_id + user_id`（唯一） |
-| `posts` | 动态 | `visibility + created_at` |
-| `cheers` | 鼓励 | `target_id` |
-| `comments` | 评论 | `post_id` |
-| `city_stats` | 城市日统计 | `city + date` |
-| `achievements` | 成就 | `user_id + code` |
-| `reports` | 举报 | `status + created_at` |
+| `users` | 用户：openid + 生成式身份 | `openid` 升序 · **唯一** |
+| `checkins` | 打卡记录 | 复合 `user_id` 升序 + `created_at` 降序；单字段 `session_id` 升序 |
+| `sessions` | 陪跑场次 | 复合 `city` 升序 + `status` 升序 + `start_time` 升序；复合 `created_by` 升序 + `created_at` 降序 |
+| `session_members` | 场次成员（含 `left_at` / `checkin_id`） | 复合 `session_id` 升序 + `user_id` 升序 · **唯一**；单字段 `user_id` 升序 |
+| `teams` | 持久队伍 | 复合 `city` 升序 + `created_at` 降序；复合 `owner` 升序 + `created_at` 降序 |
+| `team_members` | 队伍成员 | 复合 `team_id` 升序 + `user_id` 升序 · **唯一** |
+| `posts` | 动态 | 复合 `visibility` 升序 + `created_at` 降序 |
+| `cheers` | 鼓励 | 复合 `target_id` 升序 + `from_user` 升序 · **唯一** |
+| `comments` | 评论 | 复合 `post_id` 升序 + `created_at` 升序 |
+| `city_stats` | 城市日统计 | 复合 `city` 升序 + `date` 升序 · **唯一** |
+| `achievements` | 成就 | 复合 `user_id` 升序 + `code` 升序 · **唯一** |
+| `reports` | 举报 | 复合 `status` 升序 + `created_at` 降序 |
 
-**权限怎么设**（这是最容易踩的坑）：
+> 索引现在不建也能跑，量小的时候全表扫描看不出差别。等动态过千条再补，
+> 唯一索引建议现在就建——它能挡住重复关注、重复鼓励这类脏数据。
 
-- 跨用户要读的（`users` / `sessions` / `session_members` / `teams` / `posts` /
-  `city_stats` / `reports`）→ **仅管理端可读写**，读取只能走云函数
-- 只跟自己有关的（`checkins` / `cheers` / `achievements`）→ **仅创建者可读写**
-- **不要开「所有用户可读」**，那等于任何人都能在前端拉全表
+### 权限：为什么 12 个全部是「仅管理端可读写」
 
-原因是两条硬约束：小程序端一次最多取 20 条（上限改不动），且只能读自己创建的记录。
+这里改过一次，之前写的是「跨用户的用管理端、自己的用仅创建者」，**那个说法是错的**，
+照做会导致打卡、鼓励全部静默失败：
+
+**云函数里 `add()` 出来的记录不带 `_openid`。** 「仅创建者可读写」是靠 `_openid`
+匹配当前用户的，记录里没有这个字段，谁都读不到——包括记录的主人自己。
+而 `checkins`、`cheers` 全都是云函数写的。
+
+再叠加两条硬约束：小程序端一次最多取 20 条（上限改不动），且只能读自己创建的记录。
+
+结论：**前端已经完全不碰数据库了**（见 `utils/db.js`），所以 12 个集合全部设成
+「仅管理端可读写」最安全。云函数无视集合权限、以管理员身份读写，不受影响。
+
+**绝对不要选「所有用户可读」** —— 那等于任何人打开控制台都能拉全表，
+对一个把隐私当命的产品来说，这是不能有第二次的错误。
 
 ---
 
