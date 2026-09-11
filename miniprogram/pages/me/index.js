@@ -17,6 +17,7 @@ Page({
     totalKm: '0.00',
     totalCount: 0,
     longest: '0.00',
+    streakDays: 0,
     achievements: ACHIEVEMENTS,
     cities: []
   },
@@ -33,16 +34,20 @@ Page({
   },
 
   async fetch() {
-    const app = getApp()
-    const userId = app.globalData.profile ? app.globalData.profile.seed : 'local'
-    const res = await db.getMe(userId)
+    const res = await db.getMe()
     this.setData({
       totalKm: fmt.km(res.totalKm),
       totalCount: res.totalCount,
       longest: fmt.km(res.longest),
+      streakDays: res.streakDays || 0,
       // 等级按累计打卡次数，不做配速排行（PRD 第 8 章）
       level: Math.max(1, Math.floor(res.totalCount / 10) + 1),
-      cities: [{ city: '深圳', lit: true }]
+      // 成就由服务端按真实数据算，前端不自己判断
+      achievements: (res.achievements && res.achievements.length
+        ? res.achievements
+        : ACHIEVEMENTS
+      ).map((a) => Object.assign({}, a)),
+      cities: (res.cities || ['深圳']).map((c) => ({ city: c, lit: true }))
     })
   },
 
@@ -50,20 +55,33 @@ Page({
     wx.showToast({ title: '设置与隐私（骨架待接入）', icon: 'none' })
   },
 
-  editIdentity() {
-    wx.showModal({
-      title: '更换昵称',
-      editable: true,
-      placeholderText: '输入你想被叫的名字',
-      success: (r) => {
-        if (r.confirm && r.content) {
-          const { setNickname } = require('../../utils/identity')
-          const next = setNickname(r.content)
-          getApp().globalData.profile = next
-          this.setData({ nickname: next.nickname })
-        }
-      }
+  async editIdentity() {
+    const res = await new Promise((resolve) => {
+      wx.showModal({
+        title: '更换昵称',
+        editable: true,
+        placeholderText: '输入你想被叫的名字',
+        success: resolve,
+        fail: () => resolve({})
+      })
     })
+    if (!res.confirm || !res.content || !res.content.trim()) return
+
+    const { setNickname } = require('../../utils/identity')
+    const next = setNickname(res.content.trim())
+    getApp().globalData.profile = next
+    this.setData({ nickname: next.nickname })
+
+    // 本地改完要同步到服务端，否则别人在动态里看到的还是旧昵称
+    const r = await db.renameNickname(next.nickname)
+    if (!r.ok) {
+      const map = {
+        cloud_unavailable: '昵称只在本机生效，联网后会自动同步',
+        risky_content: '这个名字没通过内容安全校验，换一个吧',
+        nickname_too_long: '昵称最多 20 个字'
+      }
+      wx.showToast({ title: map[r.error] || '同步失败，昵称只在本机生效', icon: 'none' })
+    }
   },
 
   onShareAppMessage() {

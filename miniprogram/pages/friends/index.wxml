@@ -22,33 +22,20 @@
   </view>
 
   <view class="tlist">
-    <view class="team">
+    <view class="team" wx:for="{{teams}}" wx:key="_id">
       <view class="tm-l">
-        <view class="tm-ic"></view>
+        <view class="tm-ic {{index % 2 ? 'alt' : ''}}"></view>
         <view class="tm-t">
-          <view class="tm-n">深圳湾日出跑团</view>
-          <view class="tm-d">深圳 · 12 位成员 · 每周三/六早 6:30</view>
+          <view class="tm-n">{{item.name}}</view>
+          <view class="tm-d">{{item.city}} · {{item.member_count}} 位成员<text wx:if="{{item.run_window}}"> · {{item.run_window}}</text></view>
         </view>
       </view>
       <view class="tm-acts">
-        <button class="btn btn-dark btn-sm" catchtap="joinTeam">加入队伍</button>
-        <button class="btn btn-ghost btn-sm" catchtap="openInvite" data-name="深圳湾日出跑团">邀请</button>
+        <button class="btn btn-dark btn-sm" catchtap="joinTeam" data-id="{{item._id}}">加入队伍</button>
+        <button class="btn btn-ghost btn-sm" catchtap="openInvite" data-name="{{item.name}}">邀请</button>
       </view>
     </view>
-
-    <view class="team">
-      <view class="tm-l">
-        <view class="tm-ic alt"></view>
-        <view class="tm-t">
-          <view class="tm-n">莲花山晨跑小组</view>
-          <view class="tm-d">深圳 · 8 位成员 · 每周日早 7:00</view>
-        </view>
-      </view>
-      <view class="tm-acts">
-        <button class="btn btn-dark btn-sm" catchtap="joinTeam">加入队伍</button>
-        <button class="btn btn-ghost btn-sm" catchtap="openInvite" data-name="莲花山晨跑小组">邀请</button>
-      </view>
-    </view>
+    <view class="empty" wx:if="{{!teams.length}}">还没有队伍，你可以创建第一个</view>
   </view>
 
   <view class="sect">

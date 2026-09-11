@@ -58,12 +58,11 @@ Page({
 
   onJoin(e) {
     const id = e.currentTarget.dataset.id
-    const app = getApp()
-    const userId = app.globalData.profile && app.globalData.profile.seed
     wx.showLoading({ title: '加入中' })
-    db.joinSession(id, userId)
-      .then(() => {
+    db.joinSession(id)
+      .then((r) => {
         wx.hideLoading()
+        if (!r.ok) return wx.showToast({ title: this.failText(r.error), icon: 'none' })
         wx.showToast({ title: '已加入这场陪跑', icon: 'none' })
         this.fetch()
       })
@@ -71,6 +70,20 @@ Page({
         wx.hideLoading()
         wx.showToast({ title: '加入失败，稍后再试', icon: 'none' })
       })
+  },
+
+  /** 云函数返回的错误码翻成人话，不要直接把 code 弹给用户 */
+  failText(code) {
+    const map = {
+      cloud_unavailable: '云服务还没就绪，请先在开发者工具部署云函数',
+      session_closed: '这场已经结束或取消了',
+      not_found: '场次不存在',
+      daily_limit: '今天发起得有点多，明天再来',
+      offline_only_daytime: '线下场次请选 6:00–18:00 的公共场地',
+      risky_content: '文字没通过内容安全校验，换个说法试试',
+      no_title: '还没填场次名'
+    }
+    return map[code] || '操作失败，稍后再试'
   },
 
   goCheckin() {

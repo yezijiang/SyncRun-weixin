@@ -10,18 +10,18 @@
       <view class="av" style="background:linear-gradient(135deg,{{item.author.gradient[0]}},{{item.author.gradient[1]}})"></view>
       <view class="ph-t">
         <view class="ph-n">{{item.author.nickname}}</view>
-        <view class="ph-m">{{item.timeText}} · 深圳</view>
+        <view class="ph-m">{{item.timeText}} · {{item.author.city || '深圳'}}</view>
       </view>
       <view class="more" bindtap="more" data-id="{{item._id}}">···</view>
     </view>
 
-    <!-- 打卡动态带数据卡 -->
-    <view class="data" wx:if="{{item.type === 'checkin'}}">
-      <text class="num">5.23</text><text class="u">KM</text>
+    <!-- 打卡动态带数据卡：数字全部来自这一次打卡，不写死 -->
+    <view class="data" wx:if="{{item.type === 'checkin' && item.checkin}}">
+      <text class="num">{{item.kmText}}</text><text class="u">KM</text>
       <text class="dot">·</text>
-      <text class="num">29:31</text>
+      <text class="num">{{item.durText}}</text>
       <text class="dot">·</text>
-      <text class="num">5'38"</text>
+      <text class="num">{{item.paceText}}</text>
     </view>
 
     <view class="body">{{item.content}}</view>

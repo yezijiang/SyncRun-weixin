@@ -19,8 +19,8 @@ Page({
 
   async fetch() {
     const me = getApp().globalData.profile
-    const res = await db.search('friend', '', me)
-    this.setData({ friends: res })
+    const [res, teams] = await Promise.all([db.search('friend', '', me), db.listTeams()])
+    this.setData({ friends: res, teams })
   },
 
   pickFilter(e) {
@@ -54,12 +54,13 @@ Page({
     this.setData({ 'form.join_mode': e.currentTarget.dataset.v })
   },
 
-  submitCreate() {
+  async submitCreate() {
     const f = this.data.form
     if (!f.name || !f.name.trim()) {
       return wx.showToast({ title: '请填写队伍名', icon: 'none' })
     }
-    // 频率限制：每天最多创建 3 个队伍（防刷，PRD 4.3）
+
+    // 本地先挡一道，服务端的每日上限才是真正的兜底（防刷，PRD 4.3）
     const today = new Date().toDateString()
     const rec = wx.getStorageSync('tf_team_created') || {}
     if (rec.date !== today) {
@@ -69,15 +70,37 @@ Page({
     if (rec.count >= 3) {
       return wx.showToast({ title: '今天创建太多了，明天再来', icon: 'none' })
     }
-    rec.count += 1
-    wx.setStorageSync('tf_team_created', rec)
 
+    const r = await db.createTeam({
+      name: f.name.trim(),
+      usual_km: f.usual_km,
+      run_window: f.run_window,
+      join_mode: f.join_mode
+    })
+    if (!r.ok) {
+      const map = {
+        cloud_unavailable: '云服务还没就绪，请先在开发者工具部署云函数',
+        daily_limit: '今天创建太多了，明天再来',
+        risky_content: '队伍名没通过内容安全校验，换个名字试试'
+      }
+      return wx.showToast({ title: map[r.error] || '创建失败，稍后再试', icon: 'none' })
+    }
+
+    wx.setStorageSync('tf_team_created', { date: today, count: rec.count + 1 })
     this.setData({ showCreate: false })
-    wx.showToast({ title: '队伍已创建（骨架未落库）', icon: 'none' })
+    wx.showToast({ title: '队伍已创建', icon: 'none' })
+    this.fetch()
   },
 
-  joinTeam(e) {
-    wx.showToast({ title: '已申请加入（骨架未落库）', icon: 'none' })
+  async joinTeam(e) {
+    const id = e.currentTarget.dataset.id
+    const r = await db.joinTeam(id)
+    if (!r.ok) return wx.showToast({ title: '加入失败，稍后再试', icon: 'none' })
+    wx.showToast({
+      title: r.status === 'pending' ? '已申请，等队长通过' : '已加入队伍',
+      icon: 'none'
+    })
+    this.fetch()
   },
 
   openInvite(e) {

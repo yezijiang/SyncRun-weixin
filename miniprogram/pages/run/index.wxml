@@ -22,6 +22,7 @@
       <view class="j-acts">
         <button class="btn btn-primary" bindtap="checkinEntry">跑完了，打卡</button>
         <button class="btn btn-ghost" bindtap="leave">取消参加</button>
+        <button class="btn btn-ghost btn-sm" wx:if="{{joinedSession.isMine}}" bindtap="cancelSession">解散</button>
       </view>
     </view>
 
@@ -49,7 +50,103 @@
     </view>
 
     <view class="cta-bottom">
-      <button class="btn btn-primary" bindtap="createEntry">＋ 发起一场陪跑，邀请别人一起跑</button>
+      <button class="btn btn-primary" bindtap="openCreate">＋ 发起一场陪跑，邀请别人一起跑</button>
+    </view>
+  </block>
+
+  <!-- ============ 发起态 ============ -->
+  <block wx:elif="{{mode === 'create'}}">
+    <view class="hd">
+      <view class="hd-t">发起陪跑</view>
+      <view class="hd-s">定一个时间，同城的人会看到</view>
+    </view>
+
+    <view class="card">
+      <view class="lbl">场次名</view>
+      <input
+        class="inp"
+        placeholder="例如：深圳湾 5KM 慢跑"
+        maxlength="30"
+        value="{{form.title}}"
+        bindinput="onForm"
+        data-k="title"
+      />
+      <view class="hint">对外分享只显示「一起跑步」，这个名字只有站内看得见</view>
+    </view>
+
+    <view class="card">
+      <view class="lbl">开始时间</view>
+      <view class="chips">
+        <view class="chip {{form.startIndex === 0 ? 'on' : ''}}" bindtap="pickStart" data-i="0">今晚 20:00</view>
+        <view class="chip {{form.startIndex === 1 ? 'on' : ''}}" bindtap="pickStart" data-i="1">明早 6:30</view>
+        <view class="chip {{form.startIndex === 2 ? 'on' : ''}}" bindtap="pickStart" data-i="2">自定义</view>
+      </view>
+      <view class="pickers" wx:if="{{form.startIndex === 2}}">
+        <picker mode="date" value="{{form.date}}" bindchange="onDate">
+          <view class="pk">{{form.date}}</view>
+        </picker>
+        <picker mode="time" value="{{form.time}}" bindchange="onTime">
+          <view class="pk">{{form.time}}</view>
+        </picker>
+      </view>
+      <view class="hint">{{startText}}</view>
+    </view>
+
+    <view class="card">
+      <view class="lbl">目标距离</view>
+      <scroll-view class="chips" scroll-x enable-flex>
+        <view
+          class="chip {{form.km === String(item) && !form.useCustomKm ? 'on' : ''}}"
+          wx:for="{{distanceChips}}"
+          wx:key="*this"
+          bindtap="onFormKmChip"
+          data-v="{{item}}"
+        >{{item}}KM</view>
+      </scroll-view>
+      <view class="custom">
+        <input
+          class="inp"
+          type="digit"
+          placeholder="或输入任意距离"
+          value="{{form.km}}"
+          bindinput="onFormKmInput"
+        />
+        <text class="unit">KM</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="lbl">配速区间<span class="opt">可选</span></view>
+      <scroll-view class="chips" scroll-x enable-flex>
+        <view
+          class="chip {{form.paceIndex === index ? 'on' : ''}}"
+          wx:for="{{paceOptions}}"
+          wx:key="*this"
+          bindtap="pickPace"
+          data-i="{{index}}"
+        >{{item}}</view>
+      </scroll-view>
+      <view class="hint">不展示个人配速，只用于同场匹配（PRD 第 8 章）</view>
+    </view>
+
+    <view class="card">
+      <view class="lbl">同跑方式</view>
+      <view class="chips">
+        <view class="chip {{form.mode === 'online' ? 'on' : ''}}" bindtap="pickMode" data-v="online">线上同跑</view>
+        <view class="chip {{form.mode === 'offline' ? 'on' : ''}}" bindtap="pickMode" data-v="offline">线下见面</view>
+      </view>
+      <view class="hint" wx:if="{{form.mode === 'online'}}">各自跑各自的，跑完回来打卡</view>
+      <block wx:else>
+        <button class="btn btn-ghost poi-btn" bindtap="choosePoi">
+          {{form.poi_name || '选择见面地点'}}
+        </button>
+        <view class="hint">请选白天（6:00–18:00）的公共场地，安全第一</view>
+      </block>
+    </view>
+
+    <view class="cta-bottom">
+      <button class="btn btn-primary" bindtap="submitCreate" disabled="{{submitting}}">发起这场陪跑</button>
+      <button class="btn btn-ghost" bindtap="cancelCreate">再想想</button>
     </view>
   </block>
 

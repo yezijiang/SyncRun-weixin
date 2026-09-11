@@ -70,8 +70,40 @@ function dayKey(d) {
   return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
 }
 
+const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+
+/** 场次开始时间的完整展示，用于发起表单的确认位 */
+function dateTime(ts) {
+  const d = new Date(ts)
+  return `${d.getMonth() + 1}月${d.getDate()}日 ${WEEKDAYS[d.getDay()]} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+/** <picker mode="date"> 需要的 YYYY-MM-DD */
+function dateValue(ts) {
+  const d = new Date(ts)
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
+/** <picker mode="time"> 需要的 HH:mm */
+function timeValue(ts) {
+  const d = new Date(ts)
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
 function pad(n) {
   return String(n).padStart(2, '0')
 }
 
-module.exports = { hms, durationLabel, pace, splitHMS, joinHMS, km, sessionTime, pad }
+module.exports = {
+  hms,
+  durationLabel,
+  pace,
+  splitHMS,
+  joinHMS,
+  km,
+  sessionTime,
+  dateTime,
+  dateValue,
+  timeValue,
+  pad
+}
