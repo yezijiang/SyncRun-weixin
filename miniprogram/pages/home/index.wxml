@@ -1,0 +1,108 @@
+<view class="page">
+
+  <!-- 头部品牌区：站内可以自由使用品牌视觉（PRD 1.2 内层） -->
+  <view class="brand">
+    <view class="brand-l">
+      <view class="logo"><view class="logo-arc"></view></view>
+      <view class="brand-t">
+        <text class="cn">同频跑</text>
+        <text class="en">TONGFIN RUN</text>
+      </view>
+    </view>
+    <view class="bell">
+      <view class="dot"></view>
+    </view>
+  </view>
+
+  <!-- Hero -->
+  <view class="hero">
+    <view class="skyline"></view>
+    <view class="hero-in">
+      <view class="hi">{{greeting}}，{{nickname}}</view>
+      <view class="slogan">今晚，不止你一个人在跑</view>
+      <!-- 大数字：今天（累计，真） -->
+      <view class="live">
+        <view class="pulse"></view>
+        今天，已有 <text class="num strong">{{todayRunners}}</text> 位跑友跑过
+      </view>
+      <!-- 小数字：此刻（状态机推导，也是真） -->
+      <view class="live2">此刻 <text class="num">{{runningNow}}</text> 人正在跑</view>
+    </view>
+  </view>
+
+  <!-- 统计条 -->
+  <view class="stats">
+    <view class="st">
+      <text class="st-l">今日跑量</text>
+      <text class="st-v num">328.6<text class="u">km</text></text>
+    </view>
+    <view class="st">
+      <text class="st-l">今日完成</text>
+      <text class="st-v num">86<text class="u">人</text></text>
+    </view>
+    <view class="st">
+      <text class="st-l">收到鼓励</text>
+      <text class="st-v num">56<text class="u">次</text></text>
+    </view>
+    <view class="st">
+      <text class="st-l">连续跑步</text>
+      <text class="st-v num">12<text class="u">天</text></text>
+    </view>
+  </view>
+
+  <!-- 正在发起的陪跑 -->
+  <view class="sect">
+    <text class="t">正在发起的陪跑</text>
+    <text class="x" bindtap="goCreate">＋ 发起 ›</text>
+  </view>
+  <scroll-view class="sessions" scroll-x enable-flex>
+    <view class="sess" wx:for="{{sessions}}" wx:key="_id">
+      <view class="sess-top">
+        <text class="time">{{item.timeText}}</text>
+        <text class="mode" wx:if="{{item.mode === 'offline'}}">线下</text>
+      </view>
+      <view class="sess-t">{{item.title}}</view>
+      <view class="sess-poi" wx:if="{{item.poi_name}}">{{item.poi_name}}</view>
+      <view class="sess-meta">
+        <text class="num">{{item.target_km}}KM</text>
+        <text class="dot">·</text>
+        <text>{{item.pace_range}}</text>
+      </view>
+      <view class="sess-stat">
+        已加入 <text class="num">{{item.joined}}</text> · 完成 <text class="num">{{item.done}}</text> · 正在跑 <text class="num">{{item.running}}</text>
+      </view>
+      <button class="btn btn-primary btn-sm" bindtap="onJoin" data-id="{{item._id}}">加入陪跑</button>
+    </view>
+  </scroll-view>
+
+  <!-- 点亮城市 -->
+  <view class="sect">
+    <text class="t">点亮城市</text>
+    <text class="x">查看更多 ›</text>
+  </view>
+  <scroll-view class="cities" scroll-x enable-flex>
+    <view class="city {{item.lit ? 'lit' : ''}}" wx:for="{{cities}}" wx:key="city">
+      <view class="city-arc" wx:if="{{item.lit}}"></view>
+      <view class="city-n">{{item.city}}</view>
+      <view class="city-d" wx:if="{{item.lit}}">今天 {{item.runner_count}} 人跑过</view>
+      <view class="city-d" wx:else>还未被点亮</view>
+    </view>
+    <view class="city dim">
+      <view class="city-n">上海</view>
+      <view class="city-d">还未被点亮</view>
+    </view>
+    <view class="city dim">
+      <view class="city-n">成都</view>
+      <view class="city-d">还未被点亮</view>
+    </view>
+  </scroll-view>
+
+  <view class="bottom-gap"></view>
+
+  <!-- 底部动作区 -->
+  <view class="fab">
+    <button class="btn btn-primary fab-main" bindtap="goCheckin">开始我的跑步</button>
+    <view class="fab-plus" bindtap="goCreate">发起陪跑</view>
+  </view>
+
+</view>

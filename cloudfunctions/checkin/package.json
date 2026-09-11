@@ -1,0 +1,9 @@
+{
+  "name": "checkin",
+  "version": "1.0.0",
+  "description": "同频跑：打卡写入 + 自动生成社区内可见动态 + 城市统计",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

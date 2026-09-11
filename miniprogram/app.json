@@ -1,0 +1,66 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/run/index",
+    "pages/friends/index",
+    "pages/feed/index",
+    "pages/me/index"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTitleText": "同频跑",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F7F8FA"
+  },
+  "tabBar": {
+    "color": "#9AA0B4",
+    "selectedColor": "#7C5CFF",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "发现",
+        "iconPath": "assets/tabbar/home.png",
+        "selectedIconPath": "assets/tabbar/home_on.png"
+      },
+      {
+        "pagePath": "pages/run/index",
+        "text": "去跑",
+        "iconPath": "assets/tabbar/run.png",
+        "selectedIconPath": "assets/tabbar/run_on.png"
+      },
+      {
+        "pagePath": "pages/friends/index",
+        "text": "跑友",
+        "iconPath": "assets/tabbar/friends.png",
+        "selectedIconPath": "assets/tabbar/friends_on.png"
+      },
+      {
+        "pagePath": "pages/feed/index",
+        "text": "动态",
+        "iconPath": "assets/tabbar/feed.png",
+        "selectedIconPath": "assets/tabbar/feed_on.png"
+      },
+      {
+        "pagePath": "pages/me/index",
+        "text": "我的",
+        "iconPath": "assets/tabbar/me.png",
+        "selectedIconPath": "assets/tabbar/me_on.png"
+      }
+    ]
+  },
+  "requiredPrivateInfos": [
+    "getLocation",
+    "chooseLocation"
+  ],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于判断你所在的城市，以点亮城市。不会持续追踪位置，也不会上传跑步轨迹。"
+    }
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

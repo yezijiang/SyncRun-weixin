@@ -1,0 +1,148 @@
+/* 动态页 */
+
+.hd {
+  padding: 40rpx 28rpx 8rpx;
+}
+
+.hd-t {
+  font-size: 46rpx;
+  font-weight: 700;
+}
+
+.hd-s {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: var(--muted);
+}
+
+.post {
+  background: #fff;
+  border: 1rpx solid var(--line);
+  border-radius: 26rpx;
+  padding: 28rpx;
+  margin: 20rpx 28rpx 0;
+}
+
+.ph {
+  display: flex;
+  align-items: center;
+}
+
+.av {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  flex: none;
+}
+
+.ph-t {
+  flex: 1;
+  min-width: 0;
+  margin-left: 20rpx;
+}
+
+.ph-n {
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.ph-m {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: var(--muted);
+}
+
+.more {
+  color: var(--muted-2);
+  font-size: 30rpx;
+  padding: 0 10rpx;
+}
+
+.data {
+  margin-top: 20rpx;
+  padding: 20rpx 24rpx;
+  background: var(--bg);
+  border-radius: 18rpx;
+  font-size: 28rpx;
+}
+
+.data .num {
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.data .u {
+  font-size: 20rpx;
+  color: var(--muted);
+  margin-left: 4rpx;
+}
+
+.data .dot {
+  margin: 0 16rpx;
+  color: var(--muted-2);
+}
+
+.body {
+  margin-top: 20rpx;
+  font-size: 28rpx;
+  line-height: 1.7;
+  color: var(--ink);
+}
+
+.acts {
+  display: flex;
+  gap: 44rpx;
+  margin-top: 24rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid var(--line);
+}
+
+.act {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 24rpx;
+  color: var(--muted);
+}
+
+.act.on {
+  color: var(--rb-1);
+}
+
+/* 自绘爱心，不用 emoji */
+.heart {
+  width: 24rpx;
+  height: 24rpx;
+  border: 2rpx solid currentColor;
+  border-radius: 4rpx 12rpx 4rpx 12rpx;
+  transform: rotate(-45deg);
+}
+
+/* 自绘评论气泡 */
+.bubble {
+  width: 26rpx;
+  height: 22rpx;
+  border: 2rpx solid currentColor;
+  border-radius: 8rpx;
+  position: relative;
+}
+
+.bubble::after {
+  content: '';
+  position: absolute;
+  left: 4rpx;
+  bottom: -8rpx;
+  width: 8rpx;
+  height: 8rpx;
+  border-left: 2rpx solid currentColor;
+  border-bottom: 2rpx solid currentColor;
+  transform: skewX(-20deg);
+}
+
+.foot {
+  margin: 48rpx 48rpx 60rpx;
+  text-align: center;
+  font-size: 20rpx;
+  color: var(--muted-2);
+  line-height: 1.6;
+}

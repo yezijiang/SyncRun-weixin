@@ -1,0 +1,9 @@
+{
+  "name": "sessionStatus",
+  "version": "1.0.0",
+  "description": "同频跑：场次状态汇总，推导「此刻正在奔跑」并应用双向屏蔽",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

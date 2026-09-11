@@ -1,0 +1,96 @@
+/* 搜索页 */
+
+.bar {
+  display: flex;
+  align-items: center;
+  margin: 24rpx 28rpx 0;
+  padding: 22rpx 28rpx;
+  background: #fff;
+  border: 1rpx solid var(--line);
+  border-radius: 999rpx;
+}
+
+.bar .ic {
+  width: 26rpx;
+  height: 26rpx;
+  border: 3rpx solid var(--muted-2);
+  border-radius: 50%;
+  position: relative;
+  margin-right: 18rpx;
+}
+
+.bar .ic::after {
+  content: '';
+  position: absolute;
+  right: -10rpx;
+  bottom: -8rpx;
+  width: 14rpx;
+  height: 3rpx;
+  background: var(--muted-2);
+  transform: rotate(45deg);
+}
+
+.bar .inp {
+  flex: 1;
+  font-size: 28rpx;
+}
+
+.tabs {
+  display: flex;
+  gap: 16rpx;
+  padding: 28rpx 28rpx 0;
+}
+
+.tb {
+  padding: 12rpx 32rpx;
+  border-radius: 999rpx;
+  background: #fff;
+  border: 1rpx solid var(--line-2);
+  font-size: 26rpx;
+  color: var(--ink-2);
+}
+
+.tb.on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+
+.row {
+  background: #fff;
+  border: 1rpx solid var(--line);
+  border-radius: 22rpx;
+  padding: 26rpx;
+  margin: 18rpx 28rpx 0;
+}
+
+.row.fr {
+  display: flex;
+  align-items: center;
+}
+
+.row .av {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  flex: none;
+}
+
+.row .r-t {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.row .r-s {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: var(--muted);
+}
+
+.note {
+  margin: 24rpx 28rpx 0;
+  font-size: 22rpx;
+  color: var(--muted-2);
+  line-height: 1.5;
+}

@@ -1,0 +1,52 @@
+<view class="page">
+
+  <view class="bar">
+    <view class="ic"></view>
+    <input
+      class="inp"
+      placeholder="搜索活动 · 跑友 · 队伍"
+      value="{{keyword}}"
+      bindinput="onInput"
+      focus
+      confirm-type="search"
+    />
+  </view>
+
+  <view class="tabs">
+    <view
+      class="tb {{tab === item.key ? 'on' : ''}}"
+      wx:for="{{tabs}}"
+      wx:key="key"
+      bindtap="pickTab"
+      data-k="{{item.key}}"
+    >{{item.label}}</view>
+  </view>
+
+  <!-- 活动 -->
+  <block wx:if="{{tab === 'session'}}">
+    <view class="row" wx:for="{{results}}" wx:key="_id">
+      <view class="r-t">{{item.title}}</view>
+      <view class="r-s">{{item.target_km}}KM · {{item.pace_range}}</view>
+    </view>
+  </block>
+
+  <!-- 跑友 -->
+  <block wx:elif="{{tab === 'friend'}}">
+    <view class="row fr" wx:for="{{results}}" wx:key="_id">
+      <view class="av" style="background:linear-gradient(135deg,{{item.gradient[0]}},{{item.gradient[1]}})"></view>
+      <view class="r-t">{{item.nickname}}</view>
+    </view>
+    <view class="note">只有开启「允许被搜索」的跑友才会出现在这里</view>
+  </block>
+
+  <!-- 队伍 -->
+  <block wx:else>
+    <view class="row" wx:for="{{results}}" wx:key="_id">
+      <view class="r-t">{{item.name}}</view>
+      <view class="r-s">{{item.city}} · {{item.member_count}} 位成员</view>
+    </view>
+  </block>
+
+  <view class="empty" wx:if="{{searched && !results.length}}">没找到，换个词试试</view>
+
+</view>

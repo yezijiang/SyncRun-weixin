@@ -1,0 +1,61 @@
+<view class="page">
+
+  <view class="hd">邀请跑友一起跑</view>
+
+  <view class="switch">
+    <view class="sw {{tab === 'out' ? 'on' : ''}}" bindtap="pickTab" data-t="out">对外分享卡片</view>
+    <view class="sw {{tab === 'in' ? 'on' : ''}}" bindtap="pickTab" data-t="in">站内邀请页</view>
+  </view>
+  <view class="sw-tip">切换对比：外层中性 / 内层专属</view>
+
+  <!-- 卡片预览 -->
+  <view class="prev">
+    <!-- 外层：完全中性 -->
+    <block wx:if="{{tab === 'out'}}">
+      <view class="pc">
+        <view class="pc-ic neutral"></view>
+        <view class="pc-t">
+          <view class="pc-title">{{shareCard.title}}</view>
+          <view class="pc-sub">{{shareCard.subtitle}}</view>
+        </view>
+      </view>
+      <view class="pc-meta">{{shareCard.meta}}</view>
+    </block>
+
+    <!-- 内层：品牌视觉 + 成员信息 -->
+    <block wx:else>
+      <view class="pc">
+        <view class="pc-ic brand"></view>
+        <view class="pc-t">
+          <view class="pc-title">{{name}}</view>
+          <view class="pc-sub">深圳 · 12 位成员 · 每周三/六早 6:30</view>
+        </view>
+      </view>
+      <view class="pc-meta rb-text">同频跑 · 跑起来，遇见同频的人</view>
+    </block>
+  </view>
+
+  <!-- 说明 -->
+  <view class="note {{tab === 'out' ? 'safe' : 'inner'}}">
+    <block wx:if="{{tab === 'out'}}">
+      <text class="n-b">外层</text>任何人看到都只是一个约跑邀请：没有品牌名、没有彩虹、没有头像昵称。落到同事群、家人群也不会暴露身份。
+    </block>
+    <block wx:else>
+      <text class="n-b">内层</text>仅社区成员可见，含品牌视觉与成员信息。专属感来自氛围与准入，不来自标语。
+    </block>
+  </view>
+
+  <!-- 太阳码 -->
+  <view class="qr-wrap">
+    <view class="qr"></view>
+    <view class="qr-tip">太阳码自带队伍参数，扫码直达队伍页</view>
+  </view>
+
+  <view class="acts">
+    <button class="btn btn-primary" open-type="share">分享到微信 / 微信群</button>
+    <button class="btn btn-ghost" bindtap="saveQr">保存太阳码到相册</button>
+  </view>
+
+  <view class="foot">分享文案由 utils/share.js 生成，代码层面禁止写入品牌与身份信息</view>
+
+</view>

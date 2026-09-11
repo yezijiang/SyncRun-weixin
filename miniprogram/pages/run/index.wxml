@@ -1,0 +1,168 @@
+<view class="page">
+
+  <!-- ============ 列表态 ============ -->
+  <block wx:if="{{mode === 'list'}}">
+
+    <view class="hd">
+      <view class="hd-t">去跑</view>
+      <view class="hd-s">用你习惯的 App 跑，跑完回来打卡</view>
+    </view>
+
+    <view class="card joined" wx:if="{{joinedSession}}">
+      <view class="j-top">
+        <text class="j-tag">你已加入</text>
+        <text class="j-time">{{joinedSession.timeText}}</text>
+      </view>
+      <view class="j-title">{{joinedSession.title}}</view>
+      <view class="j-stat">
+        <text class="num">{{joinedSession.joined}}</text> 人加入 ·
+        <text class="num">{{joinedSession.done}}</text> 人已完成 ·
+        <text class="num">{{joinedSession.running}}</text> 人正在跑
+      </view>
+      <view class="j-acts">
+        <button class="btn btn-primary" bindtap="checkinEntry">跑完了，打卡</button>
+        <button class="btn btn-ghost" bindtap="leave">取消参加</button>
+      </view>
+    </view>
+
+    <view class="sect">
+      <text class="t">附近正在发起的陪跑</text>
+      <text class="x">全部 · 深圳 ›</text>
+    </view>
+
+    <view class="slist">
+      <view class="sitem" wx:for="{{sessions}}" wx:key="_id">
+        <view class="si-top">
+          <text class="si-time">{{item.timeText}}</text>
+          <text class="si-mode" wx:if="{{item.mode === 'offline'}}">线下</text>
+        </view>
+        <view class="si-t">{{item.title}}</view>
+        <view class="si-poi" wx:if="{{item.poi_name}}">{{item.poi_name}}</view>
+        <view class="si-meta">
+          <text class="num">{{item.target_km}}KM</text>
+          <text class="sep">·</text>
+          <text>{{item.pace_range}}</text>
+          <text class="sep">·</text>
+          <text>已加入 <text class="num">{{item.joined}}</text></text>
+        </view>
+      </view>
+    </view>
+
+    <view class="cta-bottom">
+      <button class="btn btn-primary" bindtap="createEntry">＋ 发起一场陪跑，邀请别人一起跑</button>
+    </view>
+  </block>
+
+  <!-- ============ 打卡态 ============ -->
+  <block wx:elif="{{mode === 'checkin'}}">
+    <view class="hd">
+      <view class="hd-t">打卡</view>
+      <view class="hd-s">录入目标 15 秒内完成</view>
+    </view>
+
+    <view class="card">
+      <view class="lbl">距离</view>
+      <scroll-view class="chips" scroll-x enable-flex>
+        <view
+          class="chip {{km === String(item) && !useCustomKm ? 'on' : ''}}"
+          wx:for="{{distanceChips}}"
+          wx:key="*this"
+          bindtap="onKmChip"
+          data-v="{{item}}"
+        >{{item}}KM</view>
+      </scroll-view>
+      <view class="custom">
+        <input
+          class="inp"
+          type="digit"
+          placeholder="或输入任意距离（支持小数）"
+          value="{{km}}"
+          bindinput="onKmInput"
+        />
+        <text class="unit">KM</text>
+      </view>
+      <view class="hint" wx:if="{{useCustomKm && km}}">已使用自定义距离 {{km}} KM</view>
+    </view>
+
+    <view class="card">
+      <view class="lbl">时长</view>
+      <view class="hms">
+        <input id="in-h" class="hms-in num" type="number" maxlength="2" value="{{h}}" bindinput="onHms" data-f="h" />
+        <text class="colon">:</text>
+        <input id="in-m" class="hms-in num" type="number" maxlength="2" value="{{m}}" bindinput="onHms" data-f="m" />
+        <text class="colon">:</text>
+        <input id="in-s" class="hms-in num" type="number" maxlength="2" value="{{s}}" bindinput="onHms" data-f="s" />
+      </view>
+      <view class="hms-tip">时 : 分 : 秒，可只填分秒</view>
+    </view>
+
+    <view class="card pace-card">
+      <view class="pc-item">
+        <text class="pc-l">平均配速</text>
+        <text class="pc-v num">{{paceText}}<text class="u">/KM</text></text>
+      </view>
+      <view class="pc-item">
+        <text class="pc-l">总时长</text>
+        <text class="pc-v num">{{durationText}}</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="lbl">成绩卡截图<span class="opt">可选</span></view>
+      <view class="shot" bindtap="pickShot">
+        <text wx:if="{{ocrState === 'idle'}}">上传跑步 App 的成绩卡</text>
+        <text wx:elif="{{ocrState === 'reading'}}">正在识别成绩卡…</text>
+        <text wx:elif="{{ocrState === 'fail'}}">没识别出来，麻烦手动填写</text>
+        <text wx:else>已识别</text>
+      </view>
+      <view class="hint">截图仅在你主动上传时读取，被举报时才会人工查看</view>
+    </view>
+
+    <view class="card">
+      <view class="lbl">打卡位置<span class="opt">可选</span></view>
+      <button class="btn btn-ghost" bindtap="locate" disabled="{{locating}}">
+        {{locating ? '获取中…' : (city ? '已记录：' + city : '获取当前位置')}}
+      </button>
+      <view class="hint">只读一次用于点亮城市，不持续追踪，不上传轨迹</view>
+    </view>
+
+    <view class="card">
+      <view class="lbl">一句话感受<span class="opt">可选</span></view>
+      <textarea class="ta" placeholder="今天跑了什么心情？" value="{{note}}" bindinput="onNote" maxlength="200" />
+    </view>
+
+    <view class="cta-bottom">
+      <button class="btn btn-primary" bindtap="submit">发布这次打卡</button>
+    </view>
+  </block>
+
+  <!-- ============ 成功态 ============ -->
+  <block wx:else>
+    <view class="done">
+      <view class="done-arc"></view>
+      <view class="done-t">今天，你又向前了一点。</view>
+      <view class="done-nums">
+        <view class="dn">
+          <text class="dn-v num">{{km}}</text>
+          <text class="dn-l">KM</text>
+        </view>
+        <view class="dn">
+          <text class="dn-v num">{{durationText}}</text>
+          <text class="dn-l">时长</text>
+        </view>
+        <view class="dn">
+          <text class="dn-v num">{{paceText}}</text>
+          <text class="dn-l">配速</text>
+        </view>
+      </view>
+      <view class="done-social" wx:if="{{joinedSession}}">
+        今天与你同场奔跑的还有 <text class="num">{{joinedSession.running}}</text> 位跑友
+      </view>
+      <view class="done-acts">
+        <button class="btn btn-primary" bindtap="goFeed">去看动态</button>
+        <button class="btn btn-ghost" bindtap="again">再打一次</button>
+      </view>
+    </view>
+  </block>
+
+</view>

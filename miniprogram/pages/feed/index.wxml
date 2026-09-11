@@ -1,0 +1,45 @@
+<view class="page">
+
+  <view class="hd">
+    <view class="hd-t">动态</view>
+    <view class="hd-s">社区内可见 · 默认不同步到任何外部平台</view>
+  </view>
+
+  <view class="post" wx:for="{{posts}}" wx:key="_id">
+    <view class="ph">
+      <view class="av" style="background:linear-gradient(135deg,{{item.author.gradient[0]}},{{item.author.gradient[1]}})"></view>
+      <view class="ph-t">
+        <view class="ph-n">{{item.author.nickname}}</view>
+        <view class="ph-m">{{item.timeText}} · 深圳</view>
+      </view>
+      <view class="more" bindtap="more" data-id="{{item._id}}">···</view>
+    </view>
+
+    <!-- 打卡动态带数据卡 -->
+    <view class="data" wx:if="{{item.type === 'checkin'}}">
+      <text class="num">5.23</text><text class="u">KM</text>
+      <text class="dot">·</text>
+      <text class="num">29:31</text>
+      <text class="dot">·</text>
+      <text class="num">5'38"</text>
+    </view>
+
+    <view class="body">{{item.content}}</view>
+
+    <view class="acts">
+      <view class="act {{cheered[item._id] ? 'on' : ''}}" bindtap="cheer" data-id="{{item._id}}">
+        <view class="heart"></view>
+        <text class="num">{{item.cheer_count || 0}}</text>
+      </view>
+      <view class="act">
+        <view class="bubble"></view>
+        <text class="num">{{item.comment_count || 0}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{!posts.length}}">还没有动态，今天的第一个由你来发</view>
+
+  <view class="foot">「鼓励」代替点赞 · 不自建排行榜 · 不做跨用户配速比较</view>
+
+</view>

@@ -1,0 +1,53 @@
+{
+  "description": "同频跑 · 微信小程序（原生 + 云开发）",
+  "miniprogramRoot": "miniprogram/",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "compileType": "miniprogram",
+  "libVersion": "3.5.5",
+  "appid": "touristappid",
+  "projectname": "tongfin-run",
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "coverView": true,
+    "lazyloadPlaceholderEnable": false,
+    "preloadBackgroundData": false,
+    "autoAudits": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "useCompilerPlugins": false,
+    "ignoreUploadUnusedFiles": true,
+    "checkInvalidKey": true,
+    "showShadowRootInWxmlPanel": true,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "邀请页（双层表达对比）",
+          "pathName": "pages/invite/index",
+          "query": "name=%E5%90%8C%E9%A2%91%E8%B7%91%E4%B9%8B%E5%A4%9C",
+          "scene": null
+        },
+        {
+          "name": "搜索页",
+          "pathName": "pages/search/index",
+          "query": "",
+          "scene": null
+        }
+      ]
+    }
+  }
+}

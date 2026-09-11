@@ -169,6 +169,38 @@ p.demo-sub{font-size:12px;color:var(--muted)}
 .a.un .ic{background:var(--rainbow)}
 .mini.on{background:var(--rainbow);border-color:transparent}
 .fab-btn{background:var(--rainbow)}
+/* v1.10 时间选择器 + 自定义距离 */
+.scrollpick{flex-wrap:nowrap;overflow-x:auto;padding-bottom:3px}
+.scrollpick::-webkit-scrollbar{height:0}
+.tfree{width:100%;height:40px;border:1px solid var(--line);border-radius:11px;padding:0 12px;font-size:13.5px;outline:none;font-family:inherit;color:var(--ink);background:#fff}
+.tfree:focus{border-color:#7C5CFF;background:#FAF8FF}
+.kminput{flex:1;height:40px;border:1px solid var(--line);border-radius:11px;padding:0 12px;font-size:14px;outline:none;font-family:inherit;color:var(--ink);background:#fff;font-variant-numeric:tabular-nums}
+.kminput:focus{border-color:#7C5CFF;background:#FAF8FF}
+.pk3{display:flex;gap:8px;height:206px}
+.pk3 .col{flex:1;overflow-y:auto;border-radius:12px;background:#F7F8FC;padding:6px}
+.pk3 .col::-webkit-scrollbar{width:0}
+.pk3 .col div{padding:9px 2px;text-align:center;font-size:13px;color:var(--ink2);border-radius:9px;cursor:pointer;font-variant-numeric:tabular-nums}
+.pk3 .col div.on{background:var(--rainbow);color:#fff;font-weight:700}
+.pkhd{display:flex;gap:8px;text-align:center;font-size:10px;color:var(--muted);margin-bottom:6px}
+.pkhd div{flex:1}
+/* v1.9 时:分:秒 输入 + OCR 识别卡 */
+.tinput{display:flex;align-items:center;gap:5px;flex:1}
+.tinput input{width:44px;height:36px;border:1px solid var(--line);border-radius:9px;text-align:center;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;background:#fff;outline:none;color:var(--ink);font-family:inherit}
+.tinput input:focus{border-color:#7C5CFF;background:#FAF8FF}
+.tinput b{font-size:16px;color:var(--ink2);font-weight:700}
+.ocrbox{margin:0 14px;background:#fff;border-radius:14px;padding:12px;display:none}
+.ocrbox.show{display:block}
+.ocrload{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink2)}
+.spin{width:18px;height:18px;border-radius:9px;border:2px solid #E6E8F0;border-top-color:#7C5CFF;animation:sp .8s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ocrres{display:flex;gap:12px;align-items:flex-start}
+.ocrthumb{width:104px;height:76px;border-radius:10px;overflow:hidden;flex:none;background:#111}
+.ocrthumb svg{display:block;width:100%;height:100%}
+.ocrinfo{flex:1;min-width:0}
+.ocrinfo .t{font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ocrinfo .r{font-size:11px;color:var(--ink2);margin-top:5px;font-variant-numeric:tabular-nums;line-height:1.7}
+.ocracts{display:flex;gap:8px;margin-top:9px}
+.ocrfail{font-size:11.5px;color:#8A6420;line-height:1.7}
 .friend .avwrap{margin:0 auto}
 /* v1.5 布局参考版（Rainbow Running 参考稿结构） */
 .brandbar{display:flex;align-items:center;gap:11px;padding:12px 16px 4px}
@@ -237,8 +269,8 @@ p.demo-sub{font-size:12px;color:var(--muted)}
 </head>
 <body>
 
-<h1 class="demo">同频跑 · 最终 UI v1.8</h1>
-<p class="demo-sub">取消活动 / 取消参加 + 报名人数可见 ｜ 发起按钮彩虹化 ｜ 备案名口径收敛 ｜ 数据均为 mock</p>
+<h1 class="demo">同频跑 · 最终 UI v1.10</h1>
+<p class="demo-sub">时间可滚动选择 / 手输 + 距离可自定义 ｜ 时:分:秒打卡 + 成绩卡 OCR 识别 ｜ 数据均为 mock</p>
 
 <div class="wrap">
   <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="RBG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF4D6D"/><stop offset=".3" stop-color="#FFD166"/><stop offset=".6" stop-color="#06D6A0"/><stop offset="1" stop-color="#9B5DE5"/></linearGradient></defs></svg>
@@ -453,9 +485,19 @@ p.demo-sub{font-size:12px;color:var(--muted)}
         </div>
         <div style="margin:0 14px;background:#fff;border-radius:14px;padding:0 14px">
           <div class="field"><label>距离</label><input id="ci-km" type="number" step="0.01" placeholder="5.23" oninput="calcPace()"><span class="unit">KM</span></div>
-          <div class="field"><label>时长</label><input id="ci-dur" placeholder="29:31" oninput="calcPace()"><span class="unit">分:秒</span></div>
-          <div class="field" style="border:none"><label>截图</label><span style="flex:1;font-size:12px;color:var(--muted)" id="ci-shot">选填 · 支持 Keep / 咕咚 / Apple Watch 成绩卡</span><span class="mini" onclick="pickShot()">上传</span></div>
+          <div class="field"><label>时长</label>
+            <div class="tinput">
+              <input id="ci-h" maxlength="2" inputmode="numeric" placeholder="00" oninput="tJump(this,'ci-m')">
+              <b>:</b>
+              <input id="ci-m" maxlength="2" inputmode="numeric" placeholder="29" oninput="tJump(this,'ci-s')">
+              <b>:</b>
+              <input id="ci-s" maxlength="2" inputmode="numeric" placeholder="31" oninput="calcPace()">
+            </div>
+            <span class="unit">时:分:秒</span>
+          </div>
+          <div class="field" style="border:none"><label>成绩截图</label><span style="flex:1;font-size:12px;color:var(--muted)" id="ci-shot">选填 · 支持 Keep / 咕咚 / 悦跑圈 / Apple Watch</span><span class="mini" onclick="pickShot()">上传识别</span></div>
         </div>
+        <div class="ocrbox" id="ci-ocr"></div>
         <div class="pacebox" style="margin:14px"><span>自动配速</span><b id="ci-pace">—’—”/KM</b></div>
         <div class="card" style="margin-top:12px">
           <div style="display:flex;align-items:center;gap:10px">
@@ -481,7 +523,7 @@ p.demo-sub{font-size:12px;color:var(--muted)}
           <button class="btn ghost" style="flex:1;padding:15px 0" onclick="fillDemo()">填入示例数据</button>
           <button class="btn rainbow" onclick="submitCheckin()">发布这次奔跑</button>
         </div>
-        <div style="text-align:center;font-size:11px;color:var(--muted)">OCR 识别失败自动转手输 · 数据可补录 · 排行榜只按累计次数，不做配速排名</div>
+        <div style="text-align:center;font-size:11px;color:var(--muted)">时长支持到小时（例 1:12:05）· OCR 识别失败自动转手输 · 数据可补录 · 排行榜只按累计次数，不做配速排名</div>
       </div>
     </div>
 
@@ -544,11 +586,25 @@ p.demo-sub{font-size:12px;color:var(--muted)}
         <div id="cv-sess">
           <div class="card">
             <div class="fh">跑什么</div>
-            <div class="pick" id="ck-km"></div>
+            <div class="pick scrollpick" id="ck-km"></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:11px">
+              <input id="cs-km-custom" class="kminput" placeholder="自定义距离，如 7.5" oninput="onKmCustom(this.value)">
+              <span class="unit" style="flex:none">KM</span>
+            </div>
+            <div id="cs-km-note" style="font-size:10px;color:var(--muted);margin-top:9px;line-height:1.6">选上面的距离，或在这里填任意距离（支持小数，如 7.5 / 12.8）</div>
           </div>
           <div class="card">
             <div class="fh">什么时候</div>
-            <div class="pick" id="ck-time"></div>
+            <input id="cs-time-input" class="tfree" placeholder="可直接输入，如：周六傍晚 6 点半" oninput="cs.time=this.value">
+            <div class="pick scrollpick" id="ck-time" style="margin-top:10px"></div>
+            <div class="locpick" id="cs-time-pick" style="margin-top:10px" onclick="openTimePicker()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7C5CFF" stroke-width="1.8" style="flex:none"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.4l3.4 2"/></svg>
+              <div style="flex:1;min-width:0">
+                <b id="cs-time-show">今晚 20:00</b>
+                <span class="la">打开选择器：日期 + 时刻可滚动 · 支持今天起 7 天</span>
+              </div>
+              <span class="mini">选择</span>
+            </div>
           </div>
           <div class="card">
             <div class="fh">集合地点</div>
@@ -630,6 +686,24 @@ p.demo-sub{font-size:12px;color:var(--muted)}
       </div>
     </div>
 
+    <!-- v1.10：时间选择器 -->
+    <div class="overlay" id="ov-time" style="background:rgba(22,25,44,.4);justify-content:flex-end">
+      <div style="background:#fff;border-radius:18px 18px 0 0;padding:14px 14px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span style="font-size:14px;font-weight:600">选择开跑时间</span>
+          <span class="mini on" onclick="confirmTime()">确定</span>
+        </div>
+        <div class="pkhd"><div>日期</div><div>时</div><div>分</div></div>
+        <div class="pk3">
+          <div class="col" id="pk-date"></div>
+          <div class="col" id="pk-hour"></div>
+          <div class="col" id="pk-min"></div>
+        </div>
+        <div id="pk-preview" style="text-align:center;font-size:12px;color:var(--ink2);margin-top:12px;font-variant-numeric:tabular-nums"></div>
+        <div style="text-align:center;font-size:10px;color:var(--muted);margin-top:6px">确定后会自动设置「开始前 1 小时」提醒</div>
+      </div>
+    </div>
+
     <!-- v1.8：通用确认弹层（取消活动 / 取消参加） -->
     <div class="overlay" id="ov-confirm" style="background:rgba(22,25,44,.4);align-items:center;justify-content:center">
       <div style="width:296px;background:#fff;border-radius:18px;padding:20px 18px 14px">
@@ -658,7 +732,18 @@ p.demo-sub{font-size:12px;color:var(--muted)}
 
   <div class="legend">
     <div class="note">
-      <h3>v1.8 取消机制与细节</h3>
+      <h3>v1.10 时间与距离输入自由化</h3>
+      <ol>
+        <li><b>时间三种输入方式</b>：① 顶部自由输入框（可直接写「周六傍晚 6 点半」）② 横向滚动快捷选项（今晚 20:00 / 21:00 / 21:30、明早 06:00 / 06:30、周六 07:00 / 18:00、周日 07:00）③ 底部时间选择器：日期 + 时 + 分三列滚动，支持今天起 7 天、05–23 时、5 分钟粒度，确定后自动设置「开始前 1 小时」提醒</li>
+        <li><b>距离可自定义</b>：备选项扩到 3 / 5 / 8 / 10 / 15 / 半马 21.1KM（横向滚动），并新增自定义输入框，可填任意距离（支持小数，如 7.5 / 12.8），填入后自动取消备选高亮，清空即恢复</li>
+      </ol>
+      <h3 style="margin-top:16px">v1.9 时长输入与 OCR 识别</h3>
+      <ol>
+        <li><b>时长改为 时:分:秒</b>：三个分段输入框，冒号固定显示在中间，只需填数字；输满 2 位自动跳到下一格，支持只填分秒（时留 00），配速与成功页按总秒数计算（例 1:12:05）</li>
+        <li><b>成绩截图自动识别</b>：上传后先显示「正在识别成绩卡…」，成功则展示识别结果卡（Keep 成绩卡缩略图 + 距离 / 时长 / 平均配速 + 置信度），并自动填入距离与时分秒；提供「重新识别」</li>
+        <li><b>识别失败降级</b>：点「演示识别失败」可看降级路径——提示未识别并自动转手输，提供「换一张重试」；实际实现为置信度低于阈值时自动降级</li>
+      </ol>
+      <h3 style="margin-top:16px">v1.8 取消机制与细节</h3>
       <ol>
         <li><b>备案名一致性（判断）</b>：小程序备案管的是「小程序名称 / 简介 / 服务类目」，页面内文案不属于备案名称；但为降低复查风险，头部英文副标已降级为 10px 灰色小字，中文「同频跑」为唯一主名称（如需彻底规避，可把英文名只放在「关于」页）</li>
         <li><b>文案</b>：首页主标语改为「此刻，不止你一个人在跑」</li>
@@ -753,7 +838,7 @@ var POSTS=[
  {t:'invite',a:'Yuki',ai:'Y',i:1,tm:'3 小时前',txt:'周六早上莲花山 8KM，来一起？',cheer:9,cmt:3},
  {t:'checkin',a:'老陈',ai:'C',i:3,tm:'5 小时前',txt:'深圳湾半程，风很大但跑得挺爽。',km:21.10,dur:'1:48:22',pace:"5'08\"",cheer:88,cmt:15}
 ];
-var joined={},cheered={},cheeredPost={},blocked={},shot=false,subscribed={};
+var joined={},cheered={},cheeredPost={},blocked={},shot=false,shotState=null,subscribed={};
 
 function el(id){return document.getElementById(id);}
 function toast(m){var t=el('toast');t.textContent=m;t.classList.add('on');clearTimeout(window._tt);window._tt=setTimeout(function(){t.classList.remove('on');},2200);}
@@ -838,7 +923,7 @@ function renderHomeSessions(){
   });
   el('home-sessions').innerHTML=h;
 }
-function startFreeRun(){el('ci-sess').textContent='自由跑 · 不限距离与场次';openOv('ov-checkin');}
+function startFreeRun(){el('ci-sess').textContent='自由跑 · 不限距离与场次';openOv('ov-checkin');resetCheckin();}
 var CITIES=[
  {n:'深圳',p:128,you:true,land:'<rect x="12" y="38" width="11" height="56"/><polygon points="28,94 28,22 36,12 44,22 44,94"/><rect x="50" y="44" width="14" height="50"/><rect x="68" y="32" width="9" height="62"/><rect x="82" y="50" width="12" height="44"/>'},
  {n:'上海',p:98,land:'<rect x="28" y="36" width="12" height="58"/><polygon points="46,94 46,26 52,18 58,26 58,94"/><circle cx="52" cy="42" r="6"/><circle cx="52" cy="60" r="5"/><rect x="64" y="32" width="9" height="62"/><polygon points="78,94 78,46 87,36 96,46 96,94"/>'},
@@ -1051,7 +1136,43 @@ function joinTeam(id){
   teamJoined[id]=true;renderFriends();toast('已加入「'+t.n+'」，队里的约跑会通知你');
 }
 /* 发起中心：陪跑场次 / 队伍（v1.6） */
-var createMode='sess',cs={km:'5 KM',time:'今晚 20:00',offline:false,poi:null,sub:true};
+var createMode='sess',cs={km:'5 KM',time:'今晚 20:00',offline:false,poi:null,sub:true,kmCustom:''};
+var KMS=['3 KM','5 KM','8 KM','10 KM','15 KM','半马 21.1KM'];
+var TMS=['今晚 20:00','今晚 21:00','今晚 21:30','明早 06:00','明早 06:30','周六 07:00','周六 18:00','周日 07:00'];
+var PKD={date:'今天',hour:'20',min:'00',picked:false};
+var DATES=['今天','明天','后天','周六 9/12','周日 9/13','周一 9/14','周二 9/15','周三 9/16'];
+var HOURS=[],MINS=[];
+(function(){for(var i=5;i<=23;i++)HOURS.push(i<10?'0'+i:''+i);for(var j=0;j<60;j+=5)MINS.push(j<10?'0'+j:''+j);})();
+function setKm(x){cs.km=x;cs.kmCustom='';el('cs-km-custom').value='';renderCreate();}
+function setTime(x){cs.time=x;el('cs-time-input').value='';renderCreate();}
+function onKmCustom(v){
+  cs.kmCustom=v;
+  if(parseFloat(v)>0)cs.km=null;
+  else if(!cs.km)cs.km='5 KM';
+  renderCreate();
+}
+function kmValue(){
+  var v=parseFloat(cs.kmCustom);
+  if(v>0)return (Math.round(v*100)/100)+' KM';
+  return cs.km;
+}
+function openTimePicker(){renderPk();openOv('ov-time');}
+function renderPk(){
+  var a='';DATES.forEach(function(x){a+='<div class="'+(PKD.date===x?'on':'')+'" onclick="PKD.date=\''+x+'\';renderPk()">'+x+'</div>';});
+  el('pk-date').innerHTML=a;
+  var b='';HOURS.forEach(function(x){b+='<div class="'+(PKD.hour===x?'on':'')+'" onclick="PKD.hour=\''+x+'\';renderPk()">'+x+' 时</div>';});
+  el('pk-hour').innerHTML=b;
+  var c='';MINS.forEach(function(x){c+='<div class="'+(PKD.min===x?'on':'')+'" onclick="PKD.min=\''+x+'\';renderPk()">'+x+' 分</div>';});
+  el('pk-min').innerHTML=c;
+  el('pk-preview').textContent=PKD.date+' '+PKD.hour+':'+PKD.min+' 开跑';
+}
+function confirmTime(){
+  cs.time=PKD.date+' '+PKD.hour+':'+PKD.min;
+  PKD.picked=true;
+  el('cs-time-input').value='';
+  closeOv('ov-time');renderCreate();
+  toast('开跑时间 '+cs.time+' · 已设置「开始前 1 小时」提醒');
+}
 function openCreate(m){
   createMode=m||'sess';
   openOv('ov-create');
@@ -1064,12 +1185,18 @@ function renderCreate(){
   el('ov-create-title').textContent=s?'发起一场陪跑':'创建一个队伍';
   el('cv-sess').style.display=s?'':'none';
   el('cv-team').style.display=s?'none':'';
-  var KM=['3 KM','5 KM','8 KM','10 KM','半马 21KM'],h='';
-  KM.forEach(function(x){h+='<div class="pk'+(cs.km===x?' on':'')+'" onclick="cs.km=\''+x+'\';renderCreate()">'+x+'</div>';});
+  var h='';
+  KMS.forEach(function(x){h+='<div class="pk'+(cs.km===x&&!(parseFloat(cs.kmCustom)>0)?' on':'')+'" onclick="setKm(\''+x+'\')">'+x+'</div>';});
   el('ck-km').innerHTML=h;
-  var TM=['今晚 20:00','今晚 21:30','明早 06:30','周六 07:00'],t='';
-  TM.forEach(function(x){t+='<div class="pk'+(cs.time===x?' on':'')+'" onclick="cs.time=\''+x+'\';renderCreate()">'+x+'</div>';});
+  var t='';
+  TMS.forEach(function(x){t+='<div class="pk'+(cs.time===x?' on':'')+'" onclick="setTime(\''+x+'\')">'+x+'</div>';});
   el('ck-time').innerHTML=t;
+  var cv=parseFloat(cs.kmCustom);
+  el('cs-km-note').innerHTML=cv>0
+    ?'已使用自定义距离 <b style="color:#7C5CFF">'+cv+' KM</b> · 清空输入框即可恢复选择'
+    :'选上面的距离，或在这里填任意距离（支持小数，如 7.5 / 12.8）';
+  el('cs-time-show').textContent=cs.time;
+  el('cs-time-pick').className='locpick'+(PKD.picked?' has':'');
   el('ck-type').innerHTML='<div class="pk'+(cs.offline?'':' on')+'" onclick="cs.offline=false;renderCreate()">线上异步 · 各自开跑</div>'
     +'<div class="pk'+(cs.offline?' on':'')+'" onclick="cs.offline=true;renderCreate()">线下约跑 · ≥3 人成行</div>';
   el('cs-offnote').style.display=cs.offline?'':'none';
@@ -1109,13 +1236,14 @@ function submitCreate(){
   var pace=el('cs-pace').value.trim()||'不限配速';
   var id=900+SESSIONS.length;
   var mems=[{n:'我',l:'我',i:3,tm:'刚刚',done:false},{n:'Leo',l:'L',i:0,tm:'20:04',done:false},{n:'Yuki',l:'Y',i:1,tm:'20:11',done:false},{n:'阿Mo',l:'M',i:2,tm:'20:19',done:false}];
-  SESSIONS.unshift({id:id,official:false,offline:cs.offline,cancelled:false,t:cs.km+(cs.offline?' · 线下约跑':' · 陪跑'),place:place,time:cs.time,km:cs.km,pace:pace,join:mems.length,done:0,host:'我',members:mems});
+  var kmv=kmValue();
+  SESSIONS.unshift({id:id,official:false,offline:cs.offline,cancelled:false,t:kmv+(cs.offline?' · 线下约跑':' · 陪跑'),place:place,time:cs.time,km:kmv,pace:pace,join:mems.length,done:0,host:'我',members:mems});
   joined[id]=true;
   if(cs.sub)subscribed[id]={start:true};
   closeOv('ov-create');
   el('cs-pace').value='';el('cs-limit').value='';
   renderHome();renderRun();
-  toast('已发起「'+cs.km+' · '+cs.time+'」'+(cs.sub?' · 开始前 1 小时会提醒你':'')+'，你已自动加入');
+  toast('已发起「'+kmValue()+' · '+cs.time+'」'+(cs.sub?' · 开始前 1 小时会提醒你':'')+'，你已自动加入');
 }
 function createTeam(){
   var n=el('te-name').value.trim();
@@ -1209,29 +1337,91 @@ var ciSess='今晚 20:00 · 5KM 轻松跑';
 function startCheckin(id){
   var s=SESSIONS.filter(function(x){return x.id===id;})[0];
   ciSess=s.t;el('ci-sess').textContent=s.t+' · '+s.time;
-  closeOv('ov-session');openOv('ov-checkin');
+  closeOv('ov-session');openOv('ov-checkin');resetCheckin();
+}
+/* v1.9：时:分:秒 输入 + 成绩卡 OCR 识别 */
+function pad2(v){v=String(v).replace(/\D/g,'');return v.length>=2?v.slice(-2):('0'+v).slice(-2);}
+function tJump(cur,next){
+  cur.value=cur.value.replace(/\D/g,'').slice(0,2);
+  if(cur.value.length>=2&&next)el(next).focus();
+  calcPace();
+}
+function durSecs(){
+  return (parseInt(el('ci-h').value)||0)*3600+(parseInt(el('ci-m').value)||0)*60+(parseInt(el('ci-s').value)||0);
+}
+function durText(){
+  var h=parseInt(el('ci-h').value)||0,m=parseInt(el('ci-m').value)||0,s=parseInt(el('ci-s').value)||0;
+  return (h>0?h+':'+pad2(m):String(m))+':'+pad2(s);
+}
+function resetCheckin(){
+  el('ci-km').value='';el('ci-h').value='';el('ci-m').value='';el('ci-s').value='';
+  el('ci-pace').textContent='—’—”/KM';
+  el('ci-shot').textContent='选填 · 支持 Keep / 咕咚 / 悦跑圈 / Apple Watch';
+  shotState=null;renderOcr();
+}
+var OCR={km:'5.23',h:0,m:29,s:31,pace:"5'39\"",conf:0.96};
+function keepCard(){
+  return '<svg viewBox="0 0 104 76"><rect width="104" height="76" fill="#1B1D23"/>'
+    +'<text x="9" y="15" fill="#8C8F98" font-size="7" font-family="sans-serif">KEEP · 户外跑</text>'
+    +'<text x="9" y="39" fill="#fff" font-size="18" font-weight="700" font-family="sans-serif">5.23</text>'
+    +'<text x="56" y="39" fill="#8C8F98" font-size="8" font-family="sans-serif">公里</text>'
+    +'<text x="9" y="54" fill="#8C8F98" font-size="7" font-family="sans-serif">时长</text>'
+    +'<text x="9" y="67" fill="#fff" font-size="11" font-family="sans-serif">00:29:31</text>'
+    +'<text x="62" y="54" fill="#8C8F98" font-size="7" font-family="sans-serif">平均配速</text>'
+    +'<text x="62" y="67" fill="#fff" font-size="11" font-family="sans-serif">5\'39"</text>'
+    +'<path d="M0 72 h104" stroke="#33D17A" stroke-width="2"/></svg>';
+}
+function renderOcr(){
+  var box=el('ci-ocr');
+  if(!shotState){box.className='ocrbox';box.innerHTML='';return;}
+  box.className='ocrbox show';
+  if(shotState==='loading'){
+    box.innerHTML='<div class="ocrload"><div class="spin"></div>正在识别成绩卡…（约 1 秒）</div>';
+    return;
+  }
+  if(shotState==='fail'){
+    box.innerHTML='<div class="ocrres"><div style="width:40px;height:40px;border-radius:20px;background:#FFF3E6;display:flex;align-items:center;justify-content:center;flex:none">'
+      +'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B25E09" stroke-width="1.8"><path d="M12 8v5"/><circle cx="12" cy="16.6" r="1" fill="#B25E09" stroke="none"/><circle cx="12" cy="12" r="9"/></svg></div>'
+      +'<div class="ocrinfo"><div class="t">没能认出这张成绩卡</div>'
+      +'<div class="ocrfail">已自动降级为手动填写：直接填距离与时长即可，不影响打卡与统计。</div>'
+      +'<div class="ocracts"><span class="mini" onclick="pickShot()">换一张重试</span><span class="mini" onclick="ocrFail()">仍在失败？</span></div></div></div>';
+    return;
+  }
+  box.innerHTML='<div class="ocrres">'
+    +'<div class="ocrthumb">'+keepCard()+'</div>'
+    +'<div class="ocrinfo"><div class="t">已识别 · Keep 成绩卡 <span class="badge rb">置信度 '+OCR.conf+'</span></div>'
+    +'<div class="r">距离 <b>'+OCR.km+' KM</b> · 时长 <b>'+pad2(OCR.h)+':'+pad2(OCR.m)+':'+pad2(OCR.s)+'</b><br>平均配速 '+OCR.pace+' · 已自动填入上方</div>'
+    +'<div class="ocracts"><span class="mini" onclick="pickShot()">重新识别</span><span class="mini" onclick="ocrFail()">演示识别失败</span></div></div></div>';
 }
 function pickShot(){
-  shot=true;
-  el('ci-shot').textContent='已识别：5.23 KM · 29:31（请核对）';
-  el('ci-km').value='5.23';el('ci-dur').value='29:31';calcPace();
-  toast('示意：wx.chooseMedia 选图 → 云函数调 OCR → 回填；置信度低时自动转手输');
+  shotState='loading';renderOcr();
+  toast('wx.chooseMedia 选图 → 云函数 OCR 识别中…');
+  clearTimeout(window._ocr);
+  window._ocr=setTimeout(function(){
+    shotState='ok';renderOcr();applyOcr();
+    toast('识别成功（置信度 0.96）：已自动填入距离与时长');
+  },900);
 }
-function fillDemo(){el('ci-km').value='5.23';el('ci-dur').value='29:31';calcPace();}
+function applyOcr(){
+  el('ci-km').value=OCR.km;
+  el('ci-h').value=pad2(OCR.h);el('ci-m').value=pad2(OCR.m);el('ci-s').value=pad2(OCR.s);
+  el('ci-shot').textContent='已识别并自动填入（请核对）';
+  calcPace();
+}
+function ocrFail(){shotState='fail';renderOcr();toast('示意：置信度低于阈值 → 自动降级为手输');}
+function fillDemo(){el('ci-km').value='5.23';el('ci-h').value='00';el('ci-m').value='29';el('ci-s').value='31';calcPace();}
 function calcPace(){
-  var km=parseFloat(el('ci-km').value),d=el('ci-dur').value.trim();
-  if(!km||!/^\d{1,3}:\d{1,2}$/.test(d)){el('ci-pace').textContent='—’—”/KM';return;}
-  var p=d.split(':'),sec=parseInt(p[0])*60+parseInt(p[1]);
-  if(!sec||!km){el('ci-pace').textContent='—’—”/KM';return;}
+  var km=parseFloat(el('ci-km').value),sec=durSecs();
+  if(!km||!sec){el('ci-pace').textContent='—’—”/KM';return;}
   var ps=sec/km,m=Math.floor(ps/60),s=Math.round(ps%60);
   if(s===60){m++;s=0;}
   el('ci-pace').textContent=m+"'"+(s<10?'0':'')+s+'"/KM';
 }
 function submitCheckin(){
-  var km=el('ci-km').value,dur=el('ci-dur').value;
-  if(!km||!/^\d{1,3}:\d{1,2}$/.test(dur.trim())){toast('请填写距离和时长（格式 29:31）');return;}
+  var km=el('ci-km').value,sec=durSecs();
+  if(!km||!sec){toast('请填写距离和时长（时 : 分 : 秒）');return;}
   el('su-km').textContent=parseFloat(km).toFixed(2);
-  el('su-dur').textContent=dur.trim();
+  el('su-dur').textContent=durText();
   el('su-pace').textContent=el('ci-pace').textContent.replace('—’—”','');
   closeOv('ov-checkin');openOv('ov-success');
 }

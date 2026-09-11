@@ -1,0 +1,200 @@
+/* 我的页 */
+
+.ident {
+  display: flex;
+  align-items: center;
+  padding: 56rpx 28rpx 0;
+}
+
+.id-av {
+  width: 132rpx;
+  height: 132rpx;
+  border-radius: 50%;
+  position: relative;
+  flex: none;
+}
+
+.id-ring {
+  position: absolute;
+  inset: -8rpx;
+  border-radius: 50%;
+  border: 4rpx solid transparent;
+  background: var(--rb) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.id-t {
+  flex: 1;
+  min-width: 0;
+  margin-left: 26rpx;
+}
+
+.id-n {
+  font-size: 34rpx;
+  font-weight: 600;
+}
+
+.id-lv {
+  display: inline-block;
+  margin-top: 12rpx;
+  padding: 6rpx 20rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  color: #fff;
+  background: var(--rb);
+}
+
+.id-edit {
+  font-size: 24rpx;
+  color: var(--accent);
+  padding: 10rpx 0 10rpx 20rpx;
+}
+
+.id-tip {
+  margin: 20rpx 28rpx 0;
+  font-size: 20rpx;
+  color: var(--muted-2);
+}
+
+/* 数字 */
+.nums {
+  display: flex;
+}
+
+.n {
+  flex: 1;
+  text-align: center;
+}
+
+.n-v {
+  display: block;
+  font-size: 44rpx;
+  font-weight: 700;
+}
+
+.n-l {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: var(--muted);
+}
+
+/* 城市足迹 */
+.citywrap {
+  display: flex;
+  gap: 20rpx;
+  padding: 0 28rpx;
+}
+
+.citybox {
+  flex: 1;
+  height: 200rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(160deg, #3A2F63 0%, #7B4A87 60%, #C0648A 100%);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  padding: 22rpx;
+  box-sizing: border-box;
+}
+
+.citybox.dim {
+  background: #E9EBF1;
+}
+
+.cb-arc {
+  position: absolute;
+  left: 20rpx;
+  top: -50rpx;
+  right: 20rpx;
+  height: 150rpx;
+  border-radius: 50%;
+  border: 6rpx solid rgba(255, 255, 255, 0.5);
+  border-bottom-color: transparent;
+}
+
+.cb-n {
+  position: relative;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #fff;
+}
+
+.citybox.dim .cb-n {
+  color: #8A8FA3;
+}
+
+/* 成就 */
+.ach {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 28rpx;
+  gap: 18rpx;
+}
+
+.a {
+  width: calc((100% - 36rpx) / 3);
+  background: #fff;
+  border: 1rpx solid var(--line);
+  border-radius: 22rpx;
+  padding: 26rpx 14rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  opacity: 0.5;
+}
+
+.a.got {
+  opacity: 1;
+}
+
+.a-ic {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: #E9EBF1;
+}
+
+.a.got .a-ic {
+  background: var(--rb);
+}
+
+.a-n {
+  margin-top: 14rpx;
+  font-size: 20rpx;
+  color: var(--ink-2);
+  text-align: center;
+}
+
+/* 链接 */
+.links {
+  padding: 0 28rpx;
+}
+
+.lk {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100rpx;
+  border-bottom: 1rpx solid var(--line);
+  font-size: 28rpx;
+}
+
+.lk:last-child {
+  border-bottom: none;
+}
+
+.lk .ar {
+  color: var(--muted-2);
+}
+
+.foot {
+  margin: 56rpx 48rpx 60rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: var(--muted-2);
+}

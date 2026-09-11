@@ -1,0 +1,233 @@
+/* 跑友页 */
+
+.searchbar {
+  display: flex;
+  align-items: center;
+  margin: 24rpx 28rpx 0;
+  padding: 22rpx 28rpx;
+  background: #fff;
+  border: 1rpx solid var(--line);
+  border-radius: 999rpx;
+}
+
+.searchbar .ic {
+  width: 26rpx;
+  height: 26rpx;
+  border: 3rpx solid var(--muted-2);
+  border-radius: 50%;
+  position: relative;
+  margin-right: 18rpx;
+}
+
+.searchbar .ic::after {
+  content: '';
+  position: absolute;
+  right: -10rpx;
+  bottom: -8rpx;
+  width: 14rpx;
+  height: 3rpx;
+  background: var(--muted-2);
+  transform: rotate(45deg);
+}
+
+.searchbar .ph {
+  font-size: 26rpx;
+  color: var(--muted-2);
+}
+
+.chips {
+  display: flex;
+  padding: 22rpx 28rpx 0;
+  flex-wrap: wrap;
+}
+
+.chips .chip {
+  padding: 12rpx 26rpx;
+  margin: 0 14rpx 14rpx 0;
+  border-radius: 999rpx;
+  background: #fff;
+  border: 1rpx solid var(--line-2);
+  font-size: 24rpx;
+  color: var(--ink-2);
+}
+
+.chips .chip.on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+
+/* 队伍 */
+.tlist {
+  padding: 0 28rpx;
+}
+
+.team {
+  background: #fff;
+  border: 1rpx solid var(--line);
+  border-radius: 24rpx;
+  padding: 26rpx;
+  margin-bottom: 18rpx;
+}
+
+.tm-l {
+  display: flex;
+  align-items: center;
+}
+
+.tm-ic {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 22rpx;
+  background: var(--rb);
+}
+
+.tm-ic.alt {
+  background: linear-gradient(135deg, #0F6E56, #4CC9F0);
+}
+
+.tm-t {
+  margin-left: 20rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.tm-n {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.tm-d {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: var(--muted);
+}
+
+.tm-acts {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 22rpx;
+}
+
+.tm-acts .btn {
+  flex: 1;
+}
+
+/* 跑友 */
+.flist {
+  padding: 0 28rpx;
+}
+
+.friend {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1rpx solid var(--line);
+  border-radius: 24rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+}
+
+.av {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  flex: none;
+}
+
+.fr-t {
+  flex: 1;
+  min-width: 0;
+  margin-left: 22rpx;
+}
+
+.fr-n {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.fr-tags {
+  margin-top: 10rpx;
+  display: flex;
+  gap: 12rpx;
+}
+
+/* 浮动 ＋ */
+.fbtn {
+  position: fixed;
+  right: 40rpx;
+  bottom: calc(60rpx + env(safe-area-inset-bottom));
+  width: 108rpx;
+  height: 108rpx;
+  border-radius: 50%;
+  background: var(--rb);
+  color: #fff;
+  font-size: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12rpx 32rpx rgba(124, 92, 255, 0.32);
+}
+
+.gap {
+  height: 180rpx;
+}
+
+/* 面板 */
+.mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(22, 25, 44, 0.45);
+  display: flex;
+  align-items: flex-end;
+  z-index: 20;
+}
+
+.panel {
+  width: 100%;
+  background: #fff;
+  border-radius: 36rpx 36rpx 0 0;
+  padding: 40rpx 40rpx calc(40rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.p-t {
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.p-s {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.fld {
+  margin-top: 30rpx;
+}
+
+.f-l {
+  display: block;
+  font-size: 24rpx;
+  color: var(--ink-2);
+  margin-bottom: 14rpx;
+}
+
+.f-i {
+  background: var(--bg);
+  border-radius: 18rpx;
+  padding: 24rpx;
+  font-size: 28rpx;
+}
+
+.p-submit {
+  margin-top: 44rpx;
+}
+
+.p-hint {
+  margin-top: 18rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: var(--muted-2);
+}

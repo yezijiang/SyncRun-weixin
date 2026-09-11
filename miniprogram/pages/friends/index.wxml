@@ -1,0 +1,116 @@
+<view class="page">
+
+  <!-- 搜索入口（四个入口之一） -->
+  <view class="searchbar" bindtap="openSearch">
+    <view class="ic"></view>
+    <text class="ph">找到一起跑的人</text>
+  </view>
+
+  <view class="chips">
+    <view
+      class="chip {{active === index ? 'on' : ''}}"
+      wx:for="{{filters}}"
+      wx:key="*this"
+      bindtap="pickFilter"
+      data-i="{{index}}"
+    >{{item}}</view>
+  </view>
+
+  <view class="sect">
+    <text class="t">附近的队伍</text>
+    <text class="x">同城 ›</text>
+  </view>
+
+  <view class="tlist">
+    <view class="team">
+      <view class="tm-l">
+        <view class="tm-ic"></view>
+        <view class="tm-t">
+          <view class="tm-n">深圳湾日出跑团</view>
+          <view class="tm-d">深圳 · 12 位成员 · 每周三/六早 6:30</view>
+        </view>
+      </view>
+      <view class="tm-acts">
+        <button class="btn btn-dark btn-sm" catchtap="joinTeam">加入队伍</button>
+        <button class="btn btn-ghost btn-sm" catchtap="openInvite" data-name="深圳湾日出跑团">邀请</button>
+      </view>
+    </view>
+
+    <view class="team">
+      <view class="tm-l">
+        <view class="tm-ic alt"></view>
+        <view class="tm-t">
+          <view class="tm-n">莲花山晨跑小组</view>
+          <view class="tm-d">深圳 · 8 位成员 · 每周日早 7:00</view>
+        </view>
+      </view>
+      <view class="tm-acts">
+        <button class="btn btn-dark btn-sm" catchtap="joinTeam">加入队伍</button>
+        <button class="btn btn-ghost btn-sm" catchtap="openInvite" data-name="莲花山晨跑小组">邀请</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="sect">
+    <text class="t">推荐跑友</text>
+    <text class="x">按跑步时段匹配 · 同城</text>
+  </view>
+
+  <!-- 不展示精确配速（防作弊 + 调性，PRD 第 8 章） -->
+  <view class="flist">
+    <view class="friend" wx:for="{{friends}}" wx:key="_id">
+      <view class="av" style="background:linear-gradient(135deg,{{item.gradient[0]}},{{item.gradient[1]}})"></view>
+      <view class="fr-t">
+        <view class="fr-n">{{item.nickname}}</view>
+        <view class="fr-tags">
+          <text class="tag">深圳</text>
+          <text class="tag">常跑 5KM</text>
+        </view>
+      </view>
+      <button class="btn btn-dark btn-sm" catchtap="goRun">一起跑</button>
+    </view>
+    <view class="empty" wx:if="{{!friends.length}}">暂时没有推荐，先去发起一场陪跑吧</view>
+  </view>
+
+  <view class="gap"></view>
+
+  <!-- 发起组队（浮动 ＋） -->
+  <view class="fbtn" bindtap="openCreate">＋</view>
+
+  <!-- 发起组队面板 -->
+  <view class="mask" wx:if="{{showCreate}}" bindtap="closeCreate">
+    <view class="panel" catchtap="">
+      <view class="p-t">创建一个队伍</view>
+      <view class="p-s">队伍是长期的小圈子；一次性的约跑请在「去跑」页发起</view>
+
+      <view class="fld">
+        <text class="f-l">队伍名</text>
+        <input class="f-i" placeholder="例如：深圳湾日出跑团" value="{{form.name}}" bindinput="onForm" data-k="name" />
+      </view>
+
+      <view class="fld">
+        <text class="f-l">常跑距离</text>
+        <view class="chips">
+          <view class="chip {{form.usual_km === item ? 'on' : ''}}" wx:for="{{[3,5,8,10]}}" wx:key="*this" bindtap="pickKm" data-v="{{item}}">{{item}}KM</view>
+        </view>
+      </view>
+
+      <view class="fld">
+        <text class="f-l">常规跑步时间</text>
+        <input class="f-i" placeholder="例如：每周三早 6:30" value="{{form.run_window}}" bindinput="onForm" data-k="run_window" />
+      </view>
+
+      <view class="fld">
+        <text class="f-l">入队方式</text>
+        <view class="chips">
+          <view class="chip {{form.join_mode === 'free' ? 'on' : ''}}" bindtap="pickJoinMode" data-v="free">自由加入</view>
+          <view class="chip {{form.join_mode === 'approval' ? 'on' : ''}}" bindtap="pickJoinMode" data-v="approval">队长审核</view>
+        </view>
+      </view>
+
+      <button class="btn btn-primary p-submit" bindtap="submitCreate">创建</button>
+      <view class="p-hint">每天最多创建 3 个队伍</view>
+    </view>
+  </view>
+
+</view>

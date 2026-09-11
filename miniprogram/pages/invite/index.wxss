@@ -1,0 +1,147 @@
+/* 邀请页：双层表达的可视化对比 */
+
+.hd {
+  padding: 40rpx 28rpx 0;
+  font-size: 40rpx;
+  font-weight: 700;
+  text-align: center;
+}
+
+.switch {
+  display: flex;
+  gap: 16rpx;
+  margin: 32rpx 28rpx 0;
+}
+
+.sw {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  border-radius: 18rpx;
+  background: #F2F3F7;
+  color: var(--muted);
+  font-size: 26rpx;
+}
+
+.sw.on {
+  background: var(--ink);
+  color: #fff;
+}
+
+.sw-tip {
+  margin-top: 16rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: var(--muted-2);
+}
+
+.prev {
+  margin: 30rpx 28rpx 0;
+}
+
+.pc {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 26rpx;
+  display: flex;
+  align-items: center;
+  border: 1rpx solid var(--line);
+}
+
+.pc-ic {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 20rpx;
+  flex: none;
+}
+
+.pc-ic.neutral {
+  background: #DDE1EA;
+}
+
+.pc-ic.brand {
+  background: var(--rb);
+}
+
+.pc-t {
+  margin-left: 22rpx;
+  min-width: 0;
+}
+
+.pc-title {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.pc-sub {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: var(--muted);
+}
+
+.pc-meta {
+  margin-top: 16rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: var(--muted);
+}
+
+.note {
+  margin: 26rpx 28rpx 0;
+  padding: 22rpx 24rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+.note.safe {
+  background: #E6F5EF;
+  color: #0F6E56;
+}
+
+.note.inner {
+  background: #F2F3F7;
+  color: #5F5E5A;
+}
+
+.n-b {
+  font-weight: 600;
+  margin-right: 6rpx;
+}
+
+.qr-wrap {
+  margin: 40rpx 28rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qr {
+  width: 260rpx;
+  height: 260rpx;
+  border-radius: 20rpx;
+  background: repeating-conic-gradient(#16192C 0% 25%, #fff 0% 50%) 0 0 / 40rpx 40rpx;
+  border: 12rpx solid #fff;
+  box-shadow: 0 6rpx 24rpx rgba(22, 25, 44, 0.1);
+}
+
+.qr-tip {
+  margin-top: 20rpx;
+  font-size: 22rpx;
+  color: var(--muted);
+}
+
+.acts {
+  margin: 48rpx 28rpx 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.foot {
+  margin: 36rpx 48rpx 60rpx;
+  text-align: center;
+  font-size: 20rpx;
+  color: var(--muted-2);
+  line-height: 1.6;
+}

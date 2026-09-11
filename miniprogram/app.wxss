@@ -1,0 +1,180 @@
+/* 同频跑 · 全局样式
+ * 依据 PRD 第 11 章 UI 规范：
+ *   - 站内彩虹是品牌主视觉，可自由使用
+ *   - 对外物料（分享卡 / 外层邀请 / 太阳码）必须中性，因此这里所有类都不直接生成分享图
+ *   - 功能图标一律自绘，不用 emoji 充当图标
+ */
+
+page {
+  --ink: #16192C;          /* 深蓝黑，正文与标题 */
+  --ink-2: #3D4260;
+  --muted: #8A8FA3;
+  --muted-2: #9AA0B4;
+  --line: #EDEFF4;
+  --line-2: #E2E5EE;
+  --bg: #F7F8FA;
+  --card: #FFFFFF;
+
+  /* 彩虹渐变：品牌主视觉，站内可用 */
+  --rb-1: #FF4D6D;
+  --rb-2: #FF9F1C;
+  --rb-3: #FFD166;
+  --rb-4: #06D6A0;
+  --rb-5: #4CC9F0;
+  --rb-6: #9B5DE5;
+  --rb: linear-gradient(90deg, #FF4D6D 0%, #FF9F1C 20%, #FFD166 40%, #06D6A0 60%, #4CC9F0 80%, #9B5DE5 100%);
+  --accent: #7C5CFF;
+
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+/* ---------- 通用容器 ---------- */
+.page {
+  min-height: 100vh;
+  padding-bottom: 48rpx;
+}
+
+.card {
+  background: var(--card);
+  border: 1rpx solid var(--line);
+  border-radius: 28rpx;
+  padding: 28rpx;
+  margin: 20rpx 28rpx;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+}
+
+.between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 24rpx;
+}
+
+/* ---------- 区块标题 ---------- */
+.sect {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 40rpx 28rpx 18rpx;
+}
+
+.sect .t {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.sect .x {
+  font-size: 24rpx;
+  color: var(--muted);
+}
+
+/* ---------- 数字：一律等宽，否则计时会抖 ---------- */
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.5rpx;
+}
+
+.big {
+  font-size: 64rpx;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.big .u {
+  font-size: 26rpx;
+  font-weight: 400;
+  color: var(--muted);
+  margin-left: 6rpx;
+}
+
+/* ---------- 按钮 ---------- */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  border-radius: 24rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  border: none;
+}
+
+.btn::after {
+  border: none;
+}
+
+.btn-primary {
+  background: var(--rb);
+  color: #fff;
+}
+
+.btn-dark {
+  background: var(--ink);
+  color: #fff;
+}
+
+.btn-ghost {
+  background: #fff;
+  color: var(--accent);
+  border: 2rpx solid var(--accent);
+}
+
+.btn-sm {
+  height: 64rpx;
+  font-size: 26rpx;
+  border-radius: 18rpx;
+  padding: 0 26rpx;
+}
+
+/* ---------- 彩虹元素（站内） ---------- */
+.rb-text {
+  background: var(--rb);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.rb-bar {
+  height: 6rpx;
+  border-radius: 999rpx;
+  background: var(--rb);
+}
+
+/* ---------- 徽标 / 标签 ---------- */
+.tag {
+  display: inline-block;
+  padding: 6rpx 18rpx;
+  border-radius: 999rpx;
+  background: var(--bg);
+  border: 1rpx solid var(--line-2);
+  color: var(--ink-2);
+  font-size: 22rpx;
+}
+
+/* ---------- 空态 ---------- */
+.empty {
+  padding: 90rpx 40rpx;
+  text-align: center;
+  color: var(--muted);
+  font-size: 26rpx;
+}
+
+/* ---------- 骨架屏 ---------- */
+.sk {
+  background: #EEF0F5;
+  border-radius: 12rpx;
+}

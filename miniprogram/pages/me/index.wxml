@@ -1,0 +1,77 @@
+<view class="page">
+
+  <!-- 身份区 -->
+  <view class="ident">
+    <view class="id-av" style="background:linear-gradient(135deg,{{gradient[0]}},{{gradient[1]}})">
+      <view class="id-ring"></view>
+    </view>
+    <view class="id-t">
+      <view class="id-n">{{nickname}}</view>
+      <view class="id-lv">跑者等级 Lv.{{level}}</view>
+    </view>
+    <view class="id-edit" bindtap="editIdentity">改昵称</view>
+  </view>
+  <view class="id-tip">头像与昵称由系统生成，不使用微信头像与昵称</view>
+
+  <!-- 数据区 -->
+  <view class="card nums">
+    <view class="n">
+      <text class="n-v num">{{totalKm}}</text>
+      <text class="n-l">累计公里</text>
+    </view>
+    <view class="n">
+      <text class="n-v num">{{totalCount}}</text>
+      <text class="n-l">累计次数</text>
+    </view>
+    <view class="n">
+      <text class="n-v num">{{longest}}</text>
+      <text class="n-l">最长单次</text>
+    </view>
+  </view>
+
+  <!-- 我的足迹 -->
+  <view class="sect">
+    <text class="t">我的足迹</text>
+    <text class="x">地图 ›</text>
+  </view>
+  <view class="citywrap">
+    <view class="citybox" wx:for="{{cities}}" wx:key="city">
+      <view class="cb-arc"></view>
+      <text class="cb-n">{{item.city}}</text>
+    </view>
+    <view class="citybox dim">
+      <text class="cb-n">未点亮</text>
+    </view>
+  </view>
+
+  <!-- 成就 -->
+  <view class="sect">
+    <text class="t">成就</text>
+    <text class="x">按累计次数解锁</text>
+  </view>
+  <view class="ach">
+    <view class="a {{item.got ? 'got' : ''}}" wx:for="{{achievements}}" wx:key="code">
+      <view class="a-ic"></view>
+      <text class="a-n">{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 设置 -->
+  <view class="card links">
+    <view class="lk" bindtap="openSettings">
+      <text>设置与隐私</text>
+      <text class="ar">›</text>
+    </view>
+    <view class="lk" bindtap="openSettings">
+      <text>举报与屏蔽记录</text>
+      <text class="ar">›</text>
+    </view>
+    <view class="lk" bindtap="openSettings">
+      <text>注销账号与数据清除</text>
+      <text class="ar">›</text>
+    </view>
+  </view>
+
+  <view class="foot">跑起来，遇见同频的人</view>
+
+</view>
