@@ -4,7 +4,10 @@
     "pages/run/index",
     "pages/friends/index",
     "pages/feed/index",
-    "pages/me/index"
+    "pages/me/index",
+    "pages/settings/index",
+    "pages/search/index",
+    "pages/invite/index"
   ],
   "window": {
     "backgroundTextStyle": "dark",

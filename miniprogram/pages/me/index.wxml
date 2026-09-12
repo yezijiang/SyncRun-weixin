@@ -63,7 +63,7 @@
       <text class="ar">›</text>
     </view>
     <view class="lk" bindtap="openSettings">
-      <text>举报与屏蔽记录</text>
+      <text>屏蔽名单</text>
       <text class="ar">›</text>
     </view>
     <view class="lk" bindtap="openSettings">

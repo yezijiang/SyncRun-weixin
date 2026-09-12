@@ -1,0 +1,75 @@
+<view class="page">
+
+  <view class="hd">
+    <view class="hd-t">设置与隐私</view>
+    <view class="hd-s">这些开关决定了谁能在社区里找到你</view>
+  </view>
+
+  <!-- 可见性 -->
+  <view class="card">
+    <view class="row between lk">
+      <view class="lk-l">
+        <text class="lk-t">允许被搜索</text>
+        <text class="lk-s">关闭后，你不会出现在跑友搜索结果里</text>
+      </view>
+      <switch checked="{{searchable}}" bindchange="toggleSearchable" color="#7C5CFF" />
+    </view>
+    <view class="row between lk">
+      <view class="lk-l">
+        <text class="lk-t">动态可见范围</text>
+        <text class="lk-s">社区内可见 · 不提供「全部公开」选项</text>
+      </view>
+      <text class="lk-fixed">社区内</text>
+    </view>
+  </view>
+
+  <!-- 屏蔽名单 -->
+  <view class="sect">
+    <text class="t">屏蔽名单</text>
+    <text class="x">{{blocked.length}} 人</text>
+  </view>
+  <view class="card">
+    <view class="bl" wx:for="{{blocked}}" wx:key="id">
+      <view class="av" style="background:linear-gradient(135deg,{{item.gradient[0]}},{{item.gradient[1]}})"></view>
+      <text class="bl-n">{{item.nickname}}</text>
+      <text class="bl-btn" bindtap="unblock" data-id="{{item.id}}">解除</text>
+    </view>
+    <view class="empty" wx:if="{{!blocked.length}}">还没有屏蔽任何人</view>
+    <view class="hint" wx:if="{{blocked.length}}">屏蔽是双向的：你们互相看不到对方，包括动态与搜索结果</view>
+  </view>
+
+  <!-- 我们收集什么 -->
+  <view class="sect">
+    <text class="t">我们不收集什么</text>
+  </view>
+  <view class="card pl">
+    <view class="pl-i">
+      <text class="pl-k">微信头像与昵称</text>
+      <text class="pl-v">不读取。身份一律由系统生成</text>
+    </view>
+    <view class="pl-i">
+      <text class="pl-k">精确位置</text>
+      <text class="pl-v">不后台获取。只有你点「获取位置」时读一次，只留到城市</text>
+    </view>
+    <view class="pl-i">
+      <text class="pl-k">跑步轨迹</text>
+      <text class="pl-v">不记录。只保存你自己填写的距离、时长与城市</text>
+    </view>
+    <view class="pl-i">
+      <text class="pl-k">通讯录与好友关系</text>
+      <text class="pl-v">不读取，也不做可能认识的人推荐</text>
+    </view>
+  </view>
+
+  <!-- 注销 -->
+  <view class="card danger">
+    <view class="dg-t">注销账号</view>
+    <view class="dg-s">
+      删除全部打卡、动态、鼓励与身份信息。举报记录会保留，那是别人用来保护自己的凭证。
+    </view>
+    <button class="btn btn-danger" bindtap="deleteAccount" disabled="{{deleting}}">注销并删除我的数据</button>
+  </view>
+
+  <view class="foot">跑起来，遇见同频的人</view>
+
+</view>

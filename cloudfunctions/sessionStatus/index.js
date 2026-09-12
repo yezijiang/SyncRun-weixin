@@ -31,8 +31,17 @@ exports.main = async (event) => {
 
   const dayStart = startOfDay(now)
 
+  // 超过宽限期的场次视为已结束，不再出现在列表里。
+  // 不做这一步的话，上周发起的一场会永远挂在首页，第一眼就露馅。
+  const earliestAlive = now - DEFAULT_GRACE_MINUTES * 60 * 1000
+
   const [sessionsRes, statsRes, todayCheckinsRes] = await Promise.all([
-    db.collection('sessions').where({ city, status: 'open' }).orderBy('start_time', 'asc').limit(20).get(),
+    db
+      .collection('sessions')
+      .where({ city, status: 'open', start_time: _.gte(earliestAlive) })
+      .orderBy('start_time', 'asc')
+      .limit(20)
+      .get(),
     db.collection('city_stats').where({ date: _.gte(dayStart) }).limit(50).get(),
     db.collection('checkins').where({ city, created_at: _.gte(dayStart) }).field({ user_id: true, distance_km: true }).limit(2000).get()
   ])

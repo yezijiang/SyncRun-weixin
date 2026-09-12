@@ -206,6 +206,23 @@ async function renameNickname(nickname) {
   return written(await call('getMe', { action: 'rename', nickname }))
 }
 
+/* ---------------- 设置与隐私 ---------------- */
+
+async function getSettings() {
+  const r = await call('getMe', { action: 'settings' })
+  // 读不到时给一个安全的默认值：默认可被搜索，名单为空
+  if (!r || !r.ok) return { searchable: true, blocked: [], source: 'mock' }
+  return r
+}
+
+async function setSearchable(searchable) {
+  return written(await call('getMe', { action: 'setSearchable', searchable: !!searchable }))
+}
+
+async function deleteAccount() {
+  return written(await call('getMe', { action: 'deleteAccount' }))
+}
+
 function meFromMock() {
   const checkins = mock.CHECKINS
   const totalKm = checkins.reduce((a, c) => a + (c.distance_km || 0), 0)
@@ -259,6 +276,9 @@ module.exports = {
   createTeam,
   joinTeam,
   renameNickname,
+  getSettings,
+  setSearchable,
+  deleteAccount,
   excludeBlocked,
   UNAVAILABLE
 }

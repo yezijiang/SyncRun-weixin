@@ -97,6 +97,11 @@ function ensureIdentity(city) {
   })
 }
 
+/** 注销时清掉本地身份。留着它，下次打开会拿一个服务端已不存在的种子继续跑 */
+function resetIdentity() {
+  wx.removeStorageSync(STORAGE_KEY)
+}
+
 function localSeed() {
   return `local-${Date.now()}-${Math.floor(Math.random() * 1e6)}`
 }
@@ -111,4 +116,11 @@ function setNickname(nickname) {
   return next
 }
 
-module.exports = { ensureIdentity, buildProfile, setNickname, hash, STORAGE_KEY }
+module.exports = {
+  ensureIdentity,
+  buildProfile,
+  setNickname,
+  resetIdentity,
+  hash,
+  STORAGE_KEY
+}

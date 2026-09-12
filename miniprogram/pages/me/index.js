@@ -52,7 +52,7 @@ Page({
   },
 
   openSettings() {
-    wx.showToast({ title: '设置与隐私（骨架待接入）', icon: 'none' })
+    wx.navigateTo({ url: '/pages/settings/index' })
   },
 
   async editIdentity() {

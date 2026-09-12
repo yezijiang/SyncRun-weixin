@@ -19,7 +19,80 @@ exports.main = async (event) => {
   if (!OPENID) return { ok: false, error: 'no_openid' }
 
   if (event.action === 'rename') return rename(OPENID, event)
+  if (event.action === 'settings') return settings(OPENID)
+  if (event.action === 'setSearchable') return setSearchable(OPENID, event)
+  if (event.action === 'deleteAccount') return deleteAccount(OPENID)
   return aggregate(OPENID)
+}
+
+/** 设置页：可被搜索的开关 + 屏蔽名单（名单里的人要能解除） */
+async function settings(openid) {
+  const me = await db.collection('users').where({ openid }).limit(1).get()
+  if (!me.data.length) return { ok: false, error: 'no_profile' }
+
+  const blockedIds = me.data[0].blocked_ids || []
+  let blocked = []
+  if (blockedIds.length) {
+    const res = await db
+      .collection('users')
+      .where({ openid: _.in(blockedIds) })
+      .limit(100)
+      .get()
+    blocked = res.data.map((u) => ({
+      id: u._id,
+      nickname: u.nickname || '已注销的跑友',
+      gradient: u.gradient || ['#7C5CFF', '#4CC9F0']
+    }))
+  }
+
+  return {
+    ok: true,
+    searchable: me.data[0].searchable !== false,
+    blocked
+  }
+}
+
+async function setSearchable(openid, event) {
+  const me = await db.collection('users').where({ openid }).limit(1).get()
+  if (!me.data.length) return { ok: false, error: 'no_profile' }
+
+  const searchable = event.searchable !== false
+  await db.collection('users').doc(me.data[0]._id).update({ data: { searchable } })
+  return { ok: true, searchable }
+}
+
+/**
+ * 注销：删掉这个人留下的全部内容。
+ *
+ * 举报记录不删。它是别人用来保护自己的凭证，不能因为被举报者注销就消失；
+ * 而且 reporter 字段是 openid，账号删掉之后它就是一串无意义的字符。
+ */
+async function deleteAccount(openid) {
+  const owned = ['checkins', 'posts', 'session_members', 'team_members', 'achievements']
+  for (const name of owned) {
+    await purge(name, { user_id: openid })
+  }
+  await purge('cheers', { from_user: openid })
+
+  // 别人名单里对我的屏蔽，注销后也要摘掉，否则会残留一串永远匹配不上的 openid
+  await db
+    .collection('users')
+    .where({ blocked_ids: openid })
+    .update({ data: { blocked_ids: _.pull(openid) } })
+    .catch((e) => console.warn('[同频跑] 清理他人屏蔽名单失败', e))
+
+  await db.collection('users').where({ openid }).remove()
+
+  // 城市统计是累计值，不倒扣：一个人的离开不该让城市数字往回跳
+  return { ok: true }
+}
+
+/** 分批删干净，单次 remove 有上限，一次删不完会留下孤儿数据 */
+async function purge(collection, where) {
+  for (let i = 0; i < 20; i++) {
+    const r = await db.collection(collection).where(where).limit(1000).remove()
+    if (!r || !r.stats || r.stats.removed === 0) return
+  }
 }
 
 async function aggregate(openid) {
