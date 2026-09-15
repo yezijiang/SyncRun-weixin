@@ -60,7 +60,7 @@
   ],
   "permission": {
     "scope.userLocation": {
-      "desc": "用于判断你所在的城市，以点亮城市。不会持续追踪位置，也不会上传跑步轨迹。"
+      "desc": "用于点亮你所在城市，不会持续追踪或上传轨迹"
     }
   },
   "sitemapLocation": "sitemap.json",
