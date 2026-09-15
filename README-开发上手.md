@@ -203,3 +203,36 @@ python3 tools/gen_tabicons.py
 ```
 
 改图标形状请编辑 `tools/gen_tabicons.py` 里的绘制函数。
+
+---
+
+## 八、踩过的报错
+
+### 部署时弹「云函数中有以下未安装的依赖 … 是否确认上传？」
+
+函数目录里没有 `node_modules`。**点「确定」会把缺依赖的代码传上去**，
+运行时报 `module not found`，而前端只会显示"操作失败"。
+
+```
+cd cloudfunctions/<函数名> && npm install
+```
+
+依赖已装并提交 `package-lock.json`，`project.config.json` 的 `packOptions.ignore`
+也把 `node_modules` 排除了——不排除的话，734MB 依赖会被打包进预览包。
+
+### 真机调试 `Error Timeout`
+
+按顺序排查：
+
+1. **改过 `project.config.json` 后重启开发者工具** —— 部分字段不支持热加载
+2. 代理：开发者工具 → 设置 → 代理 → 改成「不使用代理」（最常见的元凶）
+3. 手机与电脑在**同一个 WiFi**；必要时换手机热点试
+4. 清缓存：设置 → 通用设置 → 清除全部缓存后重启
+
+**不必在这里卡住。** 功能自检在**模拟器**里就能跑：云开发环境模拟器同样连得上。
+要上真机可以改用「预览」生成二维码，扫码即可运行，只是没有远程调试面板。
+
+### 真机调试 `错误码 80058 … of scope.userLocation exceeds 30`
+
+`app.json` 里 `permission.scope.userLocation.desc` **上限 30 字**（标点计入），
+超限会阻断真机上传，而本地编译不报错。当前文案 21 字，改这句时记得数一下。
