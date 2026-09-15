@@ -39,6 +39,9 @@ Page({
     this.setData({ showCreate: false })
   },
 
+  /** 面板上的空点击处理器：catchtap 必须跟一个真实方法名，写空值等于没拦冒泡 */
+  noop() {},
+
   onForm(e) {
     const k = e.currentTarget.dataset.k
     const patch = {}

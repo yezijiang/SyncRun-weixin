@@ -1,5 +1,13 @@
 <view class="page">
 
+  <!-- 应用锁：开了「启动时验证」且本次还没验过，先挡住全部内容 -->
+  <view class="lock" wx:if="{{locked}}">
+    <view class="lock-arc"></view>
+    <view class="lock-t">同频跑</view>
+    <view class="lock-s">验证身份后进入</view>
+    <button class="btn btn-primary" bindtap="unlock">指纹 / 面容验证</button>
+  </view>
+
   <!-- 头部品牌区：站内可以自由使用品牌视觉（PRD 1.2 内层） -->
   <view class="brand">
     <view class="brand-l">

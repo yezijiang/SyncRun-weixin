@@ -355,3 +355,36 @@
 .city.on {
   outline: 2rpx solid #7C5CFF;
 }
+
+/* 应用锁 */
+.lock {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 64rpx;
+}
+
+.lock-arc {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7C5CFF, #4CC9F0);
+  margin-bottom: 32rpx;
+}
+
+.lock-t {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #1A1A1F;
+}
+
+.lock-s {
+  margin: 12rpx 0 48rpx;
+  font-size: 26rpx;
+  color: #9AA0B4;
+}

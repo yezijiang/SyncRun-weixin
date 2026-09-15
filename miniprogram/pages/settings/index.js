@@ -1,5 +1,6 @@
 const db = require('../../utils/db')
 const cityUtil = require('../../utils/city')
+const lock = require('../../utils/lock')
 
 /**
  * 设置与隐私。
@@ -14,14 +15,16 @@ Page({
     blocked: [],
     deleting: false,
     city: '深圳',
-    cities: []
+    cities: [],
+    lockEnabled: false
   },
 
   onShow() {
     this.fetch()
     this.setData({
       city: cityUtil.get(),
-      cities: cityUtil.fallbackList(cityUtil.get())
+      cities: cityUtil.fallbackList(cityUtil.get()),
+      lockEnabled: lock.isEnabled()
     })
   },
 
@@ -54,6 +57,29 @@ Page({
       this.setData({ searchable: !next })
       wx.showToast({ title: '没保存成功，稍后再试', icon: 'none' })
     }
+  },
+
+  /**
+   * 开应用锁。设备不支持或没录入指纹时说明原因，不给一个点了没反应的开关——
+   * 那会让人以为锁上了，其实没锁
+   */
+  async toggleLock(e) {
+    if (!e.detail.value) {
+      lock.setEnabled(false)
+      return this.setData({ lockEnabled: false })
+    }
+
+    const r = await lock.enable()
+    if (!r.ok) {
+      this.setData({ lockEnabled: false })
+      const text =
+        r.reason === 'not_enrolled'
+          ? '手机里还没录入指纹或面容，先在系统设置里录一个'
+          : '这台设备不支持指纹或面容验证'
+      return wx.showToast({ title: text, icon: 'none' })
+    }
+    this.setData({ lockEnabled: true })
+    wx.showToast({ title: '已开启，下次打开需要验证', icon: 'none' })
   },
 
   async unblock(e) {

@@ -1,6 +1,7 @@
 const db = require('../../utils/db')
 const fmt = require('../../utils/format')
 const cityUtil = require('../../utils/city')
+const lock = require('../../utils/lock')
 
 Page({
   data: {
@@ -16,17 +17,40 @@ Page({
     city: '深圳',
     sessions: [],
     cities: [],
+    locked: false,
     source: 'mock'
   },
 
   onLoad() {
+    this.checkLock()
     this.hydrate()
     this.fetch()
   },
 
   onShow() {
+    this.checkLock()
     // 从打卡页返回时刷新，保证「今天跑过」立刻变化
-    this.fetch()
+    if (!this.data.locked) this.fetch()
+  },
+
+  /** 应用锁：只挡首屏，验证通过前不加载任何内容，也不去请求数据 */
+  checkLock() {
+    const need = lock.isEnabled() && !lock.isUnlocked()
+    if (need !== this.data.locked) this.setData({ locked: need })
+  },
+
+  async unlock() {
+    const r = await lock.authenticate()
+    if (r.ok) {
+      lock.markUnlocked()
+      this.setData({ locked: false })
+      this.fetch()
+      return
+    }
+    // 用户自己取消的不提示，避免一次误触弹个红字
+    if (!r.cancelled) {
+      wx.showToast({ title: '验证没通过，再试一次', icon: 'none' })
+    }
   },
 
   hydrate() {

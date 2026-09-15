@@ -18,8 +18,8 @@
   <view class="id-tip">点头像可换配色 · 不使用微信头像与昵称</view>
 
   <!-- 选择头像配色 -->
-  <view class="mask" wx:if="{{showAvatar}}" bindtap="closeAvatar">
-    <view class="av-panel" catchtap="">
+  <view class="mask" wx:if="{{showAvatar}}" catchtap="closeAvatar">
+    <view class="av-panel" catchtap="noop">
       <view class="p-t">换一个头像</view>
       <view class="p-s">头像是渐变色块，不含任何真实信息，随便换</view>
       <view class="av-grid">

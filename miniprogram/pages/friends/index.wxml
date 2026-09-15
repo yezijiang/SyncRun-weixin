@@ -65,14 +65,27 @@
   <view class="fbtn" bindtap="openCreate">＋</view>
 
   <!-- 发起组队面板 -->
-  <view class="mask" wx:if="{{showCreate}}" bindtap="closeCreate">
-    <view class="panel" catchtap="">
+  <!--
+    面板必须用 catchtap 拦住冒泡，否则点输入框会冒泡到遮罩层把弹窗关掉。
+    注意 catchtap 后面必须跟一个真实存在的方法名：写 catchtap="" 是空值，
+    编译器不认，等于没拦——这个坑就是这么来的。
+  -->
+  <view class="mask" wx:if="{{showCreate}}" catchtap="closeCreate">
+    <view class="panel" catchtap="noop">
       <view class="p-t">创建一个队伍</view>
       <view class="p-s">队伍是长期的小圈子；一次性的约跑请在「去跑」页发起</view>
 
       <view class="fld">
         <text class="f-l">队伍名</text>
-        <input class="f-i" placeholder="例如：深圳湾日出跑团" value="{{form.name}}" bindinput="onForm" data-k="name" />
+        <input
+          class="f-i"
+          placeholder="例如：深圳湾日出跑团"
+          value="{{form.name}}"
+          bindinput="onForm"
+          data-k="name"
+          cursor-spacing="40"
+          hold-keyboard="{{true}}"
+        />
       </view>
 
       <view class="fld">
@@ -96,6 +109,7 @@
       </view>
 
       <button class="btn btn-primary p-submit" bindtap="submitCreate">创建</button>
+      <button class="btn btn-ghost p-submit" catchtap="closeCreate">取消</button>
       <view class="p-hint">每天最多创建 3 个队伍</view>
     </view>
   </view>

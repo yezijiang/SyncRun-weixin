@@ -9,6 +9,13 @@
   <view class="card">
     <view class="row between lk">
       <view class="lk-l">
+        <text class="lk-t">启动时需要验证</text>
+        <text class="lk-s">打开小程序要验指纹或面容。借手机给别人时用得上</text>
+      </view>
+      <switch checked="{{lockEnabled}}" bindchange="toggleLock" color="#7C5CFF" />
+    </view>
+    <view class="row between lk">
+      <view class="lk-l">
         <text class="lk-t">允许被搜索</text>
         <text class="lk-s">关闭后，你不会出现在跑友搜索结果里</text>
       </view>
@@ -53,6 +60,37 @@
     <view class="pl-i">
       <text class="pl-k">头像与昵称都是生成的</text>
       <text class="pl-v">不读取微信头像与昵称。头像可换配色，昵称可改，都不含真实信息</text>
+    </view>
+    <view class="pl-i">
+      <text class="pl-k">没有「登出」，只有锁和注销</text>
+      <text class="pl-v">身份跟着微信账号走，登出了再打开还是你，做了也是假的。要防偷看请用「启动时验证」</text>
+    </view>
+  </view>
+
+  <!-- 我们到底存了什么 -->
+  <view class="sect">
+    <text class="t">我们保存了什么</text>
+  </view>
+  <view class="card pl">
+    <view class="pl-i">
+      <text class="pl-k">一个匿名标识</text>
+      <text class="pl-v">微信给的，不含手机号、姓名、性别、地区</text>
+    </view>
+    <view class="pl-i">
+      <text class="pl-k">你自己填的跑步数据</text>
+      <text class="pl-v">距离、时长、城市，以及可选的截图与一句话感受</text>
+    </view>
+    <view class="pl-i">
+      <text class="pl-k">生成的昵称与头像配色</text>
+      <text class="pl-v">改过的话存你改的；没改过就存系统生成的</text>
+    </view>
+    <view class="pl-i">
+      <text class="pl-k">屏蔽名单与举报</text>
+      <text class="pl-v">举报会保留，那是别人用来保护自己的凭证</text>
+    </view>
+    <view class="pl-i">
+      <text class="pl-k">没有的东西</text>
+      <text class="pl-v">手机号、真实姓名、微信头像昵称、精确位置、通讯录、跑步轨迹</text>
     </view>
   </view>
 
