@@ -53,6 +53,7 @@ miniprogram/                 小程序前端
     identity.js              身份脱敏（P0）：生成式昵称 + 彩虹几何头像
     session.js               场次状态机（P0）：推导「此刻正在奔跑」
     share.js                 分享物料（P0）：保证对外卡片中性
+    city.js                  当前城市的读写与持久化（城市是数据，不是常量）
     db.js                    数据访问层 + 双向屏蔽过滤 + mock 降级
     format.js                时长 / 配速 / 距离格式化
     mock.js                  本地演示数据

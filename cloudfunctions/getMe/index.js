@@ -14,6 +14,18 @@ const _ = db.command
 
 const MAX_RECORDS = 500
 
+// 头像色板，与 miniprogram/utils/identity.js 一致，改动要同步两边
+const GRADIENTS = [
+  ['#FF4D6D', '#FF9F1C'],
+  ['#FF9F1C', '#FFD166'],
+  ['#FFD166', '#06D6A0'],
+  ['#06D6A0', '#4CC9F0'],
+  ['#4CC9F0', '#9B5DE5'],
+  ['#9B5DE5', '#FF4D6D'],
+  ['#7C5CFF', '#4CC9F0'],
+  ['#0F6E56', '#06D6A0']
+]
+
 exports.main = async (event) => {
   const { OPENID } = cloud.getWXContext()
   if (!OPENID) return { ok: false, error: 'no_openid' }
@@ -21,8 +33,40 @@ exports.main = async (event) => {
   if (event.action === 'rename') return rename(OPENID, event)
   if (event.action === 'settings') return settings(OPENID)
   if (event.action === 'setSearchable') return setSearchable(OPENID, event)
+  if (event.action === 'setGradient') return setGradient(OPENID, event)
+  if (event.action === 'setCity') return setCity(OPENID, event)
   if (event.action === 'deleteAccount') return deleteAccount(OPENID)
   return aggregate(OPENID)
+}
+
+/**
+ * 换头像。头像是 openid 哈希出来的渐变色块，不含任何真实信息，
+ * 所以让用户自己挑一个完全没问题——换的只是配色，不是身份本身。
+ * 只接受预设色板里的值，不接受任意颜色，避免出现刺眼的配色。
+ */
+async function setGradient(openid, event) {
+  const palette = GRADIENTS.map((g) => g.join(','))
+  const value = event.gradient
+  if (!Array.isArray(value) || value.length !== 2) return { ok: false, error: 'bad_gradient' }
+  if (palette.indexOf(value.join(',')) < 0) return { ok: false, error: 'gradient_not_allowed' }
+
+  const me = await db.collection('users').where({ openid }).limit(1).get()
+  if (!me.data.length) return { ok: false, error: 'no_profile' }
+
+  await db.collection('users').doc(me.data[0]._id).update({ data: { gradient: value } })
+  return { ok: true, gradient: value }
+}
+
+/** 切换城市。城市是数据字段，换城市后首页场次与统计都按新城市过滤 */
+async function setCity(openid, event) {
+  const city = String(event.city || '').trim().slice(0, 20)
+  if (!city) return { ok: false, error: 'no_city' }
+
+  const me = await db.collection('users').where({ openid }).limit(1).get()
+  if (!me.data.length) return { ok: false, error: 'no_profile' }
+
+  await db.collection('users').doc(me.data[0]._id).update({ data: { city } })
+  return { ok: true, city }
 }
 
 /** 设置页：可被搜索的开关 + 屏蔽名单（名单里的人要能解除） */

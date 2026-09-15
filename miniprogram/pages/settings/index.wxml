@@ -23,6 +23,39 @@
     </view>
   </view>
 
+  <!-- 城市 -->
+  <view class="sect">
+    <text class="t">我的城市</text>
+    <text class="x">当前：{{city}}</text>
+  </view>
+  <view class="card">
+    <scroll-view class="chips" scroll-x enable-flex>
+      <view
+        class="chip {{item.current ? 'on' : ''}}"
+        wx:for="{{cities}}"
+        wx:key="city"
+        bindtap="pickCity"
+        data-c="{{item.city}}"
+      >{{item.city}}</view>
+    </scroll-view>
+    <view class="hint">决定首页看到哪个城市的场次与统计。城市是数据字段，扩城不用改代码</view>
+  </view>
+
+  <!-- 身份与登录 -->
+  <view class="sect">
+    <text class="t">身份与登录</text>
+  </view>
+  <view class="card pl">
+    <view class="pl-i">
+      <text class="pl-k">没有账号密码，也不用微信授权</text>
+      <text class="pl-v">打开即用：系统用匿名标识生成你的身份，换设备能找回来</text>
+    </view>
+    <view class="pl-i">
+      <text class="pl-k">头像与昵称都是生成的</text>
+      <text class="pl-v">不读取微信头像与昵称。头像可换配色，昵称可改，都不含真实信息</text>
+    </view>
+  </view>
+
   <!-- 屏蔽名单 -->
   <view class="sect">
     <text class="t">屏蔽名单</text>

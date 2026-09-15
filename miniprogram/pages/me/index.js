@@ -1,5 +1,6 @@
 const db = require('../../utils/db')
 const fmt = require('../../utils/format')
+const { GRADIENTS } = require('../../utils/identity')
 
 const ACHIEVEMENTS = [
   { code: 'first', name: '第一次打卡', got: true },
@@ -19,7 +20,9 @@ Page({
     longest: '0.00',
     streakDays: 0,
     achievements: ACHIEVEMENTS,
-    cities: []
+    cities: [],
+    gradients: GRADIENTS,
+    showAvatar: false
   },
 
   onShow() {
@@ -53,6 +56,35 @@ Page({
 
   openSettings() {
     wx.navigateTo({ url: '/pages/settings/index' })
+  },
+
+  /* ---------- 头像 ---------- */
+
+  openAvatar() {
+    this.setData({ showAvatar: true })
+  },
+
+  closeAvatar() {
+    this.setData({ showAvatar: false })
+  },
+
+  /**
+   * 换头像配色。本地先变，再同步服务端——
+   * 换的是配色不是身份，失败了也只是别人看到的还是旧的，不阻塞
+   */
+  async pickGradient(e) {
+    const g = GRADIENTS[Number(e.currentTarget.dataset.i)]
+    if (!g) return
+
+    const { setGradient } = require('../../utils/identity')
+    const next = setGradient(g)
+    getApp().globalData.profile = next
+    this.setData({ gradient: g, showAvatar: false })
+
+    const r = await db.setGradient(g)
+    if (!r.ok) {
+      wx.showToast({ title: '配色没能同步，别人看到的还是旧的', icon: 'none' })
+    }
   },
 
   async editIdentity() {

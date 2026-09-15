@@ -49,6 +49,17 @@
       </view>
     </view>
 
+    <!--
+      自由跑：没加入任何场次的人原来没有任何打卡入口
+      （打卡按钮只长在「你已加入」那张卡里），核心循环断了一半。
+      自己跑同样计入城市点亮，不强制参加场次。
+    -->
+    <view class="card free">
+      <view class="free-t">就想自己跑？</view>
+      <view class="free-s">不用等场次，跑完直接打卡，一样点亮城市</view>
+      <button class="btn btn-dark" bindtap="freeRun">自己跑，直接打卡</button>
+    </view>
+
     <view class="cta-bottom">
       <button class="btn btn-primary" bindtap="openCreate">＋ 发起一场陪跑，邀请别人一起跑</button>
     </view>
@@ -153,8 +164,11 @@
   <!-- ============ 打卡态 ============ -->
   <block wx:elif="{{mode === 'checkin'}}">
     <view class="hd">
+      <view class="back" bindtap="backToList">‹ 返回</view>
       <view class="hd-t">打卡</view>
-      <view class="hd-s">录入目标 15 秒内完成</view>
+      <view class="hd-s">
+        {{joinedSession ? '这场：' + joinedSession.title : '自由跑 · 不参加场次'}}
+      </view>
     </view>
 
     <view class="card">

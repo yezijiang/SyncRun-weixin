@@ -30,23 +30,23 @@
     </view>
   </view>
 
-  <!-- 统计条 -->
+  <!-- 统计条：全部来自云端，没有数据就显示 0，不编数字 -->
   <view class="stats">
     <view class="st">
       <text class="st-l">今日跑量</text>
-      <text class="st-v num">328.6<text class="u">km</text></text>
+      <text class="st-v num">{{todayKm}}<text class="u">km</text></text>
     </view>
     <view class="st">
       <text class="st-l">今日完成</text>
-      <text class="st-v num">86<text class="u">人</text></text>
+      <text class="st-v num">{{todayRunners}}<text class="u">人</text></text>
     </view>
     <view class="st">
       <text class="st-l">收到鼓励</text>
-      <text class="st-v num">56<text class="u">次</text></text>
+      <text class="st-v num">{{cheerReceived}}<text class="u">次</text></text>
     </view>
     <view class="st">
       <text class="st-l">连续跑步</text>
-      <text class="st-v num">12<text class="u">天</text></text>
+      <text class="st-v num">{{streakDays}}<text class="u">天</text></text>
     </view>
   </view>
 
@@ -75,25 +75,23 @@
     </view>
   </scroll-view>
 
-  <!-- 点亮城市 -->
+  <!-- 点亮城市：点一下就切换当前城市，未点亮的城市也能选（你可能是第一个） -->
   <view class="sect">
     <text class="t">点亮城市</text>
-    <text class="x">查看更多 ›</text>
+    <text class="x">当前：{{city}} · 点击切换</text>
   </view>
   <scroll-view class="cities" scroll-x enable-flex>
-    <view class="city {{item.lit ? 'lit' : ''}}" wx:for="{{cities}}" wx:key="city">
+    <view
+      class="city {{item.lit ? 'lit' : 'dim'}} {{item.city === city ? 'on' : ''}}"
+      wx:for="{{cities}}"
+      wx:key="city"
+      bindtap="pickCity"
+      data-c="{{item.city}}"
+    >
       <view class="city-arc" wx:if="{{item.lit}}"></view>
       <view class="city-n">{{item.city}}</view>
       <view class="city-d" wx:if="{{item.lit}}">今天 {{item.runner_count}} 人跑过</view>
       <view class="city-d" wx:else>还未被点亮</view>
-    </view>
-    <view class="city dim">
-      <view class="city-n">上海</view>
-      <view class="city-d">还未被点亮</view>
-    </view>
-    <view class="city dim">
-      <view class="city-n">成都</view>
-      <view class="city-d">还未被点亮</view>
     </view>
   </scroll-view>
 

@@ -1,4 +1,5 @@
 const { ensureIdentity } = require('./utils/identity')
+const city = require('./utils/city')
 const config = require('./config')
 
 App({
@@ -12,6 +13,9 @@ App({
   },
 
   onLaunch() {
+    // 用户上次选的城市要先恢复，否则首屏会先闪一下默认城市
+    city.restore()
+
     if (!wx.cloud) {
       console.error('[同频跑] 基础库版本过低，请使用 2.2.3 及以上版本')
       return

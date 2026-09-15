@@ -1,14 +1,19 @@
 const db = require('../../utils/db')
 const fmt = require('../../utils/format')
+const cityUtil = require('../../utils/city')
 
 Page({
   data: {
     greeting: '今晚好',
     nickname: '',
     gradient: ['#7C5CFF', '#4CC9F0'],
-    // PRD 4.1.1：两个数字都是真的
+    // PRD 4.1.1：数字都是真的，没有就是 0
     todayRunners: 0,   // 今天跑过（累计）
     runningNow: 0,     // 此刻正在跑（状态机推导）
+    todayKm: 0,
+    cheerReceived: 0,  // 我的动态收到的鼓励
+    streakDays: 0,     // 连续打卡天数
+    city: '深圳',
     sessions: [],
     cities: [],
     source: 'mock'
@@ -44,6 +49,10 @@ Page({
     this.setData({
       todayRunners: res.todayRunnersDisplay || res.todayRunners,
       runningNow: res.runningNow,
+      todayKm: res.todayKm || 0,
+      cheerReceived: res.cheerReceived || 0,
+      streakDays: res.streakDays || 0,
+      city: res.city || cityUtil.get(),
       source: res.source,
       sessions: res.sessions.map((s) => ({
         ...s,
@@ -88,6 +97,23 @@ Page({
 
   goCheckin() {
     wx.switchTab({ url: '/pages/run/index' })
+  },
+
+  /**
+   * 切换城市。本地立刻生效，服务端同步失败也不影响浏览——
+   * 城市只是浏览上下文，不该因为一次网络问题就卡住用户
+   */
+  async pickCity(e) {
+    const next = e.currentTarget.dataset.c
+    if (!next || next === this.data.city) return
+
+    cityUtil.set(next)
+    this.setData({ city: next })
+    wx.showToast({ title: '已切换到 ' + next, icon: 'none' })
+
+    const r = await db.setCity(next)
+    if (!r.ok) console.warn('[同频跑] 城市没能同步到服务端', r.error)
+    this.fetch()
   },
 
   goCreate() {

@@ -340,3 +340,26 @@
 .poi-btn {
   margin-top: 16rpx;
 }
+
+/* 自由跑 */
+.free {
+  border-style: dashed;
+}
+
+.free-t {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1A1A1F;
+}
+
+.free-s {
+  margin: 8rpx 0 24rpx;
+  font-size: 24rpx;
+  color: #9AA0B4;
+}
+
+.back {
+  font-size: 26rpx;
+  color: #9AA0B4;
+  margin-bottom: 12rpx;
+}

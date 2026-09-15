@@ -2,7 +2,11 @@
 
   <!-- 身份区 -->
   <view class="ident">
-    <view class="id-av" style="background:linear-gradient(135deg,{{gradient[0]}},{{gradient[1]}})">
+    <view
+      class="id-av"
+      style="background:linear-gradient(135deg,{{gradient[0]}},{{gradient[1]}})"
+      bindtap="openAvatar"
+    >
       <view class="id-ring"></view>
     </view>
     <view class="id-t">
@@ -11,7 +15,25 @@
     </view>
     <view class="id-edit" bindtap="editIdentity">改昵称</view>
   </view>
-  <view class="id-tip">头像与昵称由系统生成，不使用微信头像与昵称</view>
+  <view class="id-tip">点头像可换配色 · 不使用微信头像与昵称</view>
+
+  <!-- 选择头像配色 -->
+  <view class="mask" wx:if="{{showAvatar}}" bindtap="closeAvatar">
+    <view class="av-panel" catchtap="">
+      <view class="p-t">换一个头像</view>
+      <view class="p-s">头像是渐变色块，不含任何真实信息，随便换</view>
+      <view class="av-grid">
+        <view
+          class="av-i {{item.join(',') === gradient.join(',') ? 'on' : ''}}"
+          wx:for="{{gradients}}"
+          wx:key="*this"
+          style="background:linear-gradient(135deg,{{item[0]}},{{item[1]}})"
+          bindtap="pickGradient"
+          data-i="{{index}}"
+        ></view>
+      </view>
+    </view>
+  </view>
 
   <!-- 数据区 -->
   <view class="card nums">

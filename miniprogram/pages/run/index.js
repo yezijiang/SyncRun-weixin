@@ -93,6 +93,19 @@ Page({
     this.setData({ mode: 'checkin' })
   },
 
+  /**
+   * 自由跑：不参加任何场次也能打卡。
+   * 打卡的 session_id 留空，checkin 云函数本来就不要求有场次。
+   */
+  freeRun() {
+    this.setData({ joinedSession: null, mode: 'checkin' })
+  },
+
+  backToList() {
+    this.setData({ mode: 'list' })
+    this.fetch()
+  },
+
   /* ---------- 发起场次 ---------- */
 
   openCreate() {

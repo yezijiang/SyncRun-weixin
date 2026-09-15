@@ -83,6 +83,13 @@ exports.main = async (event) => {
     }
   })
 
+  // 首页统计条里「收到鼓励」与「连续跑步」是本人的数据，只能在这里一起算：
+  // posts 与 cheers 都是仅管理端可读写，前端拿不到
+  const [cheerReceived, streakDays] = await Promise.all([
+    countCheerReceived(OPENID),
+    countStreak(OPENID)
+  ])
+
   const runningUserSet = new Set()
   sessions.forEach((s) => {
     ;(bySession[s._id] || []).forEach((m) => {
@@ -117,8 +124,52 @@ exports.main = async (event) => {
     todayRunners: todayRunnersSet.size,
     todayKm: Math.round(todayKm * 10) / 10,
     runningNow: runningUserSet.size,
+    // 本人的两项，只跟自己有关，但也只能云端算
+    cheerReceived,
+    streakDays,
+    city,
     serverTime: now
   }
+}
+
+/** 我发的动态收到的鼓励总数。没有动态就是 0，不编数字 */
+async function countCheerReceived(openid) {
+  if (!openid) return 0
+
+  const mine = await db.collection('posts').where({ user_id: openid }).field({ _id: true }).limit(100).get()
+  const ids = mine.data.map((p) => p._id)
+  if (!ids.length) return 0
+
+  const res = await db
+    .collection('cheers')
+    .where({ target_type: 'post', target_id: _.in(ids) })
+    .field({ _id: true })
+    .limit(1000)
+    .get()
+  return res.data.length
+}
+
+/** 连续打卡天数：按自然日去重后往前数，今天没跑不算断 */
+async function countStreak(openid) {
+  if (!openid) return 0
+
+  const res = await db
+    .collection('checkins')
+    .where({ user_id: openid })
+    .orderBy('created_at', 'desc')
+    .field({ created_at: true })
+    .limit(500)
+    .get()
+
+  const days = new Set(res.data.map((c) => startOfDay(c.created_at)))
+  let n = 0
+  let cursor = startOfDay(Date.now())
+  if (!days.has(cursor)) cursor -= 86400000
+  while (days.has(cursor)) {
+    n += 1
+    cursor -= 86400000
+  }
+  return n
 }
 
 /**

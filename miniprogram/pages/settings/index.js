@@ -1,4 +1,5 @@
 const db = require('../../utils/db')
+const cityUtil = require('../../utils/city')
 
 /**
  * 设置与隐私。
@@ -11,11 +12,17 @@ Page({
   data: {
     searchable: true,
     blocked: [],
-    deleting: false
+    deleting: false,
+    city: '深圳',
+    cities: []
   },
 
   onShow() {
     this.fetch()
+    this.setData({
+      city: cityUtil.get(),
+      cities: cityUtil.fallbackList(cityUtil.get())
+    })
   },
 
   async fetch() {
@@ -24,6 +31,18 @@ Page({
       searchable: r.searchable !== false,
       blocked: r.blocked || []
     })
+  },
+
+  async pickCity(e) {
+    const next = e.currentTarget.dataset.c
+    if (!next || next === this.data.city) return
+
+    cityUtil.set(next)
+    this.setData({ city: next, cities: cityUtil.fallbackList(next) })
+    wx.showToast({ title: '已切换到 ' + next, icon: 'none' })
+
+    const r = await db.setCity(next)
+    if (!r.ok) console.warn('[同频跑] 城市没能同步到服务端', r.error)
   },
 
   async toggleSearchable(e) {

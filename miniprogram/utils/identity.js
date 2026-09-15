@@ -14,7 +14,9 @@ const STORAGE_KEY = 'tf_identity_v1'
 
 const RUNNER_WORDS = ['夜跑者', '晨跑者', '午后跑者', '慢跑者', '绕圈跑者', '河堤跑者']
 
-// 两两一组，取自 PRD 彩虹渐变的分段组合
+// 两两一组，取自 PRD 彩虹渐变的分段组合。
+// 这份色板在 cloudfunctions/login 与 cloudfunctions/getMe 各有一份，
+// 三处必须一致——getMe 只接受色板内的值，改了一处不同步会导致换头像被拒绝。
 const GRADIENTS = [
   ['#FF4D6D', '#FF9F1C'],
   ['#FF9F1C', '#FFD166'],
@@ -116,11 +118,21 @@ function setNickname(nickname) {
   return next
 }
 
+/** 用户自选头像配色后更新本地档案 */
+function setGradient(gradient) {
+  const cached = wx.getStorageSync(STORAGE_KEY) || {}
+  const next = Object.assign({}, cached, { gradient })
+  wx.setStorageSync(STORAGE_KEY, next)
+  return next
+}
+
 module.exports = {
   ensureIdentity,
   buildProfile,
   setNickname,
+  setGradient,
   resetIdentity,
   hash,
+  GRADIENTS,
   STORAGE_KEY
 }

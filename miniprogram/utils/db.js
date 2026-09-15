@@ -13,6 +13,7 @@
  */
 
 const mock = require('./mock')
+const cityUtil = require('./city')
 const { summarize, countRunningNow, countCheckedInToday } = require('./session')
 
 // 云函数不可用（未部署 / 网络失败）时的统一返回，页面据此提示而不是假装成功
@@ -23,8 +24,7 @@ function app() {
 }
 
 function city() {
-  const a = app()
-  return (a && a.globalData && a.globalData.city) || '深圳'
+  return cityUtil.get()
 }
 
 function cloudOn() {
@@ -74,6 +74,10 @@ async function getHome() {
     todayRunners: r.todayRunners || 0,
     todayKm: r.todayKm || 0,
     runningNow: r.runningNow || 0,
+    // 本人的两项：收到的鼓励、连续打卡天数
+    cheerReceived: r.cheerReceived || 0,
+    streakDays: r.streakDays || 0,
+    city: r.city || city(),
     source: 'cloud'
   }
 }
@@ -219,6 +223,14 @@ async function setSearchable(searchable) {
   return written(await call('getMe', { action: 'setSearchable', searchable: !!searchable }))
 }
 
+async function setGradient(gradient) {
+  return written(await call('getMe', { action: 'setGradient', gradient }))
+}
+
+async function setCity(next) {
+  return written(await call('getMe', { action: 'setCity', city: next }))
+}
+
 async function deleteAccount() {
   return written(await call('getMe', { action: 'deleteAccount' }))
 }
@@ -278,6 +290,8 @@ module.exports = {
   renameNickname,
   getSettings,
   setSearchable,
+  setGradient,
+  setCity,
   deleteAccount,
   excludeBlocked,
   UNAVAILABLE
