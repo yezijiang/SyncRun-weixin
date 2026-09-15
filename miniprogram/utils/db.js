@@ -231,6 +231,35 @@ async function setCity(next) {
   return written(await call('getMe', { action: 'setCity', city: next }))
 }
 
+async function setAvatar(fileId) {
+  return written(await call('getMe', { action: 'setAvatar', file_id: fileId }))
+}
+
+async function clearAvatar() {
+  return written(await call('getMe', { action: 'clearAvatar' }))
+}
+
+async function setGender(gender) {
+  return written(await call('getMe', { action: 'setGender', gender }))
+}
+
+/**
+ * 上传头像到云存储。
+ * 换微信头像走这里：微信给的是临时文件路径，必须转成云存储 fileID 才能长期用。
+ */
+async function uploadAvatar(tempPath) {
+  if (!cloudOn()) return { ok: false, error: 'cloud_unavailable' }
+  const ext = String(tempPath).split('.').pop() || 'png'
+  const cloudPath = `avatars/${Date.now()}-${Math.floor(Math.random() * 1e6)}.${ext}`
+  try {
+    const res = await wx.cloud.uploadFile({ cloudPath, filePath: tempPath })
+    return { ok: true, fileID: res.fileID }
+  } catch (e) {
+    console.warn('[同频跑] 头像上传失败', e)
+    return { ok: false, error: 'upload_failed' }
+  }
+}
+
 async function deleteAccount() {
   return written(await call('getMe', { action: 'deleteAccount' }))
 }
@@ -292,6 +321,10 @@ module.exports = {
   setSearchable,
   setGradient,
   setCity,
+  setAvatar,
+  clearAvatar,
+  setGender,
+  uploadAvatar,
   deleteAccount,
   excludeBlocked,
   UNAVAILABLE

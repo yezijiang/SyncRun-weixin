@@ -126,11 +126,30 @@ function setGradient(gradient) {
   return next
 }
 
+/**
+ * 用户主动换成微信头像后更新本地档案。
+ * 存的是云存储 fileID（微信给的是临时链接，会失效）。
+ * 注意：这只改变"展示用哪张图"，不改变身份本身——种子还是那个 openid。
+ */
+function setAvatarFileId(fileId) {
+  const cached = wx.getStorageSync(STORAGE_KEY) || {}
+  const next = Object.assign({}, cached, { avatarFileId: fileId || '' })
+  wx.setStorageSync(STORAGE_KEY, next)
+  return next
+}
+
+/** 换回生成式头像。只清展示用的图片，身份不变 */
+function clearAvatarFileId() {
+  return setAvatarFileId('')
+}
+
 module.exports = {
   ensureIdentity,
   buildProfile,
   setNickname,
   setGradient,
+  setAvatarFileId,
+  clearAvatarFileId,
   resetIdentity,
   hash,
   GRADIENTS,

@@ -93,6 +93,7 @@ async function searchFriend(kw, openid) {
       _id: u._id,
       nickname: u.nickname || '匿名跑者',
       gradient: u.gradient || ['#7C5CFF', '#4CC9F0'],
+      avatar: u.avatar_file_id || '',
       city: u.city || '',
       usual_km: u.usual_km || 0
     }))

@@ -2,12 +2,15 @@
 
   <!-- 身份区 -->
   <view class="ident">
-    <view
-      class="id-av"
-      style="background:linear-gradient(135deg,{{gradient[0]}},{{gradient[1]}})"
-      bindtap="openAvatar"
-    >
-      <view class="id-ring"></view>
+    <view class="id-av" bindtap="openAvatar">
+      <image class="id-img" wx:if="{{avatarFileId}}" src="{{avatarFileId}}" mode="aspectFill" />
+      <view
+        wx:else
+        class="id-grad"
+        style="background:linear-gradient(135deg,{{gradient[0]}},{{gradient[1]}})"
+      >
+        <view class="id-ring"></view>
+      </view>
     </view>
     <view class="id-t">
       <view class="id-n">{{nickname}}</view>
@@ -15,16 +18,19 @@
     </view>
     <view class="id-edit" bindtap="editIdentity">改昵称</view>
   </view>
-  <view class="id-tip">点头像可换配色 · 不使用微信头像与昵称</view>
+  <view class="id-tip">
+    {{avatarFileId ? '当前是你的微信头像 · 点头像可换回' : '当前是系统生成的头像，不含真实信息'}}
+  </view>
 
-  <!-- 选择头像配色 -->
+  <!-- 头像与昵称 -->
   <view class="mask" wx:if="{{showAvatar}}" catchtap="closeAvatar">
     <view class="av-panel" catchtap="noop">
-      <view class="p-t">换一个头像</view>
-      <view class="p-s">头像是渐变色块，不含任何真实信息，随便换</view>
+      <view class="p-t">头像</view>
+      <view class="p-s">默认是不含任何真实信息的色块。要用自己的头像也可以，由你决定</view>
+
       <view class="av-grid">
         <view
-          class="av-i {{item.join(',') === gradient.join(',') ? 'on' : ''}}"
+          class="av-i {{!avatarFileId && item.join(',') === gradient.join(',') ? 'on' : ''}}"
           wx:for="{{gradients}}"
           wx:key="*this"
           style="background:linear-gradient(135deg,{{item[0]}},{{item[1]}})"
@@ -32,6 +38,35 @@
           data-i="{{index}}"
         ></view>
       </view>
+
+      <view class="av-sep"></view>
+
+      <!--
+        微信头像只能由用户主动点选：官方的头像填写能力要求手动确认，
+        我们无法在后台静默拉取。这条边界正好是我们想要的——决定权在用户手里。
+      -->
+      <button
+        class="btn btn-ghost av-wx"
+        open-type="chooseAvatar"
+        bindchooseavatar="onChooseAvatar"
+      >使用我的微信头像</button>
+      <button
+        class="btn btn-ghost av-wx"
+        wx:if="{{avatarFileId}}"
+        bindtap="revertAvatar"
+      >换回生成的头像</button>
+
+      <view class="av-sep"></view>
+      <view class="p-t2">昵称</view>
+      <!-- type="nickname" 会调起微信的昵称填写键盘，可以直接选用微信昵称 -->
+      <input
+        class="nick-inp"
+        type="nickname"
+        placeholder="点这里可以选用你的微信昵称"
+        value="{{nickname}}"
+        bindinput="onNicknameInput"
+      />
+      <button class="btn btn-primary av-wx" bindtap="saveNickname">保存昵称</button>
     </view>
   </view>
 

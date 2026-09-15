@@ -7,7 +7,12 @@
 
   <view class="post" wx:for="{{posts}}" wx:key="_id">
     <view class="ph">
-      <view class="av" style="background:linear-gradient(135deg,{{item.author.gradient[0]}},{{item.author.gradient[1]}})"></view>
+      <image class="av" wx:if="{{item.author.avatar}}" src="{{item.author.avatar}}" mode="aspectFill" />
+      <view
+        class="av"
+        wx:else
+        style="background:linear-gradient(135deg,{{item.author.gradient[0]}},{{item.author.gradient[1]}})"
+      ></view>
       <view class="ph-t">
         <view class="ph-n">{{item.author.nickname}}</view>
         <view class="ph-m">{{item.timeText}} · {{item.author.city || '深圳'}}</view>

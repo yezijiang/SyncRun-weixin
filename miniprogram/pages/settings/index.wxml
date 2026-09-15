@@ -30,6 +30,24 @@
     </view>
   </view>
 
+  <!-- 性别：微信不提供这个字段，只能自己说。必须留「不愿说」 -->
+  <view class="sect">
+    <text class="t">性别</text>
+    <text class="x">选填</text>
+  </view>
+  <view class="card">
+    <scroll-view class="chips" scroll-x enable-flex>
+      <view
+        class="chip {{item.key === gender ? 'on' : ''}}"
+        wx:for="{{genders}}"
+        wx:key="key"
+        bindtap="pickGender"
+        data-g="{{item.key}}"
+      >{{item.label}}</view>
+    </scroll-view>
+    <view class="hint">只用于跑友筛选，不会单独展示，也不会同步到任何外部平台。选「不愿说」完全没问题</view>
+  </view>
+
   <!-- 城市 -->
   <view class="sect">
     <text class="t">我的城市</text>

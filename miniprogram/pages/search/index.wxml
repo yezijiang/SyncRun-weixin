@@ -33,7 +33,12 @@
   <!-- 跑友 -->
   <block wx:elif="{{tab === 'friend'}}">
     <view class="row fr" wx:for="{{results}}" wx:key="_id">
-      <view class="av" style="background:linear-gradient(135deg,{{item.gradient[0]}},{{item.gradient[1]}})"></view>
+      <image class="av" wx:if="{{item.avatar}}" src="{{item.avatar}}" mode="aspectFill" />
+      <view
+        class="av"
+        wx:else
+        style="background:linear-gradient(135deg,{{item.gradient[0]}},{{item.gradient[1]}})"
+      ></view>
       <view class="r-t">{{item.nickname}}</view>
     </view>
     <view class="note">只有开启「允许被搜索」的跑友才会出现在这里</view>

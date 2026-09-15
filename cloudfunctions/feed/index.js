@@ -57,6 +57,8 @@ exports.main = async (event) => {
       id: u._id,
       nickname: u.nickname || '匿名跑者',
       gradient: u.gradient || ['#7C5CFF', '#4CC9F0'],
+      // 用户主动换的微信头像。为空时前端退回生成式色块
+      avatar: u.avatar_file_id || '',
       city: u.city || ''
     }
   })
@@ -83,7 +85,7 @@ exports.main = async (event) => {
       cheer_count: p.cheer_count || 0,
       comment_count: p.comment_count || 0,
       created_at: p.created_at,
-      author: authors[p.user_id] || { id: '', nickname: '匿名跑者', gradient: ['#7C5CFF', '#4CC9F0'], city: '' },
+      author: authors[p.user_id] || { id: '', nickname: '匿名跑者', gradient: ['#7C5CFF', '#4CC9F0'], avatar: '', city: '' },
       checkin: p.checkin_id ? checkins[p.checkin_id] || null : null,
       cheered: cheered.has(p._id)
     }))

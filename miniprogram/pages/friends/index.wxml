@@ -46,7 +46,12 @@
   <!-- 不展示精确配速（防作弊 + 调性，PRD 第 8 章） -->
   <view class="flist">
     <view class="friend" wx:for="{{friends}}" wx:key="_id">
-      <view class="av" style="background:linear-gradient(135deg,{{item.gradient[0]}},{{item.gradient[1]}})"></view>
+      <image class="av" wx:if="{{item.avatar}}" src="{{item.avatar}}" mode="aspectFill" />
+      <view
+        class="av"
+        wx:else
+        style="background:linear-gradient(135deg,{{item.gradient[0]}},{{item.gradient[1]}})"
+      ></view>
       <view class="fr-t">
         <view class="fr-n">{{item.nickname}}</view>
         <view class="fr-tags">

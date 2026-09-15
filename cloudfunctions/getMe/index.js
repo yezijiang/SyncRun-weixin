@@ -35,6 +35,9 @@ exports.main = async (event) => {
   if (event.action === 'setSearchable') return setSearchable(OPENID, event)
   if (event.action === 'setGradient') return setGradient(OPENID, event)
   if (event.action === 'setCity') return setCity(OPENID, event)
+  if (event.action === 'setAvatar') return setAvatar(OPENID, event)
+  if (event.action === 'clearAvatar') return clearAvatar(OPENID)
+  if (event.action === 'setGender') return setGender(OPENID, event)
   if (event.action === 'deleteAccount') return deleteAccount(OPENID)
   return aggregate(OPENID)
 }
@@ -55,6 +58,72 @@ async function setGradient(openid, event) {
 
   await db.collection('users').doc(me.data[0]._id).update({ data: { gradient: value } })
   return { ok: true, gradient: value }
+}
+
+/**
+ * 换成微信头像。
+ *
+ * 这是用户主动点的，不是我们自动拉来的——默认身份永远是生成式的几何色块，
+ * 只有用户自己决定"我要用真头像"才会走到这里。差别很大：
+ * 自动填充等于逼用户在第一次打开时就回答"要不要出柜"，主动选择是他自己的决定。
+ *
+ * 头像存云存储（微信给的是临时链接，会失效），fileID 存进 users。
+ */
+async function setAvatar(openid, event) {
+  const fileId = String(event.file_id || '').trim()
+  if (!fileId) return { ok: false, error: 'no_file' }
+
+  const me = await db.collection('users').where({ openid }).limit(1).get()
+  if (!me.data.length) return { ok: false, error: 'no_profile' }
+
+  // 图片安全尽力而为：mediaCheckAsync 是异步的，真要拦住需要在控制台配置
+  // 内容安全回调。这里只在能拿到明确结论时拒绝，不阻塞用户换头像。
+  await checkImage(fileId)
+
+  await db.collection('users').doc(me.data[0]._id).update({
+    data: { avatar_file_id: fileId, avatar_at: Date.now() }
+  })
+  return { ok: true, fileId }
+}
+
+/** 换回生成式头像。只清字段，不删云存储里的图片——留着能一键换回来 */
+async function clearAvatar(openid) {
+  const me = await db.collection('users').where({ openid }).limit(1).get()
+  if (!me.data.length) return { ok: false, error: 'no_profile' }
+
+  await db.collection('users').doc(me.data[0]._id).update({
+    data: { avatar_file_id: '' }
+  })
+  return { ok: true }
+}
+
+/**
+ * 性别自填。微信早已不提供这个字段，只能让用户自己说。
+ * 必须保留「不愿说」——对这群用户来说，被要求勾选性别本身就是一种压力。
+ */
+async function setGender(openid, event) {
+  const allowed = ['male', 'female', 'nonbinary', 'unspecified']
+  const gender = allowed.indexOf(event.gender) >= 0 ? event.gender : 'unspecified'
+
+  const me = await db.collection('users').where({ openid }).limit(1).get()
+  if (!me.data.length) return { ok: false, error: 'no_profile' }
+
+  await db.collection('users').doc(me.data[0]._id).update({ data: { gender } })
+  return { ok: true, gender }
+}
+
+async function checkImage(fileId) {
+  try {
+    const url = await cloud.getTempFileURL({ fileList: [fileId] })
+    const temp = url.fileList && url.fileList[0] && url.fileList[0].tempFileURL
+    if (!temp) return
+    await cloud.openapi.security.mediaCheckAsync({ media_url: temp, media_type: 2 })
+  } catch (e) {
+    const code = e && (e.errCode || e.errcode)
+    if (code === 87014) throw e
+    // 没开权限或接口异常时放行，不让安全校验变成换头像的拦路虎
+    console.warn('[同频跑] 图片安全校验不可用，本次放行', e)
+  }
 }
 
 /** 切换城市。城市是数据字段，换城市后首页场次与统计都按新城市过滤 */
@@ -92,6 +161,8 @@ async function settings(openid) {
   return {
     ok: true,
     searchable: me.data[0].searchable !== false,
+    avatar_file_id: me.data[0].avatar_file_id || '',
+    gender: me.data[0].gender || 'unspecified',
     blocked
   }
 }
@@ -175,6 +246,9 @@ async function aggregate(openid) {
     profile: {
       nickname: profile.nickname || '匿名跑者',
       gradient: profile.gradient || ['#7C5CFF', '#4CC9F0'],
+      // 用户主动换的微信头像（云存储 fileID）。为空就是还在用生成式头像
+      avatar_file_id: profile.avatar_file_id || '',
+      gender: profile.gender || 'unspecified',
       city: profile.city || '深圳',
       searchable: profile.searchable !== false
     }

@@ -16,7 +16,14 @@ Page({
     deleting: false,
     city: '深圳',
     cities: [],
-    lockEnabled: false
+    lockEnabled: false,
+    gender: 'unspecified',
+    genders: [
+      { key: 'unspecified', label: '不愿说' },
+      { key: 'male', label: '男' },
+      { key: 'female', label: '女' },
+      { key: 'nonbinary', label: '非二元' }
+    ]
   },
 
   onShow() {
@@ -32,8 +39,22 @@ Page({
     const r = await db.getSettings()
     this.setData({
       searchable: r.searchable !== false,
-      blocked: r.blocked || []
+      blocked: r.blocked || [],
+      gender: r.gender || 'unspecified'
     })
+  },
+
+  /**
+   * 性别自填。选「不愿说」要从右往左一样被尊重——
+   * 对这群用户来说，被要求勾选性别本身就是压力
+   */
+  async pickGender(e) {
+    const g = e.currentTarget.dataset.g
+    if (!g || g === this.data.gender) return
+
+    this.setData({ gender: g })
+    const r = await db.setGender(g)
+    if (!r.ok) wx.showToast({ title: '没保存成功，稍后再试', icon: 'none' })
   },
 
   async pickCity(e) {
