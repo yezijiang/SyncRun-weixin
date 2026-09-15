@@ -52,7 +52,12 @@
   },
   "srcMiniprogramRoot": "miniprogram/",
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      { "type": "folder", "value": "node_modules" },
+      { "type": "file", "value": "package-lock.json" },
+      { "type": "folder", "value": ".git" },
+      { "type": "folder", "value": ".workbuddy" }
+    ],
     "include": []
   },
   "editorSetting": {
