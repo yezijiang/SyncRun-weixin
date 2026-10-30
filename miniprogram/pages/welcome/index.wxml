@@ -1,0 +1,76 @@
+<!-- 欢迎页（UI v2.3）：合规一项不少，但从「法务腔」改成「人话」——
+     先讲三件我们为你做的事，再勾选同意，再给免责小字 -->
+<view class="page wl">
+
+  <!-- Hero -->
+  <view class="wl-hero">
+    <view class="wl-logo">
+      <view class="wl-arc a1"></view>
+      <view class="wl-arc a2"></view>
+      <view class="wl-arc a3"></view>
+      <view class="wl-arc a4"></view>
+    </view>
+    <view class="wl-hi">欢迎来同频跑 <text class="wl-en">pride running</text> 🌈</view>
+    <view class="wl-sub">这里只有跑得开心这件事。
+开始之前，想先告诉你三件我们<text class="wl-b">为你做的</text>事。</view>
+  </view>
+
+  <!-- 三张承诺卡：内容安全、身份默认生成、不比配速——都是已写进代码的承诺 -->
+  <view class="wl-cards">
+    <view class="wl-card c1">
+      <view class="wl-ic i1"><text>1</text></view>
+      <view class="wl-ct">
+        <view class="wl-t">你的位置，只属于你</view>
+        <view class="wl-p">只有你主动点「获取位置」时读一次，用来点亮你所在的城市。<text class="wl-b">不追踪、不记录轨迹、不共享实时位置。</text></view>
+      </view>
+    </view>
+    <view class="wl-card c2">
+      <view class="wl-ic i2"><text>2</text></view>
+      <view class="wl-ct">
+        <view class="wl-t">你是谁，由你决定</view>
+        <view class="wl-p">头像和昵称默认由系统生成，<text class="wl-b">不会自动读取你的微信资料</text>。用不用真实头像、什么时候换回去，都听你的。</view>
+      </view>
+    </view>
+    <view class="wl-card c3">
+      <view class="wl-ic i3"><text>3</text></view>
+      <view class="wl-ct">
+        <view class="wl-t">跑你自己的节奏</view>
+        <view class="wl-p">这里<text class="wl-b">不排名、不比配速</text>。累了就走一走，想停就停——跑多远多快都不影响你被欢迎。</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 勾选同意（前置：不勾选进不去） -->
+  <view class="wl-agree" bindtap="toggleAgree">
+    <view class="cbox {{agreed ? 'on' : ''}}">
+      <text wx:if="{{agreed}}" class="ck">✓</text>
+    </view>
+    <view class="wl-ag-t">好，我知道了 —— 也同意《隐私政策》与《社区规范》</view>
+  </view>
+
+  <view class="wl-btn-wrap">
+    <button class="btn btn-primary wl-btn {{agreed ? '' : 'off'}}" bindtap="accept">{{agreed ? '进入同频跑 →' : '勾选上方同意后进入'}}</button>
+  </view>
+
+  <!-- 免责小字：一句都不能删 -->
+  <view class="wl-law">跑步存在运动损伤与意外风险，请按自身状况量力而行，必要时咨询医生；夜间与陌生路段请注意安全。本平台提供约跑与记录，不替代专业运动指导。未满 18 周岁请在监护人知情同意下使用。</view>
+
+  <!-- 三步引导（UI v2.0）：同页浮层，走完才放行 -->
+  <view class="wl-mask" wx:if="{{step >= 0}}" catchtap="noop">
+    <view class="onb-card">
+      <view class="onb-top">
+        <view class="onb-back" wx:if="{{step > 0}}" bindtap="onbPrev">‹</view>
+      </view>
+      <view class="onb-num">{{steps[step].num}}</view>
+      <view class="onb-t">{{steps[step].t}}</view>
+      <view class="onb-d">{{steps[step].d}}</view>
+      <view class="onb-dots">
+        <view class="dot {{step === 0 ? 'on' : ''}}"></view>
+        <view class="dot {{step === 1 ? 'on' : ''}}"></view>
+        <view class="dot {{step === 2 ? 'on' : ''}}"></view>
+      </view>
+      <button class="btn btn-primary onb-btn" bindtap="onbNext">{{step >= 2 ? '开始跑步' : '下一步'}}</button>
+    </view>
+  </view>
+
+</view>

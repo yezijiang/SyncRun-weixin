@@ -1,6 +1,7 @@
 const db = require('../../utils/db')
 const cityUtil = require('../../utils/city')
 const lock = require('../../utils/lock')
+const brandnote = require('../../utils/brandnote')
 
 /**
  * 设置与隐私。
@@ -17,6 +18,7 @@ Page({
     city: '深圳',
     cities: [],
     lockEnabled: false,
+    noteEnabled: true,
     gender: 'unspecified',
     genders: [
       { key: 'unspecified', label: '不愿说' },
@@ -31,8 +33,27 @@ Page({
     this.setData({
       city: cityUtil.get(),
       cities: cityUtil.fallbackList(cityUtil.get()),
-      lockEnabled: lock.isEnabled()
+      lockEnabled: lock.isEnabled(),
+      noteEnabled: brandnote.isEnabled()
     })
+  },
+
+  /** 品牌便签开关：公共场合不想被看到的人关掉它，这条是「肩膀冲浪」对策 */
+  toggleNote(e) {
+    const next = e.detail.value
+    brandnote.setEnabled(next)
+    this.setData({ noteEnabled: next })
+  },
+
+  /** 重新看看便签：回首页强制浮出一次，不永久改变设置 */
+  viewNote() {
+    const app = getApp()
+    app.globalData.forceNote = true
+    wx.switchTab({ url: '/pages/home/index' })
+  },
+
+  goAbout() {
+    wx.navigateTo({ url: '/pages/about/index' })
   },
 
   async fetch() {

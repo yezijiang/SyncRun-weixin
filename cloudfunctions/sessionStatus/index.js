@@ -1,12 +1,15 @@
 /**
- * 场次状态汇总 + 首页数据 —— 「此刻正在奔跑」的唯一权威来源（PRD 4.1.1）。
+ * 场次状态汇总 + 首页数据（PRD 4.1.1，UI v2.2 口径修订）。
  *
- *   正在跑 = 已加入某场
- *          AND now ∈ [start_time, start_time + grace_minutes]
- *          AND 尚未打卡
- *          AND 未退出（left_at 为空）
+ * 首页两个核心数字：
+ *   「本时段 X 人同场开跑」= 同一开跑时段（整点桶）场次的去重报名人数。
+ *     这是约定而非实测——我们不用实时定位，也无法知道谁此刻真的在跑，
+ *     前端必须把推算方式写在数字旁。
+ *   场次卡上的「正在跑 X」仍是状态机推导：
+ *     已加入某场 AND now ∈ [start_time, start_time + grace_minutes]
+ *     AND 尚未打卡 AND 未退出（left_at 为空）。
  *
- * 这样做的好处：数字永远是真的。冷启动只有 3 个人在跑就返回 3，
+ * 数字永远是真的。冷启动只有 3 个人就返回 3，
  * 不会像写死「128 人正在奔跑」那样被一眼识破。
  *
  * 同时强制过双向屏蔽：A 屏蔽 B 或 B 屏蔽 A，双方都不出现在彼此的列表里
@@ -97,6 +100,12 @@ exports.main = async (event) => {
     })
   })
 
+  // 「本时段 X 位跑友和你同场开跑」（UI v2.2 口径）：
+  // = 加入「开跑时间落在同一整点时段」场次的去重报名人数。
+  // 它是约定，不是实测——我们不用实时定位，也无法知道谁此刻真的在跑，
+  // 所以前端必须把推算方式写在数字旁边（PRD 4.1.1 修订）。
+  const slot = slotRunners(sessions, bySession, blockedBoth, now)
+
   // 首页统计条：今日跑量 / 今日完成人数，均为累计口径（不是「此刻」）
   const todayKm = todayCheckinsRes.data.reduce((a, c) => a + (c.distance_km || 0), 0)
   const todayRunnersSet = new Set(todayCheckinsRes.data.map((c) => c.user_id))
@@ -120,10 +129,12 @@ exports.main = async (event) => {
     ok: true,
     sessions: result,
     cities: litCities.concat(planned),
-    // 「今天」与「此刻」是两个不同口径，前端必须分开显示
+    // 「今天」与「本时段」是两个不同口径，前端必须分开显示
     todayRunners: todayRunnersSet.size,
     todayKm: Math.round(todayKm * 10) / 10,
     runningNow: runningUserSet.size,
+    slotRunners: slot.runners,
+    slotTime: slot.slotTime,
     // 本人的两项，只跟自己有关，但也只能云端算
     cheerReceived,
     streakDays,
@@ -192,6 +203,43 @@ async function getMutualBlocks(openid) {
   const set = new Set(myBlocks)
   blockedBy.data.forEach((u) => set.add(u.openid))
   return set
+}
+
+/**
+ * 「同场开跑」口径（UI v2.2/v2.4）：同一开跑时段（整点桶）场次的去重报名人数。
+ * 当前时段没有场次时，取最近一场尚未开跑的场次所在时段。
+ */
+function slotRunners(sessions, bySession, blockedBoth, now) {
+  const list = sessions.filter((s) => s.status !== 'cancelled')
+  if (!list.length) return { slotTime: 0, runners: 0 }
+
+  const hourStart = (ts) => {
+    const d = new Date(ts)
+    d.setMinutes(0, 0, 0)
+    return d.getTime()
+  }
+
+  const curSlot = hourStart(now)
+  const inCur = list.filter((s) => hourStart(s.start_time) === curSlot)
+  let slotTime
+  if (inCur.length) {
+    slotTime = curSlot
+  } else {
+    const upcoming = list
+      .filter((s) => s.start_time >= curSlot)
+      .sort((a, b) => a.start_time - b.start_time)[0]
+    if (!upcoming) return { slotTime: 0, runners: 0 }
+    slotTime = hourStart(upcoming.start_time)
+  }
+
+  const seen = new Set()
+  list.forEach((s) => {
+    if (hourStart(s.start_time) !== slotTime) return
+    ;(bySession[s._id] || []).forEach((m) => {
+      if (!m.left_at && !blockedBoth.has(m.user_id)) seen.add(m.user_id)
+    })
+  })
+  return { slotTime, runners: seen.size }
 }
 
 function isRunning(member, session, now) {

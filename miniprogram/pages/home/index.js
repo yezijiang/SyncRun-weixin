@@ -2,6 +2,7 @@ const db = require('../../utils/db')
 const fmt = require('../../utils/format')
 const cityUtil = require('../../utils/city')
 const lock = require('../../utils/lock')
+const brandnote = require('../../utils/brandnote')
 
 Page({
   data: {
@@ -9,8 +10,10 @@ Page({
     nickname: '',
     gradient: ['#7C5CFF', '#4CC9F0'],
     // PRD 4.1.1：数字都是真的，没有就是 0
-    todayRunners: 0,   // 今天跑过（累计）
-    runningNow: 0,     // 此刻正在跑（状态机推导）
+    todayRunners: 0,   // 今天跑过（累计，给统计条用）
+    runningNow: 0,      // 状态机推导（场次卡用）
+    slotRunners: 0,     // 本时段同场开跑（UI v2.2 口径，Hero 主数字）
+    slotTimeText: '',   // 时段文本，如 "20:00"
     todayKm: 0,
     cheerReceived: 0,  // 我的动态收到的鼓励
     streakDays: 0,     // 连续打卡天数
@@ -18,6 +21,7 @@ Page({
     sessions: [],
     cities: [],
     locked: false,
+    showNote: false,
     source: 'mock'
   },
 
@@ -30,7 +34,39 @@ Page({
   onShow() {
     this.checkLock()
     // 从打卡页返回时刷新，保证「今天跑过」立刻变化
-    if (!this.data.locked) this.fetch()
+    if (!this.data.locked) {
+      this.fetch()
+      this.maybeShowNote()
+    }
+  },
+
+  /**
+   * 品牌便签：默认开、每次冷启动最多一次。设置里「重新看看」通过
+   * forceNote 强制再弹一次。公共场合不想被看到的人可以永久关掉。
+   */
+  maybeShowNote() {
+    const app = getApp()
+    const force = app.globalData.forceNote
+    if (force) app.globalData.forceNote = false
+    const perLaunchShown = app.globalData.noteShownThisLaunch
+    const should = force || (brandnote.isEnabled() && !perLaunchShown)
+    if (!should) return
+    app.globalData.noteShownThisLaunch = true
+    this.setData({ showNote: true })
+  },
+
+  closeNote() {
+    this.setData({ showNote: false })
+  },
+
+  hideNoteForever() {
+    brandnote.setEnabled(false)
+    this.setData({ showNote: false })
+    wx.showToast({ title: '已关闭，可在设置里重新打开', icon: 'none' })
+  },
+
+  goAbout() {
+    wx.navigateTo({ url: '/pages/about/index' })
   },
 
   /** 应用锁：只挡首屏，验证通过前不加载任何内容，也不去请求数据 */
@@ -73,6 +109,8 @@ Page({
     this.setData({
       todayRunners: res.todayRunnersDisplay || res.todayRunners,
       runningNow: res.runningNow,
+      slotRunners: res.slotRunners || 0,
+      slotTimeText: res.slotTimeText || '',
       todayKm: res.todayKm || 0,
       cheerReceived: res.cheerReceived || 0,
       streakDays: res.streakDays || 0,

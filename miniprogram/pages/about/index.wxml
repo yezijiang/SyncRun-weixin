@@ -1,0 +1,52 @@
+<!-- 关于同频跑（UI v2.2）：把定位、信念、边界、数据口径摊开讲。
+     首页 Hero 的「了解这个产品」入口指向这里 -->
+<view class="page about">
+
+  <view class="ab-hero">
+    <view class="ab-logo">
+      <view class="ab-arc a1"></view>
+      <view class="ab-arc a2"></view>
+      <view class="ab-arc a3"></view>
+      <view class="ab-arc a4"></view>
+    </view>
+    <view class="ab-name">同频跑</view>
+    <view class="ab-tag">让每一次奔跑，都不必是一个人。
+找到和你同一时段、同一频率的人。</view>
+  </view>
+
+  <view class="absec">
+    <view class="ab-h">🌈 我们的定位</view>
+    <view class="ab-li">一个<text class="b">同城跑步陪伴社区</text>：不是记录工具，不比配速，不排名次</view>
+    <view class="ab-li">核心是<text class="b">异步同行</text>：同一时段各自开跑，跑完回来打卡，就知道今晚有人和你一起跑</view>
+    <view class="ab-li">面向所有跑步的人，尤其在跑步这件事上希望有伴、又需要安全感的人</view>
+  </view>
+
+  <view class="absec">
+    <view class="ab-h">💡 我们相信</view>
+    <view class="ab-li">陪伴不需要同时同地——同一时段开跑，就已经是「一起跑」了</view>
+    <view class="ab-li">安全感是前提，不是选项：默认不暴露你是谁、你在哪</view>
+    <view class="ab-li">跑步没有门槛：不问配速、不比距离，跑起来就算数</view>
+  </view>
+
+  <view class="absec no">
+    <view class="ab-h">🚫 我们不做</view>
+    <view class="ab-li"><text class="b">不做实时定位与轨迹追踪</text>——你不需要被找到，只需要被陪着</view>
+    <view class="ab-li">不自动读取你的微信头像与昵称（用不用真头像，由你决定）</view>
+    <view class="ab-li">不做排名与配速比较——这里没有快慢，只有同频</view>
+  </view>
+
+  <view class="absec">
+    <view class="ab-h">📊 「本时段 X 人同场开跑」是怎么算的</view>
+    <view class="abnote">
+      这个数字 = <text class="b">加入了同一开跑时段场次的报名人数</text>。
+它<text class="b">不是实时定位结果</text>——我们承诺不使用实时定位，也无法知道谁此刻真的在跑。
+到点了大家各自开跑，跑完回来打卡，就能看到今晚和你一起跑的人。
+    </view>
+  </view>
+
+  <view class="ab-foot">
+    备案名称「同频跑」
+    Run Together, Meet Your Community · 跑起来，遇见同频的人
+  </view>
+
+</view>

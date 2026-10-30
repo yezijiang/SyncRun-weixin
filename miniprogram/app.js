@@ -9,12 +9,23 @@ App({
     // 当前用户档案（含生成式昵称与几何头像），登录后填充
     profile: null,
     // 云开发是否就绪：AppID 未填写时为 false，页面需降级到本地 mock
-    cloudReady: false
+    cloudReady: false,
+    // 品牌便签：本次冷启动是否已浮出过；forceNote = 设置里点「重新看看」
+    noteShownThisLaunch: false,
+    forceNote: false,
+    // 首进流程（欢迎页 → 三步引导）是否已完成，欢迎页写回
+    onboarded: false
   },
 
   onLaunch() {
     // 用户上次选的城市要先恢复，否则首屏会先闪一下默认城市
     city.restore()
+
+    // 首进流程（UI v2.3）：没看过欢迎页的人先进欢迎页——三件我们为你做的事
+    // 勾选同意后才算完成。老用户不打扰。
+    if (!wx.getStorageSync('welcomed_v1')) {
+      wx.reLaunch({ url: '/pages/welcome/index' })
+    }
 
     if (!wx.cloud) {
       console.error('[同频跑] 基础库版本过低，请使用 2.2.3 及以上版本')

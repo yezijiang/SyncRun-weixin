@@ -112,6 +112,33 @@
     </view>
   </view>
 
+  <!-- 关于与便签（UI v2.4）：便签开关是「肩膀冲浪」对策，不是装饰 -->
+  <view class="sect">
+    <text class="t">关于与便签</text>
+  </view>
+  <view class="card">
+    <view class="row lk" bindtap="goAbout">
+      <view class="lk-l">
+        <text class="lk-t">关于同频跑</text>
+        <text class="lk-s">我们的定位、我们不做的事、数字怎么算</text>
+      </view>
+      <text class="lk-arrow">›</text>
+    </view>
+    <view class="row between lk">
+      <view class="lk-l">
+        <text class="lk-t">进入时浮出品牌便签</text>
+        <text class="lk-s">在公共场合不想被看到时，可以关掉</text>
+      </view>
+      <switch checked="{{noteEnabled}}" bindchange="toggleNote" color="#7C5CFF" />
+    </view>
+    <view class="row lk" bindtap="viewNote" wx:if="{{noteEnabled}}">
+      <view class="lk-l">
+        <text class="lk-t">重新看看这张便签</text>
+      </view>
+      <text class="lk-arrow">›</text>
+    </view>
+  </view>
+
   <!-- 屏蔽名单 -->
   <view class="sect">
     <text class="t">屏蔽名单</text>

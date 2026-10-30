@@ -1,0 +1,114 @@
+/* 关于同频跑（UI v2.2） */
+
+.about {
+  padding: 0 28rpx 48rpx;
+}
+
+.ab-hero {
+  text-align: center;
+  padding: 40rpx 40rpx 12rpx;
+}
+
+.ab-logo {
+  position: relative;
+  width: 176rpx;
+  height: 176rpx;
+  margin: 0 auto;
+  background: #F7F4FF;
+  border-radius: 50%;
+}
+
+.ab-arc {
+  position: absolute;
+  left: 50%;
+  bottom: 28rpx;
+  border: 8rpx solid transparent;
+  border-radius: 50%;
+}
+
+.ab-arc.a1 { width: 120rpx; height: 120rpx; border-top-color: #FF4D6D; border-left-color: #FF4D6D; transform: translateX(-50%) rotate(-20deg); }
+.ab-arc.a2 { width: 90rpx; height: 90rpx; border-top-color: #FF9F1C; border-left-color: #FF9F1C; transform: translateX(-50%) rotate(-20deg); }
+.ab-arc.a3 { width: 60rpx; height: 60rpx; border-top-color: #FFD166; border-left-color: #FFD166; transform: translateX(-50%) rotate(-20deg); }
+.ab-arc.a4 { width: 30rpx; height: 30rpx; border-top-color: #06D6A0; border-left-color: #06D6A0; transform: translateX(-50%) rotate(-20deg); }
+
+.ab-name {
+  margin-top: 24rpx;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.ab-tag {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+
+.absec {
+  margin-top: 28rpx;
+  background: #fff;
+  border: 1rpx solid var(--line);
+  border-radius: 28rpx;
+  padding: 26rpx 28rpx;
+}
+
+.ab-h {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 16rpx;
+}
+
+.ab-li {
+  position: relative;
+  padding-left: 28rpx;
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  line-height: 1.85;
+  color: var(--ink-2);
+}
+
+.ab-li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 16rpx;
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 5rpx;
+  background: #7C5CFF;
+}
+
+.absec.no .ab-li::before {
+  background: #E23E57;
+}
+
+.ab-li .b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.abnote {
+  background: #F7F4FF;
+  border: 1rpx solid #E7E0FA;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  font-size: 24rpx;
+  line-height: 1.8;
+  color: var(--ink-2);
+  white-space: pre-line;
+}
+
+.abnote .b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.ab-foot {
+  margin-top: 32rpx;
+  text-align: center;
+  font-size: 20rpx;
+  line-height: 1.8;
+  color: var(--muted);
+}

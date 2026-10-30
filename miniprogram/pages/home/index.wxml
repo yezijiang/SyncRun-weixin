@@ -8,13 +8,19 @@
     <button class="btn btn-primary" bindtap="unlock">指纹 / 面容验证</button>
   </view>
 
-  <!-- 头部品牌区：站内可以自由使用品牌视觉（PRD 1.2 内层） -->
+  <!-- 头部品牌区：站内可以自由使用品牌视觉（PRD 1.2 内层，UI v2.4） -->
   <view class="brand">
     <view class="brand-l">
       <view class="logo"><view class="logo-arc"></view></view>
       <view class="brand-t">
-        <text class="cn">同频跑</text>
-        <text class="en">TONGFIN RUN</text>
+        <view class="cn-line">
+          <text class="cn-welcome">欢迎来</text>
+          <text class="cn">同频跑</text>
+          <text class="en">pride running</text>
+          <text class="rb">🌈</text>
+        </view>
+        <text class="sub1">Run Together. Meet Your Community.</text>
+        <text class="sub2">跑起来，遇见同频的人 🏳️‍🌈</text>
       </view>
     </view>
     <view class="bell">
@@ -22,19 +28,17 @@
     </view>
   </view>
 
-  <!-- Hero -->
+  <!-- Hero：v2.4 口径。数字旁必须写明推算方式，承诺不实时定位就要说到做到 -->
   <view class="hero">
     <view class="skyline"></view>
     <view class="hero-in">
       <view class="hi">{{greeting}}，{{nickname}}</view>
-      <view class="slogan">今晚，不止你一个人在跑</view>
-      <!-- 大数字：今天（累计，真） -->
+      <view class="slogan">此刻，不止你一个人在跑</view>
       <view class="live">
         <view class="pulse"></view>
-        今天，已有 <text class="num strong">{{todayRunners}}</text> 位跑友跑过
+        <text wx:if="{{slotTimeText}}">{{slotTimeText}} 场次 · </text>本时段 <text class="num strong">{{slotRunners}}</text> 位跑友和你同场开跑
       </view>
-      <!-- 小数字：此刻（状态机推导，也是真） -->
-      <view class="live2">此刻 <text class="num">{{runningNow}}</text> 人正在跑</view>
+      <view class="live2" bindtap="goAbout">按开跑时段与报名人数推算 · 不使用实时定位 · 了解这个产品 ›</view>
     </view>
   </view>
 
@@ -82,6 +86,11 @@
       <button class="btn btn-primary btn-sm" bindtap="onJoin" data-id="{{item._id}}">加入陪跑</button>
     </view>
   </scroll-view>
+  <!-- 冷启动空态（UI v2.1）：没有场次时给出路，而不是一片白 -->
+  <view class="empty-sess" wx:if="{{!sessions.length}}">
+    <view class="es-t">今晚还没有场次</view>
+    <view class="es-s">点右下角「发起陪跑」发起第一场，或直接「开始我的跑步」——跑完打卡，你就是这座城今晚的第一个人</view>
+  </view>
 
   <!-- 点亮城市：点一下就切换当前城市，未点亮的城市也能选（你可能是第一个） -->
   <view class="sect">
@@ -109,6 +118,31 @@
   <view class="fab">
     <button class="btn btn-primary fab-main" bindtap="goCheckin">开始我的跑步</button>
     <view class="fab-plus" bindtap="goCreate">发起陪跑</view>
+  </view>
+
+  <!-- 品牌便签（UI v2.4）：米黄便签纸 + 胶带 + 微旋转。可在设置里永久关掉 -->
+  <view class="note-mask" wx:if="{{showNote}}" catchtap="closeNote">
+    <view class="sticky" catchtap="noop">
+      <view class="st-x" bindtap="closeNote">✕</view>
+      <view class="st-h">致每一位跑者</view>
+      <view class="st-b">这里是 LGBTQ+ 与女性友好的跑步社区。
+
+你不必解释自己是谁，
+也不必跑得比谁快。
+
+同一座城市，同一个傍晚，
+有人和你一起出发。
+跑完回来打个卡，
+就知道今晚并不孤单。
+
+互相鼓励，慢慢变强。
+运动这件事，终于<text class="st-em">有人同行</text>。</view>
+      <view class="st-f">—— 同频跑 · pride running 🌈</view>
+      <view class="st-a">
+        <button class="btn btn-ghost st-btn" bindtap="closeNote">先去跑步</button>
+        <button class="btn btn-ghost st-btn" bindtap="hideNoteForever">不再显示</button>
+      </view>
+    </view>
   </view>
 
 </view>

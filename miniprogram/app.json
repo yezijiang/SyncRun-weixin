@@ -7,7 +7,9 @@
     "pages/me/index",
     "pages/settings/index",
     "pages/search/index",
-    "pages/invite/index"
+    "pages/invite/index",
+    "pages/welcome/index",
+    "pages/about/index"
   ],
   "window": {
     "backgroundTextStyle": "dark",

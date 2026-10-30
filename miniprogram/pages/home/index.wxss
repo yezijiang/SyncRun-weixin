@@ -40,16 +40,42 @@
   flex-direction: column;
 }
 
-.brand-t .cn {
+/* UI v2.4 品牌行：欢迎来 同频跑 pride running 🌈 */
+.cn-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.cn-line .cn-welcome {
+  font-size: 22rpx;
+  font-weight: 500;
+  color: var(--muted-2);
+}
+
+.cn-line .cn {
   font-size: 34rpx;
   font-weight: 600;
   color: var(--ink);
 }
 
-.brand-t .en {
+.cn-line .en {
+  font-size: 18rpx;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.cn-line .rb {
+  font-size: 24rpx;
+  line-height: 1;
+}
+
+.brand-t .sub1,
+.brand-t .sub2 {
   font-size: 18rpx;
   color: var(--muted-2);
-  letter-spacing: 2rpx;
+  letter-spacing: 1rpx;
+  margin-top: 4rpx;
 }
 
 .bell {
@@ -387,4 +413,116 @@
   margin: 12rpx 0 48rpx;
   font-size: 26rpx;
   color: #9AA0B4;
+}
+
+/* 冷启动空态（UI v2.1） */
+.empty-sess {
+  margin: 0 28rpx 24rpx;
+  padding: 32rpx;
+  border-radius: 24rpx;
+  background: #F7F4FF;
+  border: 1rpx solid #E7E0FA;
+}
+
+.empty-sess .es-t {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #5B4BA8;
+}
+
+.empty-sess .es-s {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+
+/* 品牌便签（UI v2.4）：米黄纸 + 胶带 + 微旋转 */
+.note-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(22, 25, 44, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 64rpx;
+}
+
+.sticky {
+  position: relative;
+  width: 600rpx;
+  padding: 44rpx 40rpx 32rpx;
+  border-radius: 6rpx;
+  background: linear-gradient(168deg, #FFFCF2 0%, #FDF6E4 100%);
+  box-shadow: 0 32rpx 80rpx rgba(22, 25, 44, 0.28);
+  transform: rotate(-0.8deg);
+}
+
+/* 胶带 */
+.sticky::before {
+  content: '';
+  position: absolute;
+  top: -20rpx;
+  left: 50%;
+  margin-left: -56rpx;
+  width: 112rpx;
+  height: 36rpx;
+  background: rgba(255, 212, 102, 0.55);
+  transform: rotate(-2.5deg);
+  border-radius: 4rpx;
+  box-shadow: 0 4rpx 8rpx rgba(22, 25, 44, 0.12);
+}
+
+.st-x {
+  position: absolute;
+  top: 16rpx;
+  right: 18rpx;
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #BCAE8E;
+  font-size: 26rpx;
+}
+
+.st-h {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #8A6420;
+  letter-spacing: 1rpx;
+}
+
+.st-b {
+  margin-top: 24rpx;
+  font-size: 23rpx;
+  color: #6E6350;
+  line-height: 2.05;
+  white-space: pre-line;
+}
+
+.st-b .st-em {
+  color: #8A6420;
+  font-weight: 600;
+}
+
+.st-f {
+  margin-top: 28rpx;
+  font-size: 20rpx;
+  color: #AB9C81;
+  text-align: right;
+  font-style: italic;
+}
+
+.st-a {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 32rpx;
+}
+
+.st-btn {
+  flex: 1;
+  margin: 0;
 }

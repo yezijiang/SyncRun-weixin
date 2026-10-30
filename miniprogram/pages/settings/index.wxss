@@ -142,3 +142,9 @@
   font-size: 24rpx;
   color: #C4C8D4;
 }
+
+.lk-arrow {
+  font-size: 32rpx;
+  color: var(--muted);
+  flex: none;
+}

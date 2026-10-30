@@ -1,0 +1,258 @@
+/* 欢迎页（UI v2.3） */
+
+.wl {
+  padding: 0 28rpx 40rpx;
+}
+
+/* Hero：彩虹弧 + 品牌 */
+.wl-hero {
+  text-align: center;
+  padding: 48rpx 0 12rpx;
+}
+
+.wl-logo {
+  position: relative;
+  width: 176rpx;
+  height: 176rpx;
+  margin: 0 auto;
+  background: #F7F4FF;
+  border-radius: 50%;
+}
+
+.wl-arc {
+  position: absolute;
+  left: 50%;
+  bottom: 28rpx;
+  transform: translateX(-50%);
+  border: 8rpx solid transparent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+}
+
+.wl-arc.a1 { width: 120rpx; height: 120rpx; border-top-color: #FF4D6D; border-left-color: #FF4D6D; transform: translateX(-50%) rotate(-20deg); }
+.wl-arc.a2 { width: 90rpx; height: 90rpx; border-top-color: #FF9F1C; border-left-color: #FF9F1C; transform: translateX(-50%) rotate(-20deg); }
+.wl-arc.a3 { width: 60rpx; height: 60rpx; border-top-color: #FFD166; border-left-color: #FFD166; transform: translateX(-50%) rotate(-20deg); }
+.wl-arc.a4 { width: 30rpx; height: 30rpx; border-top-color: #06D6A0; border-left-color: #06D6A0; transform: translateX(-50%) rotate(-20deg); }
+
+.wl-hi {
+  margin-top: 28rpx;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.wl-hi .wl-en {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.wl-sub {
+  margin-top: 18rpx;
+  font-size: 24rpx;
+  line-height: 1.85;
+  color: var(--muted);
+}
+
+.wl-b {
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+/* 三张承诺卡 */
+.wl-cards {
+  margin-top: 28rpx;
+}
+
+.wl-card {
+  display: flex;
+  gap: 22rpx;
+  align-items: flex-start;
+  border-radius: 28rpx;
+  padding: 26rpx;
+  margin-bottom: 20rpx;
+  border: 1rpx solid transparent;
+}
+
+.wl-card.c1 { background: #FFF5F6; border-color: #F6DCDE; }
+.wl-card.c2 { background: #FFFAF1; border-color: #F2E5CD; }
+.wl-card.c3 { background: #F1FAF5; border-color: #D4EADC; }
+
+.wl-ic {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.wl-ic.i1 { color: #B4576A; }
+.wl-ic.i2 { color: #A0783A; }
+.wl-ic.i3 { color: #3E8E70; }
+
+.wl-ct {
+  flex: 1;
+  min-width: 0;
+}
+
+.wl-t {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.wl-p {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+
+.wl-p .wl-b {
+  color: var(--ink);
+}
+
+/* 勾选同意 */
+.wl-agree {
+  display: flex;
+  gap: 20rpx;
+  align-items: flex-start;
+  margin-top: 16rpx;
+  padding: 26rpx 28rpx;
+  background: #fff;
+  border: 1rpx solid var(--line);
+  border-radius: 28rpx;
+}
+
+.cbox {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 10rpx;
+  border: 3rpx solid #C9CDDB;
+  flex: none;
+  margin-top: 4rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cbox.on {
+  background: #7C5CFF;
+  border-color: #7C5CFF;
+}
+
+.cbox .ck {
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.wl-ag-t {
+  flex: 1;
+  font-size: 24rpx;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+
+.wl-btn-wrap {
+  margin: 28rpx 0 0;
+}
+
+.wl-btn.off {
+  opacity: 0.5;
+}
+
+/* 免责小字 */
+.wl-law {
+  margin-top: 28rpx;
+  font-size: 20rpx;
+  line-height: 1.8;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* 三步引导浮层 */
+.wl-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(22, 25, 44, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 64rpx;
+}
+
+.onb-card {
+  width: 640rpx;
+  background: #fff;
+  border-radius: 44rpx;
+  padding: 16rpx 44rpx 52rpx;
+  text-align: center;
+}
+
+.onb-top {
+  display: flex;
+  align-items: center;
+  height: 68rpx;
+}
+
+.onb-back {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-2);
+  font-size: 40rpx;
+}
+
+.onb-num {
+  font-size: 48rpx;
+  margin-top: 12rpx;
+}
+
+.onb-t {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 20rpx;
+}
+
+.onb-d {
+  margin-top: 24rpx;
+  font-size: 26rpx;
+  line-height: 1.85;
+  text-align: left;
+  color: var(--ink-2);
+  white-space: pre-line;
+}
+
+.onb-dots {
+  display: flex;
+  justify-content: center;
+  gap: 12rpx;
+  margin-top: 44rpx;
+}
+
+.onb-dots .dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 6rpx;
+  background: #DDE0EA;
+}
+
+.onb-dots .dot.on {
+  background: #7C5CFF;
+  width: 36rpx;
+}
+
+.onb-btn {
+  margin-top: 32rpx;
+}

@@ -14,7 +14,7 @@
 
 const mock = require('./mock')
 const cityUtil = require('./city')
-const { summarize, countRunningNow, countCheckedInToday } = require('./session')
+const { summarize, countRunningNow, countSlotRunners, countCheckedInToday } = require('./session')
 
 // 云函数不可用（未部署 / 网络失败）时的统一返回，页面据此提示而不是假装成功
 const UNAVAILABLE = { ok: false, error: 'cloud_unavailable' }
@@ -74,6 +74,9 @@ async function getHome() {
     todayRunners: r.todayRunners || 0,
     todayKm: r.todayKm || 0,
     runningNow: r.runningNow || 0,
+    // 「本时段同场开跑」口径（UI v2.2）：字段齐全，缺了按 0 处理
+    slotRunners: r.slotRunners || 0,
+    slotTimeText: r.slotTime ? slotText(r.slotTime) : '',
     // 本人的两项：收到的鼓励、连续打卡天数
     cheerReceived: r.cheerReceived || 0,
     streakDays: r.streakDays || 0,
@@ -85,15 +88,25 @@ async function getHome() {
 function homeFromMock() {
   const bySession = mock.SESSION_MEMBERS
   const sessions = mock.SESSIONS.map((s) => Object.assign({}, s, summarize(s, bySession[s._id])))
+  const slot = countSlotRunners(mock.SESSIONS, bySession)
   return {
     sessions,
     cities: mock.CITY_STATS,
     todayRunners: countCheckedInToday(mock.CHECKINS),
     runningNow: countRunningNow(mock.SESSIONS, bySession),
+    slotRunners: slot.runners,
+    slotTimeText: slot.slotTime ? slotText(slot.slotTime) : '',
     // mock 里人数太少，首页大数字用城市统计兜底，保持演示观感
     todayRunnersDisplay: mock.CITY_STATS[0].runner_count,
     source: 'mock'
   }
+}
+
+/** 时段文本：「20:00 这样开跑」里只取整点，分钟由时段定义给出 */
+function slotText(ts) {
+  const d = new Date(ts)
+  const pad = (n) => (n < 10 ? '0' + n : '' + n)
+  return pad(d.getHours()) + ':00'
 }
 
 /* ---------------- 场次 ---------------- */

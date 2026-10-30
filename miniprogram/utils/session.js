@@ -61,6 +61,48 @@ function countRunningNow(sessions, membersBySession, now = Date.now()) {
 }
 
 /**
+ * 「同场开跑」口径（UI v2.2/v2.4）：本时段人数 = 加入了「开跑时间落在同一
+ * 整点时段」场次的去重报名人数。它是约定，不是实测——我们不用实时定位，
+ * 也无法知道谁此刻真的在跑，界面上必须把这一点讲明。
+ *
+ * 时段选择：优先取当前整点时段；当前时段没有场次时，取最近一场
+ * 尚未开跑的场次所在时段（让大家看到「下一场有多少人」）。
+ * @returns {{slotTime:number, runners:number}}
+ */
+function countSlotRunners(sessions, membersBySession, now = Date.now()) {
+  const list = (sessions || []).filter((s) => s.status !== 'cancelled')
+  if (!list.length) return { slotTime: 0, runners: 0 }
+
+  const hourStart = (ts) => {
+    const d = new Date(ts)
+    d.setMinutes(0, 0, 0)
+    return d.getTime()
+  }
+
+  const curSlot = hourStart(now)
+  const inCur = list.filter((s) => hourStart(s.start_time) === curSlot)
+  let slotTime
+  if (inCur.length) {
+    slotTime = curSlot
+  } else {
+    const upcoming = list
+      .filter((s) => s.start_time >= curSlot)
+      .sort((a, b) => a.start_time - b.start_time)[0]
+    if (!upcoming) return { slotTime: 0, runners: 0 }
+    slotTime = hourStart(upcoming.start_time)
+  }
+
+  const seen = new Set()
+  list.forEach((s) => {
+    if (hourStart(s.start_time) !== slotTime) return
+    ;(membersBySession[s._id] || []).forEach((m) => {
+      if (!m.left_at) seen.add(m.user_id)
+    })
+  })
+  return { slotTime, runners: seen.size }
+}
+
+/**
  * 打卡有宽限期，但「今天跑过」是当日累计，口径不同，不要混用。
  * 这个函数给首页大数字用。
  */
@@ -77,4 +119,4 @@ function countCheckedInToday(checkins, now = Date.now()) {
   return seen.size
 }
 
-module.exports = { isRunning, summarize, countRunningNow, countCheckedInToday, DEFAULT_GRACE_MINUTES }
+module.exports = { isRunning, summarize, countRunningNow, countSlotRunners, countCheckedInToday, DEFAULT_GRACE_MINUTES }
