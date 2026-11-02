@@ -120,7 +120,61 @@ async function cancel(openid, event) {
   await db.collection('sessions').doc(id).update({
     data: { status: 'cancelled', cancelled_at: Date.now() }
   })
+
+  // 通知所有已加入的人。取消是发起人的义务，不能只让对方发现场次凭空消失
+  const members = await db
+    .collection('session_members')
+    .where({ session_id: id, left_at: null })
+    .limit(200)
+    .get()
+  await Promise.all(
+    members.data
+      .filter((m) => m.user_id !== openid)
+      .map((m) =>
+        pushMessage(m.user_id, {
+          type: 'cancel',
+          title: '一场活动被发起人取消',
+          content: '「' + s.data.title + '」已取消，你不会再收到这场提醒',
+          target_type: 'session',
+          target_id: id
+        })
+      )
+  )
   return { ok: true }
+}
+
+/**
+ * 写一条消息。通知失败绝不能影响主流程——
+ * 报名成功却因为通知写失败而报错，是把副作用当成了正事。
+ */
+async function pushMessage(userOpenid, msg) {
+  if (!userOpenid) return
+  try {
+    await db.collection('messages').add({
+      data: Object.assign(
+        {
+          user_id: userOpenid,
+          read: false,
+          created_at: Date.now(),
+          target_type: '',
+          target_id: '',
+          count: 1
+        },
+        msg
+      )
+    })
+  } catch (e) {
+    console.warn('[同频跑] 消息写入失败，忽略', e)
+  }
+}
+
+async function nicknameOf(openid) {
+  try {
+    const u = await db.collection('users').where({ openid }).limit(1).get()
+    return (u.data[0] && u.data[0].nickname) || '一位跑友'
+  } catch (e) {
+    return '一位跑友'
+  }
 }
 
 /* ---------------- 加入 / 退出 ---------------- */
@@ -150,6 +204,22 @@ async function join(openid, event) {
   await db.collection('session_members').add({
     data: { session_id: sessionId, user_id: openid, joined_at: Date.now(), left_at: null, checkin_id: '' }
   })
+
+  // 通知发起人：有人报名了。发起人自己加入不通知（他就是创建者）
+  if (s.data.created_by !== openid) {
+    const count = await db
+      .collection('session_members')
+      .where({ session_id: sessionId, left_at: null })
+      .limit(200)
+      .get()
+    await pushMessage(s.data.created_by, {
+      type: 'join',
+      title: '有人报名了你的活动',
+      content: (await nicknameOf(openid)) + ' 加入了「' + s.data.title + '」，当前 ' + count.data.length + ' 人',
+      target_type: 'session',
+      target_id: sessionId
+    })
+  }
   return { ok: true }
 }
 

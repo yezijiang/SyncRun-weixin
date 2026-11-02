@@ -56,6 +56,10 @@ Page({
     wx.navigateTo({ url: '/pages/about/index' })
   },
 
+  goSafety() {
+    wx.navigateTo({ url: '/pages/safety/index' })
+  },
+
   async fetch() {
     const r = await db.getSettings()
     this.setData({

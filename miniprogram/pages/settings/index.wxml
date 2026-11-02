@@ -117,6 +117,13 @@
     <text class="t">关于与便签</text>
   </view>
   <view class="card">
+    <view class="row lk" bindtap="goSafety">
+      <view class="lk-l">
+        <text class="lk-t">安全与隐私</text>
+        <text class="lk-s">谁能看到我 / 隐身 24 小时 / 黑名单 / 导出我的数据</text>
+      </view>
+      <text class="lk-arrow">›</text>
+    </view>
     <view class="row lk" bindtap="goAbout">
       <view class="lk-l">
         <text class="lk-t">关于同频跑</text>

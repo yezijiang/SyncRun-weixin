@@ -22,6 +22,7 @@ Page({
     cities: [],
     locked: false,
     showNote: false,
+    unread: 0,
     source: 'mock'
   },
 
@@ -37,7 +38,18 @@ Page({
     if (!this.data.locked) {
       this.fetch()
       this.maybeShowNote()
+      this.loadUnread()
     }
+  },
+
+  /** 铃铛上的红点。取不到就当没有——红点不是核心信息，不该为它卡住首屏 */
+  async loadUnread() {
+    const n = await db.unreadCount()
+    if (n !== this.data.unread) this.setData({ unread: n })
+  },
+
+  goNotify() {
+    wx.navigateTo({ url: '/pages/notify/index' })
   },
 
   /**

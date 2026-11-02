@@ -236,6 +236,54 @@ async function setSearchable(searchable) {
   return written(await call('getMe', { action: 'setSearchable', searchable: !!searchable }))
 }
 
+/* ---------------- 消息中心（UI v2.0） ---------------- */
+
+/** 我的消息。云端不可用时返回空列表，不编造——没有消息就是没有消息 */
+async function getMessages() {
+  const r = await call('interact', { action: 'messageList' })
+  if (!r || !r.ok) return { messages: [], source: 'mock' }
+  return { messages: r.messages || [], source: 'cloud' }
+}
+
+async function readMessages(ids) {
+  return written(await call('interact', { action: 'messageRead', ids: ids || null }))
+}
+
+async function unreadCount() {
+  const r = await call('interact', { action: 'unreadCount' })
+  return r && r.ok ? r.unread || 0 : 0
+}
+
+/** 回一个加油：对同一条动态的鼓励（消息内联操作） */
+async function cheerBack(postId) {
+  return written(await call('interact', { action: 'cheerBack', target_id: postId }))
+}
+
+/* ---------------- 安全中心（UI v2.0） ---------------- */
+
+async function setVisibility(scope) {
+  return written(await call('getMe', { action: 'setVisibility', scope }))
+}
+
+/** 隐身 24 小时；cancel = true 时提前恢复 */
+async function ghostMode(cancel) {
+  return written(await call('getMe', { action: 'ghost', cancel: !!cancel }))
+}
+
+async function setFeedVisible(v) {
+  return written(await call('getMe', { action: 'setFeedVisible', value: v !== false }))
+}
+
+async function setCheerAllowed(v) {
+  return written(await call('getMe', { action: 'setCheerAllowed', value: v !== false }))
+}
+
+/** 导出自己的数据（PIPL 可携带权）。返回的是文本，前端负责复制到剪贴板 */
+async function exportData() {
+  const r = await call('getMe', { action: 'export' })
+  return r && r.ok ? r : { ok: false, error: 'cloud_unavailable' }
+}
+
 async function setGradient(gradient) {
   return written(await call('getMe', { action: 'setGradient', gradient }))
 }
@@ -323,6 +371,15 @@ module.exports = {
   cancelSession,
   submitCheckin,
   cheerPost,
+  cheerBack,
+  getMessages,
+  readMessages,
+  unreadCount,
+  setVisibility,
+  ghostMode,
+  setFeedVisible,
+  setCheerAllowed,
+  exportData,
   reportPost,
   blockUser,
   unblockUser,

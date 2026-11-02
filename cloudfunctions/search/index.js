@@ -72,6 +72,11 @@ async function searchTeam(kw, city) {
   }
 }
 
+/**
+ * 跑友搜索。除了「可被搜索」开关与双向屏蔽，还必须尊重安全中心的两项设置
+ * （UI v2.0）：隐身中的人从搜索里消失；可见范围为「仅互相加油过的人」的，
+ * 只对确实互相加油过的人可见。开关不开就没人找得到，这是字面意思。
+ */
 async function searchFriend(kw, openid) {
   const where = { searchable: true }
   if (kw) where.nickname = db.RegExp({ regexp: escapeRegExp(kw), options: 'i' })
@@ -80,14 +85,23 @@ async function searchFriend(kw, openid) {
     .collection('users')
     .where(where)
     .orderBy('created_at', 'desc')
-    .limit(LIMIT + 1)
+    .limit(LIMIT * 3)
     .get()
 
   const blocked = await getMutualBlocks(openid)
+  const cheeredBoth = await getCheeredEachOther(openid)
 
   const results = res.data
     .filter((u) => u.openid !== openid)
     .filter((u) => !blocked.has(u.openid))
+    // 隐身中：24 小时内从所有推荐与搜索里消失
+    .filter((u) => !(u.ghost_until && u.ghost_until > Date.now()))
+    .filter((u) => {
+      const scope = u.visible_scope || 'city'
+      if (scope === 'hidden') return false
+      if (scope === 'cheered') return cheeredBoth.has(u.openid)
+      return true
+    })
     .slice(0, LIMIT)
     .map((u) => ({
       _id: u._id,
@@ -121,6 +135,41 @@ async function getMutualBlocks(openid) {
 
   const set = new Set(mine)
   blockedBy.data.forEach((u) => set.add(u.openid))
+  return set
+}
+
+/** 与我互相加油过的人：可见范围为「仅互相加油过的人」时的白名单 */
+async function getCheeredEachOther(openid) {
+  if (!openid) return new Set()
+  const set = new Set()
+
+  const [mine, their] = await Promise.all([
+    db.collection('cheers').where({ from_user: openid }).limit(300).get(),
+    db.collection('posts').where({ user_id: openid }).field({ _id: true }).limit(300).get()
+  ])
+  const myPostIds = new Set(their.data.map((p) => p._id))
+
+  // 我给别人点过赞的那些动态，作者就是「我加油过的人」
+  const postIds = Array.from(new Set(mine.data.map((c) => c.target_id))).slice(0, 300)
+  let authorsCheeredByMe = new Set()
+  if (postIds.length) {
+    const posts = await db.collection('posts').where({ _id: _.in(postIds) }).field({ user_id: true }).limit(300).get()
+    authorsCheeredByMe = new Set(posts.data.map((p) => p.user_id))
+  }
+
+  // 给我点过赞的人
+  let cheeredMe = new Set()
+  if (myPostIds.size) {
+    const onMine = await db
+      .collection('cheers')
+      .where({ from_user: _.exists(true), target_id: _.in(Array.from(myPostIds)) })
+      .limit(300)
+      .get()
+    cheeredMe = new Set(onMine.data.map((c) => c.from_user))
+  }
+
+  authorsCheeredByMe.forEach((u) => { if (cheeredMe.has(u)) set.add(u) })
+  cheeredMe.forEach((u) => { if (authorsCheeredByMe.has(u)) set.add(u) })
   return set
 }
 

@@ -23,8 +23,8 @@
         <text class="sub2">跑起来，遇见同频的人 🏳️‍🌈</text>
       </view>
     </view>
-    <view class="bell">
-      <view class="dot"></view>
+    <view class="bell" bindtap="goNotify">
+      <view class="dot" wx:if="{{unread}}"></view>
     </view>
   </view>
 

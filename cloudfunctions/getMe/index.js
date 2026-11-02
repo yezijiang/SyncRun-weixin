@@ -38,8 +38,98 @@ exports.main = async (event) => {
   if (event.action === 'setAvatar') return setAvatar(OPENID, event)
   if (event.action === 'clearAvatar') return clearAvatar(OPENID)
   if (event.action === 'setGender') return setGender(OPENID, event)
+  if (event.action === 'setVisibility') return setVisibility(OPENID, event)
+  if (event.action === 'ghost') return ghost(OPENID, event)
+  if (event.action === 'setFeedVisible') return setFlag(OPENID, 'allow_feed', event.value !== false)
+  if (event.action === 'setCheerAllowed') return setFlag(OPENID, 'allow_cheer', event.value !== false)
+  if (event.action === 'export') return exportData(OPENID)
   if (event.action === 'deleteAccount') return deleteAccount(OPENID)
   return aggregate(OPENID)
+}
+
+/**
+ * 可见范围三档（UI v2.0 安全中心）：
+ *   city     同城可见（默认）—— 能被搜索、动态进同城流
+ *   cheered  仅互相加油过的人可见
+ *   hidden   谁都看不到（但仍能正常打卡，场次不受影响）
+ *
+ * 这不是「隐身模式」那种营销名词：写下去就必须真的在 search / feed 里生效，
+ * 否则就是一个骗人的开关。执行点在 cloudfunctions/search 与 feed。
+ */
+async function setVisibility(openid, event) {
+  const allowed = ['city', 'cheered', 'hidden']
+  const scope = allowed.indexOf(event.scope) >= 0 ? event.scope : 'city'
+
+  const me = await db.collection('users').where({ openid }).limit(1).get()
+  if (!me.data.length) return { ok: false, error: 'no_profile' }
+
+  await db.collection('users').doc(me.data[0]._id).update({ data: { visible_scope: scope } })
+  return { ok: true, scope }
+}
+
+/**
+ * 一键隐身 24 小时：临时从所有推荐与搜索里消失。
+ * 已加入的场次不受影响——报名了却消失，对同场的人是另一种冒犯。
+ */
+async function ghost(openid, event) {
+  const me = await db.collection('users').where({ openid }).limit(1).get()
+  if (!me.data.length) return { ok: false, error: 'no_profile' }
+
+  const until = event.cancel ? 0 : Date.now() + 24 * 3600 * 1000
+  await db.collection('users').doc(me.data[0]._id).update({ data: { ghost_until: until } })
+  return { ok: true, ghostUntil: until }
+}
+
+/** 两个细化开关：动态是否进同城流 / 陌生人能不能给我加油 */
+async function setFlag(openid, field, value) {
+  const me = await db.collection('users').where({ openid }).limit(1).get()
+  if (!me.data.length) return { ok: false, error: 'no_profile' }
+
+  const patch = {}
+  patch[field] = value
+  await db.collection('users').doc(me.data[0]._id).update({ data: patch })
+  return { ok: true, value }
+}
+
+/**
+ * 导出自己的数据（PIPL：可携带权）。
+ * 返回的是这个人自己填的东西；不含任何别人的信息，也不含 openid。
+ */
+async function exportData(openid) {
+  const [checkins, posts] = await Promise.all([
+    db.collection('checkins').where({ user_id: openid }).orderBy('created_at', 'desc').limit(500).get(),
+    db.collection('posts').where({ user_id: openid }).orderBy('created_at', 'desc').limit(500).get()
+  ])
+
+  const me = await db.collection('users').where({ openid }).limit(1).get()
+  const profile = me.data[0] || {}
+
+  const payload = {
+    exported_at: new Date().toISOString(),
+    profile: {
+      nickname: profile.nickname || '',
+      gender: profile.gender || 'unspecified',
+      city: profile.city || '',
+      searchable: profile.searchable !== false,
+      visible_scope: profile.visible_scope || 'city'
+    },
+    checkins: checkins.data.map((c) => ({
+      distance_km: c.distance_km,
+      duration_s: c.duration_s,
+      city: c.city,
+      note: c.note || '',
+      created_at: new Date(c.created_at).toISOString()
+    })),
+    posts: posts.data.map((p) => ({
+      text: p.text || '',
+      created_at: new Date(p.created_at).toISOString()
+    }))
+  }
+
+  return { ok: true, text: JSON.stringify(payload, null, 2), counts: {
+    checkins: checkins.data.length,
+    posts: posts.data.length
+  } }
 }
 
 /**
@@ -163,6 +253,11 @@ async function settings(openid) {
     searchable: me.data[0].searchable !== false,
     avatar_file_id: me.data[0].avatar_file_id || '',
     gender: me.data[0].gender || 'unspecified',
+    // 安全中心（UI v2.0）：可见范围三档 + 隐身到期时间 + 两个细化开关
+    visible_scope: me.data[0].visible_scope || 'city',
+    ghost_until: me.data[0].ghost_until || 0,
+    allow_feed: me.data[0].allow_feed !== false,
+    allow_cheer: me.data[0].allow_cheer !== false,
     blocked
   }
 }

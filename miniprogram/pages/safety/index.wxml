@@ -1,0 +1,84 @@
+<!--
+  安全与隐私（UI v2.0）
+  这里的每一个开关都必须在云函数里真的生效（search / feed / interact），
+  否则它就是骗人的安全感——比没有更糟。
+-->
+<view class="page">
+
+  <!-- 可见范围三档 -->
+  <view class="blk">
+    <view class="blk-t">谁能看到我</view>
+    <view class="picks">
+      <view
+        class="pick {{scope === item.key ? 'on' : ''}}"
+        wx:for="{{scopes}}"
+        wx:key="key"
+        bindtap="pickScope"
+        data-v="{{item.key}}"
+      >{{item.label}}</view>
+    </view>
+    <view class="note">{{scopeNote}}</view>
+  </view>
+
+  <!-- 细化开关 -->
+  <view class="blk plain">
+    <view class="row">
+      <view class="rl">
+        <text class="rt">允许被搜索</text>
+        <text class="rs">关闭后，别人搜不到你的昵称</text>
+      </view>
+      <switch checked="{{searchable}}" bindchange="toggleSearchable" color="#7C5CFF" />
+    </view>
+    <view class="row">
+      <view class="rl">
+        <text class="rt">动态出现在同城流</text>
+        <text class="rs">关闭后只有你的跑友能看到</text>
+      </view>
+      <switch checked="{{allowFeed}}" bindchange="toggleFeed" color="#7C5CFF" />
+    </view>
+    <view class="row">
+      <view class="rl">
+        <text class="rt">允许陌生人给我加油</text>
+        <text class="rs">关闭后仅互相加油过的人可互动</text>
+      </view>
+      <switch checked="{{allowCheer}}" bindchange="toggleCheer" color="#7C5CFF" />
+    </view>
+  </view>
+
+  <!-- 一键隐身 -->
+  <view class="blk">
+    <view class="blk-t">一键隐身</view>
+    <view class="note">临时从所有推荐与搜索中消失，已加入的场次不受影响，24 小时后自动恢复。</view>
+    <button class="btn btn-ghost ghost-btn" bindtap="ghost" wx:if="{{!ghostUntil}}">立即隐身 24 小时</button>
+    <button class="btn btn-ghost ghost-btn" bindtap="unghost" wx:else>取消隐身（剩余 {{ghostLeft}}）</button>
+  </view>
+
+  <!-- 黑名单 -->
+  <view class="sect">
+    <text class="t">黑名单</text>
+    <text class="x">{{blocked.length}} 人</text>
+  </view>
+  <view class="blk plain">
+    <view class="bl" wx:for="{{blocked}}" wx:key="id">
+      <view class="av" style="background:linear-gradient(135deg,{{item.gradient[0]}},{{item.gradient[1]}})"></view>
+      <text class="bl-n">{{item.nickname}}</text>
+      <text class="bl-btn" bindtap="unblock" data-id="{{item.id}}">解除</text>
+    </view>
+    <view class="empty" wx:if="{{!blocked.length}}">还没有屏蔽任何人</view>
+  </view>
+
+  <!-- 导出与注销 -->
+  <view class="blk">
+    <view class="blk-t">我的数据</view>
+    <view class="note">导出属于你的全部打卡与动态（PIPL 可携带权）。不含任何别人的信息。</view>
+    <button class="btn btn-ghost ghost-btn" bindtap="exportData" disabled="{{exporting}}">
+      {{exporting ? '正在导出…' : '导出我的数据'}}
+    </button>
+  </view>
+
+  <view class="foot">
+    屏蔽是双向的：你看不到 TA，TA 也看不到你
+    遇到紧急情况可先导出证据，再从「设置」联系我们
+  </view>
+
+</view>

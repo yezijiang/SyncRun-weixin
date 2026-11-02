@@ -31,14 +31,28 @@ exports.main = async (event) => {
   if (!posts.data.length) return { ok: true, posts: [], serverTime: Date.now() }
 
   const blocked = await getMutualBlocks(OPENID)
-  const visible = posts.data.filter((p) => !blocked.has(p.user_id))
+  const candidates = posts.data.filter((p) => !blocked.has(p.user_id))
+  if (!candidates.length) return { ok: true, posts: [], serverTime: Date.now() }
+
+  const authorIds = Array.from(new Set(candidates.map((p) => p.user_id)))
+
+  // 先取作者设置再决定谁能进流：关了「动态进同城流」、设了隐身、
+  // 或可见范围不是「同城可见」的人，都不该出现在同城流里。
+  // 开关必须在读的时候真的生效，否则安全中心就是一个骗人的开关。
+  const authorsRes = await db.collection('users').where({ openid: _.in(authorIds) }).limit(100).get()
+  const exposure = {}
+  authorsRes.data.forEach((u) => {
+    exposure[u.openid] = !(u.allow_feed === false) &&
+      (u.visible_scope || 'city') === 'city' &&
+      !(u.ghost_until && u.ghost_until > Date.now())
+  })
+
+  const visible = candidates.filter((p) => exposure[p.user_id] !== false)
   if (!visible.length) return { ok: true, posts: [], serverTime: Date.now() }
 
-  const authorIds = Array.from(new Set(visible.map((p) => p.user_id)))
   const checkinIds = visible.map((p) => p.checkin_id).filter(Boolean)
 
-  const [authorsRes, checkinsRes, cheeredRes] = await Promise.all([
-    db.collection('users').where({ openid: _.in(authorIds) }).limit(100).get(),
+  const [checkinsRes, cheeredRes] = await Promise.all([
     checkinIds.length
       ? db.collection('checkins').where({ _id: _.in(checkinIds) }).limit(100).get()
       : Promise.resolve({ data: [] }),
