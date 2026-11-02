@@ -1,0 +1,184 @@
+/* 跑友主页（UI v2.0） */
+
+.pf {
+  display: flex;
+  align-items: center;
+  padding: 40rpx 28rpx 24rpx;
+}
+
+.pf-av {
+  width: 116rpx;
+  height: 116rpx;
+  border-radius: 50%;
+  flex: none;
+}
+
+.pf-t {
+  margin-left: 24rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.pf-n {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.pf-m {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: var(--muted);
+}
+
+.card {
+  margin: 0 28rpx 20rpx;
+  background: #fff;
+  border: 1rpx solid var(--line);
+  border-radius: 24rpx;
+  padding: 24rpx 28rpx;
+}
+
+.card.nums {
+  display: flex;
+}
+
+.card.nums .n {
+  flex: 1;
+  text-align: center;
+}
+
+.n-v {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.n-l {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: var(--muted);
+}
+
+.sect {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 8rpx 28rpx 16rpx;
+}
+
+.sect .t {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.sect .x {
+  font-size: 22rpx;
+  color: var(--muted);
+}
+
+.pp {
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid var(--line);
+}
+
+.pp:last-child {
+  border-bottom: none;
+}
+
+.pp-c {
+  font-size: 26rpx;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.pp-m {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: var(--muted);
+  display: flex;
+  gap: 8rpx;
+}
+
+.pp-dot {
+  color: var(--line);
+}
+
+.empty {
+  padding: 40rpx 0;
+  text-align: center;
+  font-size: 24rpx;
+  color: var(--muted);
+}
+
+.card.plain {
+  padding: 0;
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 28rpx;
+  border-bottom: 1rpx solid var(--line);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.rl {
+  flex: 1;
+  min-width: 0;
+  padding-right: 20rpx;
+}
+
+.rt {
+  font-size: 26rpx;
+  color: var(--ink);
+}
+
+.rs {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 21rpx;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.lk-arrow {
+  font-size: 32rpx;
+  color: var(--muted);
+  flex: none;
+}
+
+/* 关闭主页 / 不存在 */
+.closed {
+  padding: 160rpx 64rpx 0;
+  text-align: center;
+}
+
+.cl-arc {
+  width: 120rpx;
+  height: 120rpx;
+  margin: 0 auto 32rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #E8E6F0, #F4F4F6);
+}
+
+.cl-t {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.cl-s {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  line-height: 1.7;
+  color: var(--muted);
+}

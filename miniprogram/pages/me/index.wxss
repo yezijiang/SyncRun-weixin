@@ -360,3 +360,51 @@
   font-size: 22rpx;
   color: #E23E57;
 }
+
+/* 我的记录（UI v2.0） */
+.rec {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16rpx;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid var(--line);
+}
+
+.rec:last-of-type {
+  border-bottom: none;
+}
+
+.rec-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.rec-km {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.rec-m {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: var(--muted);
+  display: flex;
+  gap: 8rpx;
+}
+
+.rec-note {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: var(--ink-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rec-day {
+  font-size: 22rpx;
+  color: var(--muted);
+  flex: none;
+}

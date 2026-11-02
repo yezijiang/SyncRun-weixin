@@ -23,6 +23,7 @@ exports.main = async (event) => {
   const action = event.action
   if (action === 'cheer') return cheer(OPENID, event)
   if (action === 'cheerBack') return cheer(OPENID, { target_id: event.target_id })
+  if (action === 'comment') return comment(OPENID, event)
   if (action === 'report') return report(OPENID, event)
   if (action === 'block') return block(OPENID, event, true)
   if (action === 'unblock') return block(OPENID, event, false)
@@ -122,6 +123,81 @@ async function nicknameOf(openid) {
 }
 
 /* ---------------- 消息中心（UI v2.0） ---------------- */
+
+/**
+ * 评论。和鼓励一样受「允许陌生人互动」开关约束——
+ * 关掉陌生人互动的人，评论区同样不该被陌生人进来。
+ */
+async function comment(openid, event) {
+  const postId = event.post_id
+  const text = String(event.text || '').trim()
+  if (!postId) return { ok: false, error: 'no_target' }
+  if (!text) return { ok: false, error: 'empty_comment' }
+  if (text.length > 200) return { ok: false, error: 'comment_too_long' }
+
+  const post = await db.collection('posts').doc(postId).get().catch(() => null)
+  if (!post || !post.data) return { ok: false, error: 'no_target' }
+
+  const safe = await checkText(text)
+  if (!safe.ok) return { ok: false, error: safe.error }
+
+  // 双向屏蔽：被屏蔽的人不该能评论，否则评论区成了骚扰通道
+  const blocked = await blockedWith(post.data.user_id, openid)
+  if (blocked) return { ok: false, error: 'blocked' }
+
+  const res = await db.collection('comments').add({
+    data: { post_id: postId, user_id: openid, text: text.slice(0, 200), created_at: Date.now() }
+  })
+  await db.collection('posts').doc(postId).update({ data: { comment_count: _.inc(1) } })
+
+  if (post.data.user_id && post.data.user_id !== openid) {
+    const nick = await nicknameOf(openid)
+    await pushMessage(post.data.user_id, {
+      type: 'comment',
+      title: nick + ' 评论了你的动态',
+      content: text.slice(0, 50),
+      target_type: 'post',
+      target_id: postId
+    })
+  }
+  return { ok: true, id: res._id }
+}
+
+/** TA 屏蔽了我，或我屏蔽了 TA（评论前置检查用） */
+async function blockedWith(otherOpenid, myOpenid) {
+  if (!otherOpenid || otherOpenid === myOpenid) return false
+  const me = await db.collection('users').where({ openid: myOpenid }).field({ blocked_ids: true }).limit(1).get()
+  if (me.data.length && (me.data[0].blocked_ids || []).indexOf(otherOpenid) >= 0) return true
+  const they = await db.collection('users').where({ openid: otherOpenid, blocked_ids: myOpenid }).limit(1).get()
+  return they.data.length > 0
+}
+
+async function pushMessage(userOpenid, msg) {
+  if (!userOpenid) return
+  try {
+    await db.collection('messages').add({
+      data: Object.assign(
+        { user_id: userOpenid, read: false, created_at: Date.now(), target_type: '', target_id: '', count: 1 },
+        msg
+      )
+    })
+  } catch (e) {
+    console.warn('[同频跑] 消息写入失败，忽略', e)
+  }
+}
+
+async function checkText(text) {
+  if (!text) return { ok: true }
+  try {
+    await cloud.openapi.security.msgSecCheck({ content: String(text).slice(0, 500) })
+    return { ok: true }
+  } catch (e) {
+    const code = e && (e.errCode || e.errcode)
+    if (code === 87014) return { ok: false, error: 'risky_content' }
+    console.warn('[同频跑] msgSecCheck 不可用，本次放行', e)
+    return { ok: true, degraded: true }
+  }
+}
 
 /**
  * 我的消息。只返回自己的，且删掉 30 天之前的。

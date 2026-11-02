@@ -21,7 +21,66 @@ exports.main = async (event) => {
 
   if (kind === 'session') return searchSession(kw, event.city)
   if (kind === 'team') return searchTeam(kw, event.city)
+  if (kind === 'profile') return getProfile(event.user_id, OPENID)
   return searchFriend(kw, OPENID)
+}
+
+/**
+ * 跑友主页（UI v2.0）。跨用户读取，只能在这里做。
+ *
+ * 可见性从三个开关推导，全部尊重：
+ *   - 双向屏蔽 → 当作不存在
+ *   - 隐身中 / visible_scope=hidden → 明确告诉对方「TA 关闭了主页」，不是 404
+ *   - visible_scope=cheered → 只有互相加油过的人能看
+ * 隐私边界：不返回 openid、不给精确位置、不返回配速——只有 TA 自己公布的。
+ */
+async function getProfile(userId, myOpenid) {
+  if (!userId) return { ok: false, error: 'no_target' }
+
+  const doc = await db.collection('users').doc(userId).get().catch(() => null)
+  if (!doc || !doc.data) return { ok: false, error: 'not_found' }
+  const u = doc.data
+
+  const blocked = await getMutualBlocks(myOpenid)
+  if (blocked.has(u.openid) || u.openid === myOpenid) return { ok: false, error: 'not_found' }
+
+  if (u.ghost_until && u.ghost_until > Date.now()) return { ok: true, hidden: true }
+  const scope = u.visible_scope || 'city'
+  if (scope === 'hidden') return { ok: true, hidden: true }
+  if (scope === 'cheered') {
+    const both = await getCheeredEachOther(myOpenid)
+    if (!both.has(u.openid)) return { ok: true, hidden: true }
+  }
+
+  const since = Date.now() - 30 * 86400000
+  const [checkins, posts] = await Promise.all([
+    db.collection('checkins').where({ user_id: u.openid, created_at: _.gte(since) }).field({ distance_km: true, created_at: true }).limit(500).get(),
+    db.collection('posts').where({ user_id: u.openid, visibility: 'community' }).orderBy('created_at', 'desc').limit(3).get()
+  ])
+
+  const totalKm = Math.round(checkins.data.reduce((a, c) => a + (c.distance_km || 0), 0) * 10) / 10
+
+  return {
+    ok: true,
+    profile: {
+      id: u._id,
+      nickname: u.nickname || '匿名跑者',
+      gradient: u.gradient || ['#7C5CFF', '#4CC9F0'],
+      avatar: u.avatar_file_id || '',
+      city: u.city || '',
+      // 性别只在对方愿意说的时候展示
+      gender: u.gender && u.gender !== 'unspecified' ? u.gender : '',
+      km30: totalKm,
+      runs30: checkins.data.length
+    },
+    posts: posts.data.map((p) => ({
+      _id: p._id,
+      content: p.content || '',
+      cheer_count: p.cheer_count || 0,
+      comment_count: p.comment_count || 0,
+      created_at: p.created_at
+    }))
+  }
 }
 
 async function searchSession(kw, city) {

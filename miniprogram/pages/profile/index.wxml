@@ -1,0 +1,88 @@
+<!--
+  跑友主页（UI v2.0）。跨用户读取，数据全部来自 search 云函数的 profile 档。
+  页面上没有任何「关注」「私信」入口——连接只发生在跑道上，
+  私信是下一个要解释一百遍的隐私噩梦，v1 不做（PRD 第 8 章）。
+-->
+<view class="page">
+
+  <!-- 隐身 / 关闭主页：尊重 TA 的选择，明说而不是 404 -->
+  <view class="closed" wx:if="{{state === 'hidden'}}">
+    <view class="cl-arc"></view>
+    <view class="cl-t">TA 关闭了主页</view>
+    <view class="cl-s">每个人都可以决定自己被谁看到。等 TA 愿意的时候再看吧</view>
+  </view>
+
+  <block wx:elif="{{state === 'ready'}}">
+    <!-- 身份区：和「我的」页同一套视觉 -->
+    <view class="pf">
+      <image class="pf-av" wx:if="{{profile.avatar}}" src="{{profile.avatar}}" mode="aspectFill" />
+      <view
+        class="pf-av"
+        wx:else
+        style="background:linear-gradient(135deg,{{profile.gradient[0]}},{{profile.gradient[1]}})"
+      ></view>
+      <view class="pf-t">
+        <view class="pf-n">{{profile.nickname}}</view>
+        <view class="pf-m">
+          {{profile.city || '深圳'}}<text wx:if="{{genderText}}"> · {{genderText}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 近 30 天统计：只有公开口径的数字，没有任何配速 -->
+    <view class="card nums">
+      <view class="n">
+        <text class="n-v num">{{profile.km30}}</text>
+        <text class="n-l">近 30 天 KM</text>
+      </view>
+      <view class="n">
+        <text class="n-v num">{{profile.runs30}}</text>
+        <text class="n-l">近 30 天次数</text>
+      </view>
+    </view>
+
+    <!-- TA 的最近动态 -->
+    <view class="sect">
+      <text class="t">TA 的最近动态</text>
+      <text class="x">社区内可见</text>
+    </view>
+    <view class="card">
+      <view class="pp" wx:for="{{posts}}" wx:key="_id">
+        <view class="pp-c">{{item.content}}</view>
+        <view class="pp-m">
+          <text>{{item.timeText}}</text>
+          <text class="pp-dot">·</text>
+          <text>{{item.cheer_count}} 鼓励</text>
+          <text class="pp-dot">·</text>
+          <text>{{item.comment_count}} 评论</text>
+        </view>
+      </view>
+      <view class="empty" wx:if="{{!posts.length}}">TA 还没有发过动态</view>
+    </view>
+
+    <!-- 只有保护性动作：屏蔽 / 举报。没有关注，没有私信 -->
+    <view class="card plain acts-card">
+      <view class="row" bindtap="blockUser">
+        <view class="rl">
+          <text class="rt">屏蔽 TA</text>
+          <text class="rs">你们将互相看不到对方，双向的</text>
+        </view>
+        <text class="lk-arrow">›</text>
+      </view>
+      <view class="row" bindtap="reportUser">
+        <view class="rl">
+          <text class="rt">举报 TA</text>
+          <text class="rs">人工 24 小时内处理，结果会通过消息通知你</text>
+        </view>
+        <text class="lk-arrow">›</text>
+      </view>
+    </view>
+  </block>
+
+  <view class="closed" wx:else>
+    <view class="cl-arc"></view>
+    <view class="cl-t">主页走丢了</view>
+    <view class="cl-s">TA 可能已经注销，或你们之间有一方设置了屏蔽</view>
+  </view>
+
+</view>

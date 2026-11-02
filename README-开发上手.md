@@ -52,6 +52,9 @@ miniprogram/                 小程序前端
     invite/                  邀请 —— 双层表达对比（对外中性 / 站内专属）
     welcome/                 欢迎页（UI v2.3 首进流程：三张承诺卡 + 三步引导）
     about/                   关于同频跑（UI v2.2：定位 / 我们不做 / 数字口径）
+    notify/                  消息中心（UI v2.0：五类消息 + 内联操作）
+    safety/                  安全与隐私（可见范围三档 / 隐身 24h / 黑名单 / 导出）
+    profile/                 跑友主页（跨用户读取，走 search 云函数 profile 档）
   utils/
     identity.js              身份脱敏（P0）：生成式昵称 + 彩虹几何头像
     session.js               场次状态机（P0）：推导「此刻正在奔跑」

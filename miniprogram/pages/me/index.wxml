@@ -134,6 +134,29 @@
     <view class="hint" wx:if="{{joinedList.length}}">取消参与不会留下任何痕迹，发起者也不会收到通知</view>
   </view>
 
+  <!-- 我的记录（UI v2.0）：最近 20 次，全部是真实数据 -->
+  <view class="sect">
+    <text class="t">我的记录</text>
+    <text class="x">{{records.length}} 条</text>
+  </view>
+  <view class="card">
+    <view class="rec" wx:for="{{records}}" wx:key="_id">
+      <view class="rec-main">
+        <view class="rec-km num">{{item.kmText}} KM</view>
+        <view class="rec-m">
+          <text>{{item.durText}}</text>
+          <text class="jl-dot">·</text>
+          <text>{{item.paceText}}/KM</text>
+          <text class="jl-dot" wx:if="{{item.city}}">·</text>
+          <text wx:if="{{item.city}}">{{item.city}}</text>
+        </view>
+        <view class="rec-note" wx:if="{{item.note}}">{{item.note}}</view>
+      </view>
+      <text class="rec-day">{{item.dayText}}</text>
+    </view>
+    <view class="empty" wx:if="{{!records.length}}">还没有打卡记录——跑完第一次，这里就有第一行</view>
+  </view>
+
   <!-- 成就 -->
   <view class="sect">
     <text class="t">成就</text>

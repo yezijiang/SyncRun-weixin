@@ -24,6 +24,13 @@ Page({
     this.setData({ tab: e.currentTarget.dataset.k }, () => this.run())
   },
 
+  /** 点跑友 → 主页。跳过去也不带任何身份信息，只有 users._id */
+  openProfile(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    wx.navigateTo({ url: '/pages/profile/index?id=' + id })
+  },
+
   async run() {
     const kw = this.data.keyword.trim()
     if (!kw) {

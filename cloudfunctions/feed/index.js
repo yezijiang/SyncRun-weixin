@@ -88,6 +88,36 @@ exports.main = async (event) => {
 
   const cheered = new Set(cheeredRes.data.map((c) => c.target_id))
 
+  // 最近评论（每条动态带 2 条，展示足够，翻页不做 v1）
+  const commentsRes = await db
+    .collection('comments')
+    .where({ post_id: _.in(visible.map((p) => p._id)) })
+    .orderBy('created_at', 'desc')
+    .limit(100)
+    .get()
+
+  const byPost = {}
+  const commenterIds = new Set()
+  commentsRes.data.forEach((c) => {
+    byPost[c.post_id] = byPost[c.post_id] || []
+    if (byPost[c.post_id].length < 2) {
+      byPost[c.post_id].push(c)
+      commenterIds.add(c.user_id)
+    }
+  })
+
+  let commenters = {}
+  if (commenterIds.size) {
+    const r = await db
+      .collection('users')
+      .where({ openid: _.in(Array.from(commenterIds)) })
+      .limit(50)
+      .get()
+    r.data.forEach((u) => {
+      commenters[u.openid] = { nickname: u.nickname || '匿名跑者', gradient: u.gradient || ['#7C5CFF', '#4CC9F0'] }
+    })
+  }
+
   return {
     ok: true,
     serverTime: Date.now(),
@@ -101,7 +131,13 @@ exports.main = async (event) => {
       created_at: p.created_at,
       author: authors[p.user_id] || { id: '', nickname: '匿名跑者', gradient: ['#7C5CFF', '#4CC9F0'], avatar: '', city: '' },
       checkin: p.checkin_id ? checkins[p.checkin_id] || null : null,
-      cheered: cheered.has(p._id)
+      cheered: cheered.has(p._id),
+      comments: (byPost[p._id] || []).map((c) => ({
+        _id: c._id,
+        text: c.text,
+        created_at: c.created_at,
+        author: commenters[c.user_id] || { nickname: '匿名跑者', gradient: ['#7C5CFF', '#4CC9F0'] }
+      }))
     }))
   }
 }

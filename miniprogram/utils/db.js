@@ -168,6 +168,18 @@ async function reportPost(postId, reason) {
   )
 }
 
+/** 举报某个跑友：同样只传 users._id，不传 openid */
+async function reportUser(userId, reason) {
+  return written(
+    await call('interact', {
+      action: 'report',
+      target_type: 'user',
+      target_id: userId,
+      reason: reason || ''
+    })
+  )
+}
+
 /**
  * 屏蔽：传 users 记录 _id，不是 openid。
  * 对外流通的只能是 _id——把别人的 openid 送到客户端是隐私事故。
@@ -257,6 +269,17 @@ async function unreadCount() {
 /** 回一个加油：对同一条动态的鼓励（消息内联操作） */
 async function cheerBack(postId) {
   return written(await call('interact', { action: 'cheerBack', target_id: postId }))
+}
+
+/** 评论。跨用户 UGC，一律走云函数过内容安全 */
+async function commentPost(postId, text) {
+  return written(await call('interact', { action: 'comment', post_id: postId, text }))
+}
+
+/** 跑友主页：传 users 记录 _id，不传 openid（对外只流通 _id） */
+async function getProfile(userId) {
+  const r = await call('search', { kind: 'profile', user_id: userId })
+  return r || { ok: false, error: 'cloud_unavailable' }
 }
 
 /* ---------------- 安全中心（UI v2.0） ---------------- */
@@ -372,6 +395,8 @@ module.exports = {
   submitCheckin,
   cheerPost,
   cheerBack,
+  commentPost,
+  getProfile,
   getMessages,
   readMessages,
   unreadCount,
@@ -383,6 +408,7 @@ module.exports = {
   reportPost,
   blockUser,
   unblockUser,
+  reportUser,
   listTeams,
   createTeam,
   joinTeam,

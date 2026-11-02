@@ -7,11 +7,13 @@
 
   <view class="post" wx:for="{{posts}}" wx:key="_id">
     <view class="ph">
-      <image class="av" wx:if="{{item.author.avatar}}" src="{{item.author.avatar}}" mode="aspectFill" />
+      <image class="av" wx:if="{{item.author.avatar}}" src="{{item.author.avatar}}" mode="aspectFill" bindtap="goProfile" data-id="{{item.author.id}}" />
       <view
         class="av"
         wx:else
         style="background:linear-gradient(135deg,{{item.author.gradient[0]}},{{item.author.gradient[1]}})"
+        bindtap="goProfile"
+        data-id="{{item.author.id}}"
       ></view>
       <view class="ph-t">
         <view class="ph-n">{{item.author.nickname}}</view>
@@ -36,9 +38,17 @@
         <view class="heart"></view>
         <text class="num">{{item.cheer_count || 0}}</text>
       </view>
-      <view class="act">
+      <view class="act" bindtap="comment" data-id="{{item._id}}">
         <view class="bubble"></view>
         <text class="num">{{item.comment_count || 0}}</text>
+      </view>
+    </view>
+
+    <!-- 最近评论（UI v2.0）：先看到别人说了什么，再决定自己要不要说 -->
+    <view class="cmts" wx:if="{{item.comments.length}}">
+      <view class="cmt" wx:for="{{item.comments}}" wx:for-item="c" wx:key="_id">
+        <text class="cmt-n">{{c.author.nickname}}</text>
+        <text class="cmt-t">{{c.text}}</text>
       </view>
     </view>
   </view>

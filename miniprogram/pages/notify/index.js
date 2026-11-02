@@ -15,6 +15,7 @@ const TYPE_TEXT = {
   invite: '约跑',
   cancel: '取消',
   remind: '提醒',
+  comment: '评论',
   privacy: '隐私',
   system: '系统'
 }
@@ -25,7 +26,8 @@ const ACTIONS = {
   join: '查看报名的人',
   invite: '接受并加入',
   cancel: '看看其他场次',
-  remind: '去这场看看'
+  remind: '去这场看看',
+  comment: '去回复'
 }
 
 Page({

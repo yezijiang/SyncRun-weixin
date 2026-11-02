@@ -10,6 +10,14 @@ const ACHIEVEMENTS = [
   { code: 'half', name: '第一次半马', got: false }
 ]
 
+/** 记录的日期文本。format.js 没有这个就本地算，不动公共模块 */
+function dayText(ts) {
+  if (!ts) return ''
+  const d = new Date(ts)
+  const pad = (n) => (n < 10 ? '0' + n : '' + n)
+  return pad(d.getMonth() + 1) + '月' + pad(d.getDate()) + '日'
+}
+
 Page({
   data: {
     nickname: '',
@@ -27,7 +35,9 @@ Page({
     avatarFileId: '',
     pendingNickname: '',
     // 我报名的活动（UI v1.13）
-    joinedList: []
+    joinedList: [],
+    // 我的记录（UI v2.0）
+    records: []
   },
 
   onShow() {
@@ -60,7 +70,15 @@ Page({
         ? res.achievements
         : ACHIEVEMENTS
       ).map((a) => Object.assign({}, a)),
-      cities: (res.cities || ['深圳']).map((c) => ({ city: c, lit: true }))
+      cities: (res.cities || ['深圳']).map((c) => ({ city: c, lit: true })),
+      // 我的记录：服务端已经算好最近 20 条，这里只做展示格式化
+      records: (res.records || []).map((c) => ({
+        ...c,
+        kmText: fmt.km(c.distance_km),
+        durText: fmt.hms(c.duration_s),
+        paceText: fmt.pace(c.duration_s, c.distance_km),
+        dayText: fmt.day ? fmt.day(c.created_at) : dayText(c.created_at)
+      }))
     })
     this.fetchJoined()
   },

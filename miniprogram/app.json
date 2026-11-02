@@ -11,7 +11,8 @@
     "pages/welcome/index",
     "pages/about/index",
     "pages/notify/index",
-    "pages/safety/index"
+    "pages/safety/index",
+    "pages/profile/index"
   ],
   "window": {
     "backgroundTextStyle": "dark",
