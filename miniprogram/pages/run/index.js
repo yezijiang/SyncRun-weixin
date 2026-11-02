@@ -1,8 +1,18 @@
 const db = require('../../utils/db')
 const fmt = require('../../utils/format')
 
-const DISTANCE_CHIPS = [3, 5, 8, 10, 15, 21.1]
+const DISTANCE_CHIPS = [3, 5, 8, 10, 15, 21.1]  // 发起表单用（备选 + 自定义，PRD 修订 8）
+const DURATION_CHIPS = [15, 30, 45, 60, 90]      // 打卡快捷时长（v1.10）
+const CUSTOM_QUICK = [3, 8, 15, 30]              // 其他距离弹窗里的快捷值（v1.11）
 const PACE_OPTIONS = ['不限', "6'00\" 以内", "6'00\"–7'00\"", "7'00\"–8'00\"", "8'00\" 以外"]
+
+// 滚动选择的三列范围：0–9 时 / 0–59 分 / 0–59 秒
+const pad2 = (n) => (n < 10 ? '0' + n : '' + n)
+const HMS_RANGE = [
+  Array.from({ length: 10 }, (_, i) => String(i)),
+  Array.from({ length: 60 }, (_, i) => pad2(i)),
+  Array.from({ length: 60 }, (_, i) => pad2(i))
+]
 
 // 云函数错误码 -> 用户能看懂的话。不要把 code 直接弹给用户
 const ERR_TEXT = {
@@ -47,11 +57,19 @@ Page({
     // 打卡表单
     km: '',
     useCustomKm: false,
+    showCustomKm: false,
+    customKmDraft: '',
+    customQuick: CUSTOM_QUICK,
+    durationChips: DURATION_CHIPS,
+    quickDur: 0,             // 0 = 没用快捷
+    hmsRange: HMS_RANGE,
+    hmsIndex: [0, 0, 0],
     h: '00',
     m: '00',
     s: '00',
     note: '',
     paceText: "—'—\"",
+    paceWarn: '',
     durationText: '0分0秒',
     // 打卡位置：一次性定位的结果，只到城市（PRD 9.8）
     city: '',
@@ -249,9 +267,15 @@ Page({
 
     if (!r.ok) return wx.showToast({ title: this.errText(r.error), icon: 'none' })
 
-    wx.showToast({ title: '已发起，等第一个人加入', icon: 'none' })
+    // 发起即邀请（UI v2.1）：发起后最大的流失点是「没人来」，
+    // 所以成功后直接打开邀请页，把邀请变成默认动作，而不是丢一个 toast
+    const q =
+      'id=' + r.sessionId +
+      '&title=' + encodeURIComponent(f.title.trim()) +
+      '&t=' + this.startTimestamp() +
+      '&km=' + km
     this.setData({ mode: 'list' })
-    this.fetch()
+    wx.navigateTo({ url: '/pages/invite/index?' + q })
   },
 
   async cancelSession() {
@@ -277,20 +301,74 @@ Page({
 
   onKmChip(e) {
     const v = e.currentTarget.dataset.v
-    this.setData({ km: String(v), useCustomKm: false })
+    this.setData({ km: String(v), useCustomKm: false, quickDur: this.data.quickDur })
     this.recalc()
   },
 
-  onKmInput(e) {
-    const v = e.detail.value
-    this.setData({ km: v, useCustomKm: !!v })
+  /* ---- 其他距离弹窗（v1.11）：快捷值 + 自由输入 ---- */
+
+  openCustomKm() {
+    this.setData({ showCustomKm: true, customKmDraft: this.data.useCustomKm ? String(this.data.km) : '' })
+  },
+
+  closeCustomKm() {
+    this.setData({ showCustomKm: false })
+  },
+
+  noop() {},
+
+  onCustomQuick(e) {
+    this.setData({ customKmDraft: String(e.currentTarget.dataset.v) })
+  },
+
+  onCustomKmDraft(e) {
+    this.setData({ customKmDraft: e.detail.value })
+  },
+
+  confirmCustomKm() {
+    const v = Number(this.data.customKmDraft)
+    if (!isFinite(v) || v <= 0 || v > 100) {
+      return wx.showToast({ title: '距离填得不太对（0–100 之间）', icon: 'none' })
+    }
+    this.setData({ km: String(v), useCustomKm: true, showCustomKm: false })
+    this.recalc()
+  },
+
+  /* ---- 时长三方式（v1.10）：快捷 / 手输 / 滚动 ---- */
+
+  /** 快捷时长：选了快捷就清手输的零头，避免两处数字打架 */
+  onQuickDur(e) {
+    const v = Number(e.currentTarget.dataset.v)
+    const totalMin = v
+    const h = Math.floor(totalMin / 60)
+    const m = totalMin % 60
+    this.setData({
+      quickDur: v,
+      h: pad2(h),
+      m: pad2(m),
+      s: '00',
+      hmsIndex: [h, m, 0]
+    })
+    this.recalc()
+  },
+
+  /** 滚动选择：三列（时/分/秒），改动后与手输框同步 */
+  onScrollDur(e) {
+    const idx = e.detail.value
+    this.setData({
+      h: HMS_RANGE[0][idx[0]],
+      m: HMS_RANGE[1][idx[1]],
+      s: HMS_RANGE[2][idx[2]],
+      hmsIndex: idx,
+      quickDur: 0
+    })
     this.recalc()
   },
 
   onHms(e) {
     const field = e.currentTarget.dataset.f
     let v = String(e.detail.value).replace(/\D/g, '').slice(0, 2)
-    const patch = {}
+    const patch = { quickDur: 0 }
     patch[field] = v
     // 输满两位自动跳下一格
     this.setData(patch, () => {
@@ -310,12 +388,28 @@ Page({
     this.setData({ note: e.detail.value })
   },
 
+  /**
+   * 配速防错（v1.11）：只提醒「明显填错」，不评价快慢。
+   * 慢不该被拦——跑走结合是正当需求；快到不可能才是输入错误。
+   */
   recalc() {
     const km = Number(this.data.km)
     const total = fmt.joinHMS(this.data.h, this.data.m, this.data.s)
+    let paceWarn = ''
+    if (km > 0 && total > 0) {
+      const secPerKm = total / km
+      if (secPerKm < 90) {
+        paceWarn = '这个配速比世界纪录还快，检查一下距离和时长'
+      } else if (secPerKm < 180) {
+        paceWarn = '已接近专业选手水平，确认没填错？'
+      } else if (secPerKm > 1080) {
+        paceWarn = '每公里超过 18 分钟——如果是跑走结合，没问题，直接提交'
+      }
+    }
     this.setData({
       paceText: fmt.pace(total, km),
-      durationText: fmt.durationLabel(total)
+      durationText: fmt.durationLabel(total),
+      paceWarn
     })
   },
 
@@ -356,6 +450,10 @@ Page({
     const duration_s = fmt.joinHMS(this.data.h, this.data.m, this.data.s)
     if (!km) return wx.showToast({ title: '请填写距离', icon: 'none' })
     if (!duration_s) return wx.showToast({ title: '请填写时长', icon: 'none' })
+    // 配速防错兜底：超过人类极限的配速多半是距离/时长填反了
+    if (km > 0 && duration_s / km < 90) {
+      return wx.showToast({ title: '配速快过世界纪录了，检查一下距离和时长', icon: 'none' })
+    }
 
     wx.showLoading({ title: '正在记录' })
     const r = await db.submitCheckin({
@@ -390,12 +488,17 @@ Page({
       mode: 'list',
       km: '',
       useCustomKm: false,
+      showCustomKm: false,
+      customKmDraft: '',
+      quickDur: 0,
+      hmsIndex: [0, 0, 0],
       h: '00',
       m: '00',
       s: '00',
       note: '',
       ocrState: 'idle',
       paceText: "—'—\"",
+      paceWarn: '',
       durationText: '0分0秒'
     })
   },

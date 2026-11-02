@@ -25,7 +25,9 @@ Page({
     showAvatar: false,
     // 用户主动换的微信头像（云存储 fileID）。为空 = 还在用生成式头像
     avatarFileId: '',
-    pendingNickname: ''
+    pendingNickname: '',
+    // 我报名的活动（UI v1.13）
+    joinedList: []
   },
 
   onShow() {
@@ -60,6 +62,34 @@ Page({
       ).map((a) => Object.assign({}, a)),
       cities: (res.cities || ['深圳']).map((c) => ({ city: c, lit: true }))
     })
+    this.fetchJoined()
+  },
+
+  /** 我报名的活动（UI v1.13）：sessionStatus 已经算好 iJoined / iDone / isMine */
+  async fetchJoined() {
+    const res = await db.getHome()
+    const joined = (res.sessions || [])
+      .filter((s) => s.iJoined)
+      .map((s) => Object.assign({}, s, { timeText: fmt.sessionTime(s.start_time) }))
+    this.setData({ joinedList: joined })
+  },
+
+  /** 取消参与：退出后别人看不到「已退出」痕迹（PRD 4.2 A3） */
+  async leaveJoined(e) {
+    const id = e.currentTarget.dataset.id
+    const ok = await new Promise((resolve) => {
+      wx.showModal({
+        title: '取消参与',
+        content: '不会留下任何痕迹，发起者也收不到通知。确定取消吗？',
+        success: (r) => resolve(!!r.confirm),
+        fail: () => resolve(false)
+      })
+    })
+    if (!ok) return
+    const r = await db.leaveSession(id)
+    if (!r.ok) return wx.showToast({ title: '没取消成功，稍后再试', icon: 'none' })
+    wx.showToast({ title: '已取消参与', icon: 'none' })
+    this.fetchJoined()
   },
 
   openSettings() {

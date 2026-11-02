@@ -363,3 +363,69 @@
   color: #9AA0B4;
   margin-bottom: 12rpx;
 }
+
+/* 其他距离弹窗 + 时长滚动 + 配速防错（v1.10 / v1.11） */
+.mask {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(22, 25, 44, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 56rpx;
+}
+
+.panel {
+  width: 100%;
+  max-width: 600rpx;
+  background: #fff;
+  border-radius: 32rpx;
+  padding: 36rpx 32rpx 28rpx;
+}
+
+.p-t {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.p-s {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: var(--muted);
+}
+
+.panel .chips {
+  margin-top: 24rpx;
+}
+
+.panel .custom {
+  margin-top: 16rpx;
+}
+
+.dlg-acts {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 28rpx;
+}
+
+.dlg-btn {
+  flex: 1;
+  margin: 0;
+}
+
+.scroll-pick-btn {
+  margin-top: 20rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #7C5CFF;
+  padding: 12rpx 0;
+}
+
+.pc-warn {
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  line-height: 1.6;
+  color: #B25E09;
+}

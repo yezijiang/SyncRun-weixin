@@ -173,30 +173,59 @@
 
     <view class="card">
       <view class="lbl">距离</view>
-      <scroll-view class="chips" scroll-x enable-flex>
-        <view
-          class="chip {{km === String(item) && !useCustomKm ? 'on' : ''}}"
-          wx:for="{{distanceChips}}"
-          wx:key="*this"
-          bindtap="onKmChip"
-          data-v="{{item}}"
-        >{{item}}KM</view>
-      </scroll-view>
-      <view class="custom">
-        <input
-          class="inp"
-          type="digit"
-          placeholder="或输入任意距离（支持小数）"
-          value="{{km}}"
-          bindinput="onKmInput"
-        />
-        <text class="unit">KM</text>
+      <!-- v1.11 收敛：常用 5 / 10 / 半马，其余走「其他距离」弹窗，减少随手乱填 -->
+      <view class="chips">
+        <view class="chip {{km === '5' && !useCustomKm ? 'on' : ''}}" bindtap="onKmChip" data-v="5">5KM</view>
+        <view class="chip {{km === '10' && !useCustomKm ? 'on' : ''}}" bindtap="onKmChip" data-v="10">10KM</view>
+        <view class="chip {{km === '21.1' && !useCustomKm ? 'on' : ''}}" bindtap="onKmChip" data-v="21.1">半马 21.1KM</view>
+        <view class="chip {{useCustomKm ? 'on' : ''}}" bindtap="openCustomKm">其他距离</view>
       </view>
       <view class="hint" wx:if="{{useCustomKm && km}}">已使用自定义距离 {{km}} KM</view>
     </view>
 
+    <!-- 其他距离弹窗：快捷值 + 自由输入，点遮罩不丢草稿 -->
+    <view class="mask" wx:if="{{showCustomKm}}" catchtap="closeCustomKm">
+      <view class="panel" catchtap="noop">
+        <view class="p-t">其他距离</view>
+        <view class="p-s">半马之外的任何距离都可以</view>
+        <view class="chips">
+          <view
+            class="chip {{customKmDraft === String(item) ? 'on' : ''}}"
+            wx:for="{{customQuick}}"
+            wx:key="*this"
+            bindtap="onCustomQuick"
+            data-v="{{item}}"
+          >{{item}}KM</view>
+        </view>
+        <view class="custom">
+          <input
+            class="inp"
+            type="digit"
+            placeholder="输入任意距离（支持小数）"
+            value="{{customKmDraft}}"
+            bindinput="onCustomKmDraft"
+          />
+          <text class="unit">KM</text>
+        </view>
+        <view class="dlg-acts">
+          <button class="btn btn-ghost dlg-btn" bindtap="closeCustomKm">取消</button>
+          <button class="btn btn-primary dlg-btn" bindtap="confirmCustomKm">就用这个</button>
+        </view>
+      </view>
+    </view>
+
     <view class="card">
       <view class="lbl">时长</view>
+      <!-- v1.10 时间三方式：快捷 / 手输 / 滚动，同页共存 -->
+      <view class="chips">
+        <view
+          class="chip {{quickDur === item ? 'on' : ''}}"
+          wx:for="{{durationChips}}"
+          wx:key="*this"
+          bindtap="onQuickDur"
+          data-v="{{item}}"
+        >{{item}} 分</view>
+      </view>
       <view class="hms">
         <input id="in-h" class="hms-in num" type="number" maxlength="2" value="{{h}}" bindinput="onHms" data-f="h" />
         <text class="colon">:</text>
@@ -205,6 +234,9 @@
         <input id="in-s" class="hms-in num" type="number" maxlength="2" value="{{s}}" bindinput="onHms" data-f="s" />
       </view>
       <view class="hms-tip">时 : 分 : 秒，可只填分秒</view>
+      <picker mode="multiSelector" range="{{hmsRange}}" value="{{hmsIndex}}" bindchange="onScrollDur">
+        <view class="scroll-pick-btn">不想打字？滚动选择 ›</view>
+      </picker>
     </view>
 
     <view class="card pace-card">
@@ -216,6 +248,8 @@
         <text class="pc-l">总时长</text>
         <text class="pc-v num">{{durationText}}</text>
       </view>
+      <!-- v1.11 配速防错：不拦慢（跑走结合是正当需求），只提醒和拦下明显填错 -->
+      <view class="pc-warn" wx:if="{{paceWarn}}">{{paceWarn}}</view>
     </view>
 
     <view class="card">

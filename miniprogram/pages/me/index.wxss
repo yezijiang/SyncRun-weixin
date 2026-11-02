@@ -292,3 +292,71 @@
   color: #1A1A1F;
   box-sizing: border-box;
 }
+
+/* 我报名的活动（UI v1.13） */
+.jl {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  padding: 22rpx 0;
+  border-bottom: 1rpx solid var(--line);
+}
+
+.jl:last-of-type {
+  border-bottom: none;
+}
+
+.jl-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.jl-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jl-meta {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.jl-dot {
+  color: var(--line);
+}
+
+.jl-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8rpx;
+  flex: none;
+}
+
+.jl-tag {
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  background: #F0EEFF;
+  color: #5B4BA8;
+  font-weight: 600;
+}
+
+.jl-tag.done {
+  background: #F1FAF5;
+  color: #3E8E70;
+}
+
+.jl-leave {
+  font-size: 22rpx;
+  color: #E23E57;
+}

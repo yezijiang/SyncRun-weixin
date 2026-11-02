@@ -81,6 +81,8 @@ exports.main = async (event) => {
       running: live.filter((m) => isRunning(m, s, now)).length,
       // 我是否加入了这场，供前端渲染「已加入」状态
       iJoined: live.some((m) => m.user_id === OPENID && !m.left_at),
+      // 我在这场是否已打卡：我的页「我报名的活动」要区分 已完成 / 待打卡
+      iDone: live.some((m) => m.user_id === OPENID && !!m.checkin_id),
       // 是否我发起的：只有发起者能取消，前端据此决定要不要显示取消入口
       isMine: s.created_by === OPENID
     }

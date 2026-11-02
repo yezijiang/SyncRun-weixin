@@ -101,6 +101,39 @@
     </view>
   </view>
 
+  <!-- 我报名的活动（UI v1.13）：列表 + 取消参与，不用去「去跑」页一张张翻 -->
+  <view class="sect">
+    <text class="t">我报名的活动</text>
+    <text class="x">{{joinedList.length}} 个</text>
+  </view>
+  <view class="card">
+    <view class="jl" wx:for="{{joinedList}}" wx:key="_id">
+      <view class="jl-main">
+        <view class="jl-title">{{item.title}}</view>
+        <view class="jl-meta">
+          <text class="num">{{item.timeText}}</text>
+          <text class="jl-dot">·</text>
+          <text class="num">{{item.target_km}}KM</text>
+          <text class="jl-dot">·</text>
+          <text>{{item.joined}} 人已加入</text>
+        </view>
+      </view>
+      <view class="jl-side">
+        <text class="jl-tag done" wx:if="{{item.iDone}}">已完成</text>
+        <text class="jl-tag" wx:elif="{{item.isMine}}">我发起的</text>
+        <text class="jl-tag" wx:else>已报名</text>
+        <text
+          class="jl-leave"
+          wx:if="{{!item.iDone && !item.isMine}}"
+          bindtap="leaveJoined"
+          data-id="{{item._id}}"
+        >取消参与</text>
+      </view>
+    </view>
+    <view class="empty" wx:if="{{!joinedList.length}}">还没报名任何场次——去「去跑」看看今晚的陪跑</view>
+    <view class="hint" wx:if="{{joinedList.length}}">取消参与不会留下任何痕迹，发起者也不会收到通知</view>
+  </view>
+
   <!-- 成就 -->
   <view class="sect">
     <text class="t">成就</text>
