@@ -142,13 +142,44 @@ def build(name, draw, color, out):
     c.save(out)
 
 
+def reencode_with_sips(path):
+    """用系统 ImageIO 重编码 PNG（macOS 自带 sips）。
+
+    手写编码器产出的 PNG 虽然结构合法，但开发者工具对非标准编码的
+    小图标可能渲染失败（tabBar 裂图）。经 sips 重编码后最稳。
+    没有 sips 的平台跳过（保留手写编码结果，像素不变）。
+    """
+    import shutil
+    import subprocess
+    import tempfile
+    if not shutil.which('sips'):
+        return False
+    fd, tmp = tempfile.mkstemp(suffix='.png')
+    os.close(fd)
+    try:
+        subprocess.run(
+            ['sips', '-s', 'format', 'png', path, '--out', tmp],
+            check=True, capture_output=True,
+        )
+        os.replace(tmp, path)
+        return True
+    except Exception:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        return False
+
+
 def main():
     base = os.path.join(os.path.dirname(__file__), '..', 'miniprogram', 'assets', 'tabbar')
     base = os.path.abspath(base)
     for name, draw in ICONS.items():
         build(name, draw, INACTIVE, os.path.join(base, f'{name}.png'))
         build(name, draw, ACTIVE, os.path.join(base, f'{name}_on.png'))
-    print('tabbar icons ->', base)
+    reencoded = 0
+    for f in sorted(os.listdir(base)):
+        if f.endswith('.png') and reencode_with_sips(os.path.join(base, f)):
+            reencoded += 1
+    print('tabbar icons ->', base, f'({reencoded} 个已经 sips 重编码)')
     for f in sorted(os.listdir(base)):
         print(' ', f, os.path.getsize(os.path.join(base, f)), 'bytes')
 
